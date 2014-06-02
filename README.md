@@ -1,8 +1,6 @@
-#Filterbanks and tools for the acoustician and python
-
+#PyFilterbank 
+##Filter Banks and Acoustics Tools Package for Python
 This package provides filter banks, and other useful tools for the daily work of the acoustician.
-
-HAve a look at the [Documentation](http://siggigue.github.io/pyfilterbank).
 
 The main features are:
 
@@ -22,8 +20,14 @@ The main features are:
 
 *Planned: gammatone filter bank
 
+
+##Documentation
+The [Documentation](http://siggigue.github.io/pyfilterbank) is placed on github pages and can be found [here](http://siggigue.github.io/pyfilterbank).
+
+
+##Status
 This Project is in development status, be aware of that. If you find some bugs or if you want to help, just go for it and join!
 
-
+##License
 The 4 clause BSD License applies.
 
