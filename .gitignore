@@ -1,0 +1,11 @@
+*.bat
+*.o
+*.pyc
+env/
+__pycache__/
+kernel*.json
+_foreign/
+_papers/
+build/
+dist/
+*.egg-info
