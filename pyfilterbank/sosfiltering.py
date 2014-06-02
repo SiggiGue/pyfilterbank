@@ -1,22 +1,30 @@
 # -*- coding: utf-8 -*-
 """This module contains a second order section filtering routine
-implemented in c, python cffi and numpy.
+implemented in c, cffi and numpy.
 
+There are different implementations of sos filtering routines.
+the c-implementations are for real valued signal only.
+
+There is a version using lfilter from :mod:`scipy` package as well.
+
+For the :mod:`cffi` you need :mod:`pycparser` being installed.
+
+Compiling the c source
+----------------------
 Firstly i implemented a prototype-function in python
 for easy debugging "sosfilter_cprototype_py()".
 After that i translated this prototype into a c-function. By
 compiling a shared library from it with the listed
 steps below, one can use the python cffi to access this
-shared library in python.
+shared library in python. ::
+    $ gcc -c -std=c99 -O3 sosfilter.c
+    $ gcc -shared -o sosfilter.so sosfilter.o
+    $ or the last line for windows users:
+    $ gcc -shared -o sosfilter.dll sosfilter.o
 
-# compile a shared library from source:
-# gcc -c -std=c99 -O3 sosfilter.c
-# gcc -shared -o sosfilter.so sosfilter.o
-# or the last line for windows users:
-# gcc -shared -o sosfilter.dll sosfilter.o
-author: Siegfried Gündert
-email: siegfried.guendert@gmail.com
-date: 2013-09-22
+
+Functions
+---------
 """
 import os
 from sys import platform
