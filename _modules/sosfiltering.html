@@ -73,6 +73,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../sosfiltering.html">Second Order Section Filtering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#compiling-the-c-source">Compiling the c source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
 </ul>
 </li>
@@ -114,23 +116,31 @@
   <h1>Source code for sosfiltering</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;This module contains a second order section filtering routine</span>
-<span class="sd">implemented in c, python cffi and numpy.</span>
+<span class="sd">implemented in c, cffi and numpy.</span>
 
+<span class="sd">There are different implementations of sos filtering routines.</span>
+<span class="sd">the c-implementations are for real valued signal only.</span>
+
+<span class="sd">There is a version using lfilter from :mod:`scipy` package as well.</span>
+
+<span class="sd">For the :mod:`cffi` you need :mod:`pycparser` being installed.</span>
+
+<span class="sd">Compiling the c source</span>
+<span class="sd">----------------------</span>
 <span class="sd">Firstly i implemented a prototype-function in python</span>
 <span class="sd">for easy debugging &quot;sosfilter_cprototype_py()&quot;.</span>
 <span class="sd">After that i translated this prototype into a c-function. By</span>
 <span class="sd">compiling a shared library from it with the listed</span>
 <span class="sd">steps below, one can use the python cffi to access this</span>
-<span class="sd">shared library in python.</span>
+<span class="sd">shared library in python. ::</span>
+<span class="sd">    $ gcc -c -std=c99 -O3 sosfilter.c</span>
+<span class="sd">    $ gcc -shared -o sosfilter.so sosfilter.o</span>
+<span class="sd">    $ or the last line for windows users:</span>
+<span class="sd">    $ gcc -shared -o sosfilter.dll sosfilter.o</span>
 
-<span class="sd"># compile a shared library from source:</span>
-<span class="sd"># gcc -c -std=c99 -O3 sosfilter.c</span>
-<span class="sd"># gcc -shared -o sosfilter.so sosfilter.o</span>
-<span class="sd"># or the last line for windows users:</span>
-<span class="sd"># gcc -shared -o sosfilter.dll sosfilter.o</span>
-<span class="sd">author: Siegfried Gündert</span>
-<span class="sd">email: siegfried.guendert@gmail.com</span>
-<span class="sd">date: 2013-09-22</span>
+
+<span class="sd">Functions</span>
+<span class="sd">---------</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">platform</span>

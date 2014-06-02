@@ -74,6 +74,8 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Second Order Section Filtering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#compiling-the-c-source">Compiling the c source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
 </ul>
 </li>
@@ -116,21 +118,28 @@
 <h1>Second Order Section Filtering<a class="headerlink" href="#second-order-section-filtering" title="Permalink to this headline">¶</a></h1>
 <p>Module name: <a class="reference internal" href="#module-sosfiltering" title="sosfiltering"><tt class="xref py py-mod docutils literal"><span class="pre">sosfiltering</span></tt></a></p>
 <span class="target" id="module-sosfiltering"></span><p>This module contains a second order section filtering routine
-implemented in c, python cffi and numpy.</p>
+implemented in c, cffi and numpy.</p>
+<p>There are different implementations of sos filtering routines.
+the c-implementations are for real valued signal only.</p>
+<p>There is a version using lfilter from <tt class="xref py py-mod docutils literal"><span class="pre">scipy</span></tt> package as well.</p>
+<p>For the <tt class="xref py py-mod docutils literal"><span class="pre">cffi</span></tt> you need <tt class="xref py py-mod docutils literal"><span class="pre">pycparser</span></tt> being installed.</p>
+<div class="section" id="compiling-the-c-source">
+<h2>Compiling the c source<a class="headerlink" href="#compiling-the-c-source" title="Permalink to this headline">¶</a></h2>
 <p>Firstly i implemented a prototype-function in python
 for easy debugging &#8220;sosfilter_cprototype_py()&#8221;.
 After that i translated this prototype into a c-function. By
 compiling a shared library from it with the listed
 steps below, one can use the python cffi to access this
 shared library in python.</p>
-<p># compile a shared library from source:
-# gcc -c -std=c99 -O3 sosfilter.c
-# gcc -shared -o sosfilter.so sosfilter.o
-# or the last line for windows users:
-# gcc -shared -o sosfilter.dll sosfilter.o
-author: Siegfried Gündert
-email: <a class="reference external" href="mailto:siegfried&#46;guendert&#37;&#52;&#48;gmail&#46;com">siegfried<span>&#46;</span>guendert<span>&#64;</span>gmail<span>&#46;</span>com</a>
-date: 2013-09-22</p>
+<div class="highlight-python"><div class="highlight"><pre>$ gcc -c -std=c99 -O3 sosfilter.c
+$ gcc -shared -o sosfilter.so sosfilter.o
+$ or the last line for windows users:
+$ gcc -shared -o sosfilter.dll sosfilter.o
+</pre></div>
+</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="sosfiltering.bilinear_sos">
 <tt class="descclassname">sosfiltering.</tt><tt class="descname">bilinear_sos</tt><big>(</big><em>d</em>, <em>c</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#bilinear_sos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.bilinear_sos" title="Permalink to this definition">¶</a></dt>
@@ -300,6 +309,7 @@ sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</p>
 <dd><p>Second order section filter routing with scipy lfilter</p>
 </dd></dl>
 
+</div>
 <div class="section" id="module-butterworth">
 <span id="butterworth"></span><h2><a class="reference internal" href="#module-butterworth" title="butterworth"><tt class="xref py py-mod docutils literal"><span class="pre">butterworth</span></tt></a><a class="headerlink" href="#module-butterworth" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="#module-butterworth" title="butterworth"><tt class="xref py py-mod docutils literal"><span class="pre">butterworth</span></tt></a> module provides functions to design butterwort filters.</p>
