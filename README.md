@@ -10,15 +10,15 @@ The main features are:
   + A-Weighting
   + B- and C-weighting
 
-* Mel-Frequency filterbank (or Triangular Filterbank)
+* Mel-Frequency filterbank (Triangular Filterbank)
   + as Transformation matrix
-  + with STFT
+  + planned: with STFT
 
 * Second order section / biquad filters and filter design
   + Butterworth SOS
-    + RBJ audio EQ filter design module
+  + RBJ audio EQ filter design module
 
-*Planned: gammatone filter bank
+* Planned: gammatone filter bank
 
 
 ##Documentation
