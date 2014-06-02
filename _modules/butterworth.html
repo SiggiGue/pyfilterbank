@@ -1,0 +1,318 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>butterworth &mdash; PyFilterbank devN documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="PyFilterbank devN documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> PyFilterbank</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../octbank.html">Fractional Octave Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../octbank.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../octbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../melbank.html">Mel Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../melbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../splweighting.html">Spectral Weighting Filters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../splweighting.html#implemented-weighting-functions">Implemented weighting functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../splweighting.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../splweighting.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../sosfiltering.html">Second Order Section Filtering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Indices and tables</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">PyFilterbank</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>butterworth</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for butterworth</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;The :mod:`butterworth` module provides functions to design butterwort filters.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">ones</span><span class="p">,</span> <span class="n">arange</span><span class="p">,</span> <span class="n">kron</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">flipud</span><span class="p">,</span>
+                   <span class="n">conj</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">fliplr</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">tan</span><span class="p">,</span> <span class="n">tile</span><span class="p">,</span> <span class="n">concatenate</span><span class="p">,</span> <span class="n">append</span><span class="p">,</span> <span class="n">double</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">buttord</span><span class="p">,</span> <span class="n">buttap</span>
+
+<span class="kn">from</span> <span class="nn">pyfilterbank.sosfiltering</span> <span class="kn">import</span> <span class="n">bilinear_sos</span>
+
+<span class="n">lowpass</span> <span class="o">=</span> <span class="s">&#39;lowpass&#39;</span>
+<span class="n">highpass</span> <span class="o">=</span> <span class="s">&#39;highpass&#39;</span>
+<span class="n">bandpass</span> <span class="o">=</span> <span class="s">&#39;bandpass&#39;</span>
+<span class="n">bandstop</span> <span class="o">=</span> <span class="s">&#39;bandstop&#39;</span>
+
+<div class="viewcode-block" id="butter_sos"><a class="viewcode-back" href="../sosfiltering.html#butterworth.butter_sos">[docs]</a><span class="k">def</span> <span class="nf">butter_sos</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute weights of a digital Butterworth filter in cascade form.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    band : {&#39;lowpass&#39;, &#39;highpass&#39;, &#39;bandpass&#39;, &#39;bandstop&#39;}</span>
+<span class="sd">    L : int</span>
+<span class="sd">        Number of lowpass poles. L is doubled for</span>
+<span class="sd">        &#39;bandpass&#39; and &#39;bandstop&#39;. L must be even.</span>
+<span class="sd">    v1 : scalar</span>
+<span class="sd">        First critical frequency (Hz-s); 0.0 &lt;v1 &lt; 0.5.</span>
+<span class="sd">    v2 : scalar</span>
+<span class="sd">        Second critical frequency; v1 &lt; v2 &lt; 0.5.</span>
+<span class="sd">        v2 is used only if &#39;bandpass&#39; or &#39;bandstop&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sosmat : ndarray</span>
+<span class="sd">        Contains the numerator and denominator coeffs for each</span>
+<span class="sd">        cascade in one row.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Adapted from: Samuel D. Stearns, &quot;Digital Signal Processing</span>
+<span class="sd">    with Examples in MATLAB&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Check for errors;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">v1</span><span class="o">&lt;=</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">v1</span><span class="o">&gt;=.</span><span class="mi">5</span><span class="p">):</span>
+       <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Argument v1 must be &gt;0.0 and &lt;0.5&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">v2</span><span class="o">!=</span><span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">v2</span><span class="o">&lt;=</span><span class="n">v1</span> <span class="ow">or</span> <span class="n">v2</span><span class="o">&gt;=</span><span class="mf">0.5</span><span class="p">):</span>
+       <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Argument v2 must be &gt;v1 and &lt;0.5&#39;</span><span class="p">)</span>
+
+   <span class="c"># Get the anlalog weights and convert to digital.</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">v2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+       <span class="n">d</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">butter_analog_sos</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">tan</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">v1</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+       <span class="n">d</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">butter_analog_sos</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">tan</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">v1</span><span class="p">),</span> <span class="n">tan</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">v2</span><span class="p">))</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">bilinear_sos</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+    <span class="c"># TODO: cut this step and give back b, a</span>
+    <span class="c"># but the other functions needing an sosmat should be adapted.</span>
+    <span class="n">sosmat</span> <span class="o">=</span> <span class="n">flipud</span><span class="p">(</span><span class="n">concatenate</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">sosmat</span>
+
+</div>
+<div class="viewcode-block" id="butter_analog_sos"><a class="viewcode-back" href="../sosfiltering.html#butterworth.butter_analog_sos">[docs]</a><span class="k">def</span> <span class="nf">butter_analog_sos</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">w2</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns analog filter coeffitients for Butterworth filters.</span>
+<span class="sd">    compute analog weights of a butterworth filter</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    band : {&#39;lowpass&#39;, &#39;highpass, &#39;bandpass&#39;, &#39;bandstop&#39;}</span>
+<span class="sd">    L : int</span>
+<span class="sd">        Order of lowpass / highpass filter.</span>
+<span class="sd">    w1 : scalar</span>
+<span class="sd">        Critical frequency one.</span>
+<span class="sd">    w2 : scalar</span>
+<span class="sd">        Critical frequency two. (for &#39;bandpass&#39; or &#39;bandstop&#39;).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    d, c :  Analog weights of the filter</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    implements SOS H(s)  butterwort</span>
+<span class="sd">    if you need H(z) apply a bilinear transform</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">band</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">L2</span> <span class="o">=</span> <span class="n">L</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="k">if</span> <span class="n">mod</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Number of poles L must be even&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">w1</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Frequency w1 must be in rad/s and &gt;0&#39;</span><span class="p">)</span>
+
+    <span class="c"># define center frequency wc:</span>
+    <span class="k">if</span> <span class="n">band</span><span class="o">==</span><span class="n">lowpass</span> <span class="ow">or</span> <span class="n">band</span><span class="o">==</span><span class="n">highpass</span><span class="p">:</span>
+        <span class="n">wc</span> <span class="o">=</span> <span class="n">w1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">wc</span> <span class="o">=</span> <span class="n">w2</span><span class="o">-</span><span class="n">w1</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">wc</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1j</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">L2</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">double</span><span class="p">)</span> <span class="o">+</span> <span class="n">L</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">L</span><span class="p">))</span>
+
+    <span class="c"># defining the lowpass filter:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="n">L2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">ones</span><span class="p">((</span><span class="n">L2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">wc</span> <span class="o">*</span> <span class="n">ones</span><span class="p">(</span><span class="n">L2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">c</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span>
+
+    <span class="k">if</span> <span class="n">band</span> <span class="o">==</span> <span class="n">highpass</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">fliplr</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">wc</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="k">elif</span> <span class="n">band</span> <span class="o">==</span> <span class="n">bandpass</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">L2</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">L2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">L2</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">L2</span><span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ones</span><span class="p">(</span><span class="n">L2</span><span class="p">)</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">4</span><span class="o">*</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">w1</span><span class="o">*</span><span class="n">w2</span><span class="p">)</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">r1</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="n">L2</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">c</span><span class="p">[</span><span class="n">L2</span><span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">r2</span>
+
+    <span class="k">elif</span> <span class="n">band</span> <span class="o">==</span> <span class="n">bandstop</span><span class="p">:</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">wc</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">4</span><span class="o">*</span><span class="n">d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">w1</span><span class="o">*</span><span class="n">w2</span><span class="p">)</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">wc</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">wc</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[:</span><span class="n">L2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">d</span><span class="p">[:</span><span class="n">L2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r1</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">L2</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">L2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ones</span><span class="p">(</span><span class="n">L2</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">L2</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">L2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">r2</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">wc</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">4</span><span class="o">*</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">w1</span><span class="o">*</span><span class="n">w2</span><span class="p">)</span>
+        <span class="n">r1</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">wc</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">wc</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">root</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[:</span><span class="n">L2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">c</span><span class="p">[:</span><span class="n">L2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r1</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="n">L2</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">L2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ones</span><span class="p">(</span><span class="n">L2</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="n">L2</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">L2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">r2</span>
+
+    <span class="k">return</span> <span class="n">d</span><span class="p">,</span> <span class="n">c</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Siegfried Gündert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'devN',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

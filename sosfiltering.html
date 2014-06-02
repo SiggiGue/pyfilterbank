@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Second Order Section Filtering &mdash; PyFilterbank devN documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="PyFilterbank devN documentation" href="index.html"/>
+        <link rel="next" title="Indices and tables" href="glossary.html"/>
+        <link rel="prev" title="Spectral Weighting Filters" href="splweighting.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> PyFilterbank</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="octbank.html">Fractional Octave Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="octbank.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="octbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="melbank.html">Mel Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="melbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="splweighting.html">Spectral Weighting Filters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="splweighting.html#implemented-weighting-functions">Implemented weighting functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="splweighting.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="splweighting.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Second Order Section Filtering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Indices and tables</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">PyFilterbank</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Second Order Section Filtering</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/sosfiltering.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="second-order-section-filtering">
+<h1>Second Order Section Filtering<a class="headerlink" href="#second-order-section-filtering" title="Permalink to this headline">¶</a></h1>
+<p>Module name: <a class="reference internal" href="#module-sosfiltering" title="sosfiltering"><tt class="xref py py-mod docutils literal"><span class="pre">sosfiltering</span></tt></a></p>
+<span class="target" id="module-sosfiltering"></span><p>This module contains a second order section filtering routine
+implemented in c, python cffi and numpy.</p>
+<p>Firstly i implemented a prototype-function in python
+for easy debugging &#8220;sosfilter_cprototype_py()&#8221;.
+After that i translated this prototype into a c-function. By
+compiling a shared library from it with the listed
+steps below, one can use the python cffi to access this
+shared library in python.</p>
+<p># compile a shared library from source:
+# gcc -c -std=c99 -O3 sosfilter.c
+# gcc -shared -o sosfilter.so sosfilter.o
+# or the last line for windows users:
+# gcc -shared -o sosfilter.dll sosfilter.o
+author: Siegfried Gündert
+email: <a class="reference external" href="mailto:siegfried&#46;guendert&#37;&#52;&#48;gmail&#46;com">siegfried<span>&#46;</span>guendert<span>&#64;</span>gmail<span>&#46;</span>com</a>
+date: 2013-09-22</p>
+<dl class="function">
+<dt id="sosfiltering.bilinear_sos">
+<tt class="descclassname">sosfiltering.</tt><tt class="descname">bilinear_sos</tt><big>(</big><em>d</em>, <em>c</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#bilinear_sos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.bilinear_sos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bilinear transformation of analog weights to digital weights</p>
+<p>Bilinear transformation of analog weights to digital weights.
+weights of IIR digital filter in cascade form with
+2-pole sections; H(z)=H(z,1)H(z,2)...H(z,L/2) where
+L=# poles and each section is a ratio of quadratics.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>d</strong> : ndarray</p>
+<blockquote>
+<div><p>Numerator weights of analog filter in 1-pole
+sections. d is dimensioned (L/2 x 2).</p>
+</div></blockquote>
+<p><strong>c</strong> : ndarray</p>
+<blockquote>
+<div><p>Denominator weights, dimensioned same as d.</p>
+</div></blockquote>
+<p><strong>[d,c] are combined with [d&#8217;,c&#8217;] and transformed</strong> :</p>
+<p><strong>to produce the L/2 2-pole digital filter sections.</strong> :</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>b</strong> : ndarray</p>
+<blockquote>
+<div><p>Digital numerator weights, dimensioned (L/2 x 3).</p>
+</div></blockquote>
+<p><strong>a</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Digital denominator weights, dimensioned the same.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sosfiltering.freqz">
+<tt class="descclassname">sosfiltering.</tt><tt class="descname">freqz</tt><big>(</big><em>sosmat</em>, <em>nsamples=44100</em>, <em>sample_rate=44100</em>, <em>plot=True</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#freqz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.freqz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots Frequency response of sosmat.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sosfiltering.sosfilter_c">
+<tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_c</tt><big>(</big><em>signal</em>, <em>sos</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second order section filter function using cffi
+Usage
+&#8212;&#8211;</p>
+<blockquote>
+<div>signal_out, states = sosfilter_c(signal_in, sos, states=None)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>signal: (N x 0) np-array</strong> :</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>sos: (K*6 x 0) np-array, (one biquad -&gt; 6 coefficients)</dt>
+<dd><p class="first last">sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</p>
+</dd>
+</dl>
+<p>states: (2 x 0) array with filter states or None</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal: (N x 0) np-array filtered signal</strong> :</p>
+<blockquote class="last">
+<div><p>states: (2 x 0) np-array containig the filter-states</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sosfiltering.sosfilter_cprototype_py">
+<tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_cprototype_py</tt><big>(</big><em>signal</em>, <em>sos</em>, <em>states</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_cprototype_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_cprototype_py" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Prototype for second order section filtering c function</dt>
+<dd>written in python</dd>
+</dl>
+<p>implements a IIR DF-II biquad filter strucure</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sosfiltering.sosfilter_double_c">
+<tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_double_c</tt><big>(</big><em>signal</em>, <em>sos</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_double_c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_double_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second order section filter function using cffi double precision</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>signal</strong> : (N x 0) ndarray</p>
+<p><strong>sos</strong> : (K*6 x 0) ndarray, (one biquad -&gt; 6 coefficients)</p>
+<p><strong>sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</strong> :</p>
+<p><strong>states</strong> : (2 x 0) ndarray</p>
+<blockquote>
+<div><p>With filter states or states=None,</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal: (N x 0) ndarray</strong> :</p>
+<blockquote>
+<div><p>Filtered signal.</p>
+</div></blockquote>
+<p><strong>states: (2 x 0) ndarray</strong> :</p>
+<blockquote class="last">
+<div><p>Containig the filter-states.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sosfiltering.sosfilter_double_mimo_c">
+<tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_double_mimo_c</tt><big>(</big><em>signal</em>, <em>sos</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_double_mimo_c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_double_mimo_c" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Second order section filter function using cffi double precision</dt>
+<dd>and multi channel input</dd>
+</dl>
+<p>signal_out, states = sosfilter_c(signal_in, sos, states=None)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>signal</strong> : (N x C) np-array</p>
+<p><strong>sos</strong> : (K*6 x B x C) np-array,</p>
+<blockquote>
+<div><p>(one biquad -&gt; 6 coefficients)
+sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</p>
+</div></blockquote>
+<p><strong>states</strong> : (K*2 x B x C)</p>
+<blockquote>
+<div><p>Array with filter states or None.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal</strong> : (N x B x C) np-array</p>
+<blockquote>
+<div><p>Filtered signal.</p>
+</div></blockquote>
+<p><strong>states</strong> : (K*2 x B x C) np-array</p>
+<blockquote class="last">
+<div><p>Containig the filter-states.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="sosfiltering.sosfilter_mimo_cprototype_py">
+<tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_mimo_cprototype_py</tt><big>(</big><em>signal_in</em>, <em>sos_in</em>, <em>states_in=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_mimo_cprototype_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_mimo_cprototype_py" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prototype for the mimo c-filter function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="sosfiltering.sosfilter_py">
+<tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_py</tt><big>(</big><em>x</em>, <em>sos</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_py" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second order section filter routing with scipy lfilter</p>
+</dd></dl>
+
+<div class="section" id="module-butterworth">
+<span id="butterworth"></span><h2><a class="reference internal" href="#module-butterworth" title="butterworth"><tt class="xref py py-mod docutils literal"><span class="pre">butterworth</span></tt></a><a class="headerlink" href="#module-butterworth" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-butterworth" title="butterworth"><tt class="xref py py-mod docutils literal"><span class="pre">butterworth</span></tt></a> module provides functions to design butterwort filters.</p>
+<dl class="function">
+<dt id="butterworth.butter_analog_sos">
+<tt class="descclassname">butterworth.</tt><tt class="descname">butter_analog_sos</tt><big>(</big><em>band</em>, <em>L</em>, <em>w1</em>, <em>w2=0</em><big>)</big><a class="reference internal" href="_modules/butterworth.html#butter_analog_sos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#butterworth.butter_analog_sos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns analog filter coeffitients for Butterworth filters.
+compute analog weights of a butterworth filter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>band</strong> : {&#8216;lowpass&#8217;, &#8216;highpass, &#8216;bandpass&#8217;, &#8216;bandstop&#8217;}</p>
+<p><strong>L</strong> : int</p>
+<blockquote>
+<div><p>Order of lowpass / highpass filter.</p>
+</div></blockquote>
+<p><strong>w1</strong> : scalar</p>
+<blockquote>
+<div><p>Critical frequency one.</p>
+</div></blockquote>
+<p><strong>w2</strong> : scalar</p>
+<blockquote>
+<div><p>Critical frequency two. (for &#8216;bandpass&#8217; or &#8216;bandstop&#8217;).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>d, c</strong> :  Analog weights of the filter</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>implements SOS H(s)  butterwort
+if you need H(z) apply a bilinear transform</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="butterworth.butter_sos">
+<tt class="descclassname">butterworth.</tt><tt class="descname">butter_sos</tt><big>(</big><em>band</em>, <em>L</em>, <em>v1</em>, <em>v2=0.0</em><big>)</big><a class="reference internal" href="_modules/butterworth.html#butter_sos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#butterworth.butter_sos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute weights of a digital Butterworth filter in cascade form.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>band</strong> : {&#8216;lowpass&#8217;, &#8216;highpass&#8217;, &#8216;bandpass&#8217;, &#8216;bandstop&#8217;}</p>
+<p><strong>L</strong> : int</p>
+<blockquote>
+<div><p>Number of lowpass poles. L is doubled for
+&#8216;bandpass&#8217; and &#8216;bandstop&#8217;. L must be even.</p>
+</div></blockquote>
+<p><strong>v1</strong> : scalar</p>
+<blockquote>
+<div><p>First critical frequency (Hz-s); 0.0 &lt;v1 &lt; 0.5.</p>
+</div></blockquote>
+<p><strong>v2</strong> : scalar</p>
+<blockquote>
+<div><p>Second critical frequency; v1 &lt; v2 &lt; 0.5.
+v2 is used only if &#8216;bandpass&#8217; or &#8216;bandstop&#8217;.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sosmat</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Contains the numerator and denominator coeffs for each
+cascade in one row.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Adapted from: Samuel D. Stearns, &#8220;Digital Signal Processing
+with Examples in MATLAB&#8221;</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="glossary.html" class="btn btn-neutral float-right" title="Indices and tables"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="splweighting.html" class="btn btn-neutral" title="Spectral Weighting Filters"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Siegfried Gündert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'devN',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

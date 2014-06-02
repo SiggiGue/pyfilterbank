@@ -1,0 +1,425 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>splweighting &mdash; PyFilterbank devN documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="PyFilterbank devN documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> PyFilterbank</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../octbank.html">Fractional Octave Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../octbank.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../octbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../melbank.html">Mel Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../melbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../splweighting.html">Spectral Weighting Filters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../splweighting.html#implemented-weighting-functions">Implemented weighting functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../splweighting.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../splweighting.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../sosfiltering.html">Second Order Section Filtering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Indices and tables</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">PyFilterbank</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>splweighting</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for splweighting</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;This module implements spectral weighting filters for the sound pressure level (SPL)</span>
+<span class="sd">in air according to [IEC-61672]_. Spectral weighting is part of aucoustic measurements.</span>
+<span class="sd">It is used by sound level meters for example. The weighting functions are derived</span>
+<span class="sd">from different equal loudness contours of human hearing. The weighted levels aim to</span>
+<span class="sd">provide a better correlation to the perception of loudness.</span>
+
+
+<span class="sd">Implemented weighting functions</span>
+<span class="sd">-------------------------------</span>
+
+<span class="sd">There are three weighting functions implemented:</span>
+
+<span class="sd">    * A-Weighting: based on the 40-phon equal loudness contour</span>
+<span class="sd">    * B- and C-weighting: for sounds above 70 phon,</span>
+<span class="sd">      (B-Weighting is not used that often)</span>
+
+<span class="sd">The filter coefficient design is based on the implementation of A- and C-weighting in [2]_.</span>
+
+<span class="sd">The weighting functions are defined in [IEC-61672]_ can be described</span>
+<span class="sd">by the following equations:</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   R_A (f) = \\frac{12200^2 f^4}</span>
+<span class="sd">             {(f^2+20.6^2)(f^2+12200^2)\\sqrt{(f^2+107.7.5)^2}\\sqrt{(f^2+737.9^2)}}</span>
+
+<span class="sd">   R_B (f) = \\frac{12200^2 f^3}</span>
+<span class="sd">             {(f^2+20.6^2)(f^2+12200^2)\\sqrt{(f^2+158.5^2)}}</span>
+
+<span class="sd">   R_C (f) = \\frac{12200^2 f^2}</span>
+<span class="sd">             {(f^2+20.6^2)(f^2+12200^2)}</span>
+
+
+<span class="sd">The frequency responses absolute values of all implemented weighting filters can be seen in the following figure:</span>
+
+<span class="sd">.. plot::</span>
+
+<span class="sd">   import splweighting</span>
+<span class="sd">   fig, ax = splweighting.plot_weightings()</span>
+<span class="sd">   fig.show()</span>
+
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+
+<span class="sd">.. [IEC-61672] Electroacoustics - Sound Level Meters (http://www.iec.ch)</span>
+<span class="sd">.. [2] *Christophe Couvreur*, MATLAB(R) implementation of weightings,</span>
+<span class="sd">   http://www.mathworks.com/matlabcentral/fileexchange/69-octave,</span>
+<span class="sd">   Faculte Polytechnique de Mons (Belgium) couvreur@thor.fpms.ac.be</span>
+
+
+<span class="sd">Functions</span>
+<span class="sd">---------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">convolve</span>
+<span class="kn">from</span> <span class="nn">scipy.signal.filter_design</span> <span class="kn">import</span> <span class="n">bilinear</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">lfilter</span>
+
+
+<div class="viewcode-block" id="weight_signal"><a class="viewcode-back" href="../splweighting.html#splweighting.weight_signal">[docs]</a><span class="k">def</span> <span class="nf">weight_signal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="mi">44100</span><span class="p">,</span> <span class="n">weighting</span><span class="o">=</span><span class="s">&#39;A&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns filtered signal with a weighting filter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : ndarray</span>
+<span class="sd">        Input signal to be filtered.</span>
+<span class="sd">    sample_rate : int</span>
+<span class="sd">        Sample rate of the signal.</span>
+<span class="sd">    weighting : {&#39;A&#39;, &#39;B&#39;, &#39;C&#39;}</span>
+<span class="sd">        Specify the weighting function by a string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    outdata : ndarray</span>
+<span class="sd">        Filtered output signal. The output will be weighted by</span>
+<span class="sd">        the specified filter function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">_weighting_coeff_design_funsd</span><span class="p">[</span><span class="n">weighting</span><span class="p">](</span><span class="n">sample_rate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="a_weighting_coeffs_design"><a class="viewcode-back" href="../splweighting.html#splweighting.a_weighting_coeffs_design">[docs]</a><span class="k">def</span> <span class="nf">a_weighting_coeffs_design</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns b and a coeff of a A-weighting filter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sample_rate : scalar</span>
+<span class="sd">        Sample rate of the signals that well be filtered.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    b, a : ndarray</span>
+<span class="sd">        Filter coefficients for a digital weighting filter.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; b, a = a_weighting_coeff_design(sample_rate)</span>
+
+<span class="sd">    To Filter a signal use scipy lfilter:</span>
+
+<span class="sd">    &gt;&gt;&gt; from scipy.signal import lfilter</span>
+<span class="sd">    &gt;&gt;&gt; y = lfilter(b, a, x)</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    b_weighting_coeffs_design : B-Weighting coefficients.</span>
+<span class="sd">    c_weighting_coeffs_design : C-Weighting coefficients.</span>
+<span class="sd">    weight_signal : Apply a weighting filter to a signal.</span>
+<span class="sd">    scipy.lfilter : Filtering signal with `b` and `a` coefficients.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">f1</span> <span class="o">=</span> <span class="mf">20.598997</span>
+    <span class="n">f2</span> <span class="o">=</span> <span class="mf">107.65265</span>
+    <span class="n">f3</span> <span class="o">=</span> <span class="mf">737.86223</span>
+    <span class="n">f4</span> <span class="o">=</span> <span class="mf">12194.217</span>
+    <span class="n">A1000</span> <span class="o">=</span> <span class="mf">1.9997</span>
+    <span class="n">numerators</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">f4</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">A1000</span> <span class="o">/</span> <span class="mf">20.0</span><span class="p">)),</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">];</span>
+    <span class="n">denominators</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span>
+        <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="o">+</span><span class="mi">4</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f4</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f4</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="o">+</span><span class="mi">4</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f1</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">denominators</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span>
+        <span class="n">convolve</span><span class="p">(</span><span class="n">denominators</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f3</span><span class="p">]),</span>
+        <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f2</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">bilinear</span><span class="p">(</span><span class="n">numerators</span><span class="p">,</span> <span class="n">denominators</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="b_weighting_coeffs_design"><a class="viewcode-back" href="../splweighting.html#splweighting.b_weighting_coeffs_design">[docs]</a><span class="k">def</span> <span class="nf">b_weighting_coeffs_design</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns `b` and `a` coeff of a B-weighting filter.</span>
+
+<span class="sd">    B-Weighting is no longer described in DIN61672.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sample_rate : scalar</span>
+<span class="sd">        Sample rate of the signals that well be filtered.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    b, a : ndarray</span>
+<span class="sd">        Filter coefficients for a digital weighting filter.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; b, a = b_weighting_coeff_design(sample_rate)</span>
+
+<span class="sd">    To Filter a signal use :function: scipy.lfilter:</span>
+
+<span class="sd">    &gt;&gt;&gt; from scipy.signal import lfilter</span>
+<span class="sd">    &gt;&gt;&gt; y = lfilter(b, a, x)</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    a_weighting_coeffs_design : A-Weighting coefficients.</span>
+<span class="sd">    c_weighting_coeffs_design : C-Weighting coefficients.</span>
+<span class="sd">    weight_signal : Apply a weighting filter to a signal.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">f1</span> <span class="o">=</span> <span class="mf">20.598997</span>
+    <span class="n">f2</span> <span class="o">=</span> <span class="mf">158.5</span>
+    <span class="n">f4</span> <span class="o">=</span> <span class="mf">12194.217</span>
+    <span class="n">B1000</span> <span class="o">=</span> <span class="mf">0.17</span>
+    <span class="n">numerators</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">f4</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">B1000</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">];</span>
+    <span class="n">denominators</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">+</span><span class="mi">4</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f4</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f4</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">+</span><span class="mi">4</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f1</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">denominators</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span><span class="n">denominators</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">bilinear</span><span class="p">(</span><span class="n">numerators</span><span class="p">,</span> <span class="n">denominators</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="c_weighting_coeffs_design"><a class="viewcode-back" href="../splweighting.html#splweighting.c_weighting_coeffs_design">[docs]</a><span class="k">def</span> <span class="nf">c_weighting_coeffs_design</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns b and a coeff of a C-weighting filter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sample_rate : scalar</span>
+<span class="sd">        Sample rate of the signals that well be filtered.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    b, a : ndarray</span>
+<span class="sd">        Filter coefficients for a digital weighting filter.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    b, a = c_weighting_coeffs_design(sample_rate)</span>
+
+<span class="sd">    To Filter a signal use scipy lfilter:</span>
+
+<span class="sd">    from scipy.signal import lfilter</span>
+<span class="sd">    y = lfilter(b, a, x)</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    a_weighting_coeffs_design : A-Weighting coefficients.</span>
+<span class="sd">    b_weighting_coeffs_design : B-Weighting coefficients.</span>
+<span class="sd">    weight_signal : Apply a weighting filter to a signal.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">f1</span> <span class="o">=</span> <span class="mf">20.598997</span>
+    <span class="n">f4</span> <span class="o">=</span> <span class="mf">12194.217</span>
+    <span class="n">C1000</span> <span class="o">=</span> <span class="mf">0.0619</span>
+    <span class="n">numerators</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f4</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">C1000</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">denominators</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">+</span><span class="mi">4</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f4</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f4</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">+</span><span class="mi">4</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f1</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">bilinear</span><span class="p">(</span><span class="n">numerators</span><span class="p">,</span> <span class="n">denominators</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+
+
+<span class="c"># This dictionary should contain all labels and functions</span>
+<span class="c"># for weighting coeff design functions:</span></div>
+<span class="n">_weighting_coeff_design_funsd</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;A&#39;</span><span class="p">:</span> <span class="n">a_weighting_coeffs_design</span><span class="p">,</span>
+    <span class="s">&#39;B&#39;</span><span class="p">:</span> <span class="n">b_weighting_coeffs_design</span><span class="p">,</span>
+    <span class="s">&#39;C&#39;</span><span class="p">:</span> <span class="n">c_weighting_coeffs_design</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="plot_weightings"><a class="viewcode-back" href="../splweighting.html#splweighting.plot_weightings">[docs]</a><span class="k">def</span> <span class="nf">plot_weightings</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Plots all weighting functions defined in :module: splweighting.&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">freqz</span>
+    <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">plt</span><span class="p">,</span> <span class="n">np</span>
+
+    <span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">48000</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="mi">4096</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">weight_design</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">_weighting_coeff_design_funsd</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">weight_design</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="n">freqz</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">worN</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">w</span><span class="o">*</span><span class="n">sample_rate</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="mi">20</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">H</span><span class="p">)</span><span class="o">+</span><span class="mf">1e-20</span><span class="p">),</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s">&#39;{}-Weighting&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&#39;lower right&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Frequency / Hz&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Damping / dB&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20000</span><span class="p">,</span> <span class="o">-</span><span class="mi">80</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_weightings</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Siegfried Gündert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'devN',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

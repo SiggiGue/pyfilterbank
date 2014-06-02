@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Mel Filter Bank &mdash; PyFilterbank devN documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="PyFilterbank devN documentation" href="index.html"/>
+        <link rel="next" title="Spectral Weighting Filters" href="splweighting.html"/>
+        <link rel="prev" title="Fractional Octave Filter Bank" href="octbank.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> PyFilterbank</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="octbank.html">Fractional Octave Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="octbank.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="octbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Mel Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="splweighting.html">Spectral Weighting Filters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="splweighting.html#implemented-weighting-functions">Implemented weighting functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="splweighting.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="splweighting.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sosfiltering.html">Second Order Section Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Indices and tables</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">PyFilterbank</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Mel Filter Bank</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/melbank.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="mel-filter-bank">
+<h1>Mel Filter Bank<a class="headerlink" href="#mel-filter-bank" title="Permalink to this headline">¶</a></h1>
+<p>Module name: <a class="reference internal" href="#module-melbank" title="melbank"><tt class="xref py py-mod docutils literal"><span class="pre">melbank</span></tt></a></p>
+<span class="target" id="module-melbank"></span><p>This module implements a Mel Filter Bank.
+In other words it is a filter bank with triangular shaped bands
+arnged on the mel frequency scale.</p>
+<p>An example ist shown in the following figure:</p>
+<p>(<a class="reference external" href=".//melbank-1.py">Source code</a>)</p>
+<div class="figure">
+<img alt="_images/melbank-1_00.png" src="_images/melbank-1_00.png" />
+<p class="caption">(<a class="reference external" href=".//melbank-1_00.png">png</a>, <a class="reference external" href=".//melbank-1_00.hires.png">hires.png</a>, <a class="reference external" href=".//melbank-1_00.pdf">pdf</a>)</p>
+</div>
+<div class="figure">
+<img alt="_images/melbank-1_01.png" src="_images/melbank-1_01.png" />
+<p class="caption">(<a class="reference external" href=".//melbank-1_01.png">png</a>, <a class="reference external" href=".//melbank-1_01.hires.png">hires.png</a>, <a class="reference external" href=".//melbank-1_01.pdf">pdf</a>)</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="melbank.compute_melmat">
+<tt class="descclassname">melbank.</tt><tt class="descname">compute_melmat</tt><big>(</big><em>num_mel_bands=12</em>, <em>freq_min=64</em>, <em>freq_max=8000</em>, <em>num_fft_bands=513</em>, <em>sample_rate=16000</em><big>)</big><a class="reference internal" href="_modules/melbank.html#compute_melmat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.compute_melmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns tranformation matrix for mel spectrum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>num_mel_bands</strong> : int</p>
+<blockquote>
+<div><p>Number of mel bands. Number of rows in melmat.
+Default: 24</p>
+</div></blockquote>
+<p><strong>freq_min</strong> : scalar</p>
+<blockquote>
+<div><p>Minimum frequency for the first band.
+Default: 64</p>
+</div></blockquote>
+<p><strong>freq_max</strong> : scalar</p>
+<blockquote>
+<div><p>Maximum frequency for the last band.
+Default: 8000</p>
+</div></blockquote>
+<p><strong>num_fft_bands</strong> : int</p>
+<blockquote>
+<div><p>Number of fft-frequenc bands. This ist NFFT/2+1 !
+number of columns in melmat.
+Default: 513   (this means NFFT=1024)</p>
+</div></blockquote>
+<p><strong>sample_rate</strong> : scalar</p>
+<blockquote>
+<div><p>Sample rate for the signals that will be used.
+Default: 44100</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>melmat</strong> : ndarray</p>
+<blockquote>
+<div><p>Transformation matrix for the mel spectrum.
+Use this with fft spectra of num_fft_bands_bands length
+and multiply the spectrum with the melmat
+this will tranform your fft-spectrum
+to a mel-spectrum.</p>
+</div></blockquote>
+<p><strong>frequencies</strong> : tuple (ndarray &lt;num_mel_bands&gt;, ndarray &lt;num_fft_bands&gt;)</p>
+<blockquote class="last">
+<div><p>Center frequencies of the mel bands, center frequencies of fft spectrum.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="melbank.hertz_to_mel">
+<tt class="descclassname">melbank.</tt><tt class="descname">hertz_to_mel</tt><big>(</big><em>freq</em><big>)</big><a class="reference internal" href="_modules/melbank.html#hertz_to_mel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.hertz_to_mel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns mel-frequency from linear frequency input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mel</strong> : scalar or ndarray</p>
+<blockquote class="last">
+<div><p>Mel-frequency value or ndarray in Mel</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="melbank.mel_to_hertz">
+<tt class="descclassname">melbank.</tt><tt class="descname">mel_to_hertz</tt><big>(</big><em>mel</em><big>)</big><a class="reference internal" href="_modules/melbank.html#mel_to_hertz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.mel_to_hertz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns frequency from mel-frequency input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>freq</strong> : scalar or ndarray</p>
+<blockquote class="last">
+<div><p>Frequency value or array in Hz.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="melbank.melfrequencies_mel_filterbank">
+<tt class="descclassname">melbank.</tt><tt class="descname">melfrequencies_mel_filterbank</tt><big>(</big><em>num_bands</em>, <em>freq_min</em>, <em>freq_max</em>, <em>num_fft_bands</em><big>)</big><a class="reference internal" href="_modules/melbank.html#melfrequencies_mel_filterbank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.melfrequencies_mel_filterbank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns centerfrequencies and band edges for a mel filter bank
+Parameters
+&#8212;&#8212;&#8212;-
+num_bands : int</p>
+<blockquote>
+<div>Number of mel bands.</div></blockquote>
+<dl class="docutils">
+<dt>freq_min <span class="classifier-delimiter">:</span> <span class="classifier">scalar</span></dt>
+<dd>Minimum frequency for the first band.</dd>
+<dt>freq_max <span class="classifier-delimiter">:</span> <span class="classifier">scalar</span></dt>
+<dd>Maximum frequency for the last band.</dd>
+<dt>num_fft_bands <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of fft bands.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>center_frequencies_mel</strong> : ndarray</p>
+<p><strong>lower_edges_mel</strong> : ndarray</p>
+<p class="last"><strong>upper_edges_mel</strong> : ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="splweighting.html" class="btn btn-neutral float-right" title="Spectral Weighting Filters"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="octbank.html" class="btn btn-neutral" title="Fractional Octave Filter Bank"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Siegfried Gündert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'devN',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

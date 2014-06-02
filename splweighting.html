@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Spectral Weighting Filters &mdash; PyFilterbank devN documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="PyFilterbank devN documentation" href="index.html"/>
+        <link rel="next" title="Second Order Section Filtering" href="sosfiltering.html"/>
+        <link rel="prev" title="Mel Filter Bank" href="melbank.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> PyFilterbank</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="octbank.html">Fractional Octave Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="octbank.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="octbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="melbank.html">Mel Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="melbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Spectral Weighting Filters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#implemented-weighting-functions">Implemented weighting functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sosfiltering.html">Second Order Section Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Indices and tables</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">PyFilterbank</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Spectral Weighting Filters</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/splweighting.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="spectral-weighting-filters">
+<h1>Spectral Weighting Filters<a class="headerlink" href="#spectral-weighting-filters" title="Permalink to this headline">¶</a></h1>
+<p>Module name: <a class="reference internal" href="#module-splweighting" title="splweighting"><tt class="xref py py-mod docutils literal"><span class="pre">splweighting</span></tt></a></p>
+<span class="target" id="module-splweighting"></span><p>This module implements spectral weighting filters for the sound pressure level (SPL)
+in air according to <a class="reference internal" href="#iec-61672" id="id1">[IEC-61672]</a>. Spectral weighting is part of aucoustic measurements.
+It is used by sound level meters for example. The weighting functions are derived
+from different equal loudness contours of human hearing. The weighted levels aim to
+provide a better correlation to the perception of loudness.</p>
+<div class="section" id="implemented-weighting-functions">
+<h2>Implemented weighting functions<a class="headerlink" href="#implemented-weighting-functions" title="Permalink to this headline">¶</a></h2>
+<p>There are three weighting functions implemented:</p>
+<blockquote>
+<div><ul class="simple">
+<li>A-Weighting: based on the 40-phon equal loudness contour</li>
+<li>B- and C-weighting: for sounds above 70 phon,
+(B-Weighting is not used that often)</li>
+</ul>
+</div></blockquote>
+<p>The filter coefficient design is based on the implementation of A- and C-weighting in <a class="reference internal" href="#r2" id="id2">[R2]</a>.</p>
+<p>The weighting functions are defined in <a class="reference internal" href="#iec-61672" id="id3">[IEC-61672]</a> can be described
+by the following equations:</p>
+<div class="math">
+\[R_A (f) = \frac{12200^2 f^4}
+          {(f^2+20.6^2)(f^2+12200^2)\sqrt{(f^2+107.7.5)^2}\sqrt{(f^2+737.9^2)}}\]\[R_B (f) = \frac{12200^2 f^3}
+          {(f^2+20.6^2)(f^2+12200^2)\sqrt{(f^2+158.5^2)}}\]\[R_C (f) = \frac{12200^2 f^2}
+          {(f^2+20.6^2)(f^2+12200^2)}\]</div>
+<p>The frequency responses absolute values of all implemented weighting filters can be seen in the following figure:</p>
+<p>(<a class="reference external" href=".//splweighting-1.py">Source code</a>, <a class="reference external" href=".//splweighting-1.png">png</a>, <a class="reference external" href=".//splweighting-1.hires.png">hires.png</a>, <a class="reference external" href=".//splweighting-1.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/splweighting-1.png" src="_images/splweighting-1.png" />
+</div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="iec-61672" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[IEC-61672]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> Electroacoustics - Sound Level Meters (<a class="reference external" href="http://www.iec.ch">http://www.iec.ch</a>)</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="r2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[R2]</a></td><td><em>Christophe Couvreur</em>, MATLAB(R) implementation of weightings,
+<a class="reference external" href="http://www.mathworks.com/matlabcentral/fileexchange/69-octave">http://www.mathworks.com/matlabcentral/fileexchange/69-octave</a>,
+Faculte Polytechnique de Mons (Belgium) <a class="reference external" href="mailto:couvreur&#37;&#52;&#48;thor&#46;fpms&#46;ac&#46;be">couvreur<span>&#64;</span>thor<span>&#46;</span>fpms<span>&#46;</span>ac<span>&#46;</span>be</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="splweighting.a_weighting_coeffs_design">
+<tt class="descclassname">splweighting.</tt><tt class="descname">a_weighting_coeffs_design</tt><big>(</big><em>sample_rate</em><big>)</big><a class="reference internal" href="_modules/splweighting.html#a_weighting_coeffs_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.a_weighting_coeffs_design" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns b and a coeff of a A-weighting filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sample_rate</strong> : scalar</p>
+<blockquote>
+<div><p>Sample rate of the signals that well be filtered.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>b, a</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Filter coefficients for a digital weighting filter.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#splweighting.b_weighting_coeffs_design" title="splweighting.b_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">b_weighting_coeffs_design</span></tt></a></dt>
+<dd>B-Weighting coefficients.</dd>
+<dt><a class="reference internal" href="#splweighting.c_weighting_coeffs_design" title="splweighting.c_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">c_weighting_coeffs_design</span></tt></a></dt>
+<dd>C-Weighting coefficients.</dd>
+<dt><a class="reference internal" href="#splweighting.weight_signal" title="splweighting.weight_signal"><tt class="xref py py-obj docutils literal"><span class="pre">weight_signal</span></tt></a></dt>
+<dd>Apply a weighting filter to a signal.</dd>
+<dt><tt class="xref py py-obj docutils literal"><span class="pre">scipy.lfilter</span></tt></dt>
+<dd>Filtering signal with <cite>b</cite> and <cite>a</cite> coefficients.</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">a_weighting_coeff_design</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To Filter a signal use scipy lfilter:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">lfilter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="splweighting.b_weighting_coeffs_design">
+<tt class="descclassname">splweighting.</tt><tt class="descname">b_weighting_coeffs_design</tt><big>(</big><em>sample_rate</em><big>)</big><a class="reference internal" href="_modules/splweighting.html#b_weighting_coeffs_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.b_weighting_coeffs_design" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <cite>b</cite> and <cite>a</cite> coeff of a B-weighting filter.</p>
+<p>B-Weighting is no longer described in DIN61672.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sample_rate</strong> : scalar</p>
+<blockquote>
+<div><p>Sample rate of the signals that well be filtered.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>b, a</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Filter coefficients for a digital weighting filter.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#splweighting.a_weighting_coeffs_design" title="splweighting.a_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">a_weighting_coeffs_design</span></tt></a></dt>
+<dd>A-Weighting coefficients.</dd>
+<dt><a class="reference internal" href="#splweighting.c_weighting_coeffs_design" title="splweighting.c_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">c_weighting_coeffs_design</span></tt></a></dt>
+<dd>C-Weighting coefficients.</dd>
+<dt><a class="reference internal" href="#splweighting.weight_signal" title="splweighting.weight_signal"><tt class="xref py py-obj docutils literal"><span class="pre">weight_signal</span></tt></a></dt>
+<dd>Apply a weighting filter to a signal.</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">b_weighting_coeff_design</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To Filter a signal use :function: scipy.lfilter:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">lfilter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="splweighting.c_weighting_coeffs_design">
+<tt class="descclassname">splweighting.</tt><tt class="descname">c_weighting_coeffs_design</tt><big>(</big><em>sample_rate</em><big>)</big><a class="reference internal" href="_modules/splweighting.html#c_weighting_coeffs_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.c_weighting_coeffs_design" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns b and a coeff of a C-weighting filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sample_rate</strong> : scalar</p>
+<blockquote>
+<div><p>Sample rate of the signals that well be filtered.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>b, a</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Filter coefficients for a digital weighting filter.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#splweighting.a_weighting_coeffs_design" title="splweighting.a_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">a_weighting_coeffs_design</span></tt></a></dt>
+<dd>A-Weighting coefficients.</dd>
+<dt><a class="reference internal" href="#splweighting.b_weighting_coeffs_design" title="splweighting.b_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">b_weighting_coeffs_design</span></tt></a></dt>
+<dd>B-Weighting coefficients.</dd>
+<dt><a class="reference internal" href="#splweighting.weight_signal" title="splweighting.weight_signal"><tt class="xref py py-obj docutils literal"><span class="pre">weight_signal</span></tt></a></dt>
+<dd>Apply a weighting filter to a signal.</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<p>b, a = c_weighting_coeffs_design(sample_rate)</p>
+<p>To Filter a signal use scipy lfilter:</p>
+<p>from scipy.signal import lfilter
+y = lfilter(b, a, x)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="splweighting.plot_weightings">
+<tt class="descclassname">splweighting.</tt><tt class="descname">plot_weightings</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/splweighting.html#plot_weightings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.plot_weightings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots all weighting functions defined in :module: splweighting.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="splweighting.weight_signal">
+<tt class="descclassname">splweighting.</tt><tt class="descname">weight_signal</tt><big>(</big><em>data</em>, <em>sample_rate=44100</em>, <em>weighting='A'</em><big>)</big><a class="reference internal" href="_modules/splweighting.html#weight_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.weight_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns filtered signal with a weighting filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : ndarray</p>
+<blockquote>
+<div><p>Input signal to be filtered.</p>
+</div></blockquote>
+<p><strong>sample_rate</strong> : int</p>
+<blockquote>
+<div><p>Sample rate of the signal.</p>
+</div></blockquote>
+<p><strong>weighting</strong> : {&#8216;A&#8217;, &#8216;B&#8217;, &#8216;C&#8217;}</p>
+<blockquote>
+<div><p>Specify the weighting function by a string.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>outdata</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Filtered output signal. The output will be weighted by
+the specified filter function.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sosfiltering.html" class="btn btn-neutral float-right" title="Second Order Section Filtering"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="melbank.html" class="btn btn-neutral" title="Mel Filter Bank"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Siegfried Gündert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'devN',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

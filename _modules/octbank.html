@@ -1,0 +1,720 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>octbank &mdash; PyFilterbank devN documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="PyFilterbank devN documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> PyFilterbank</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../octbank.html">Fractional Octave Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../octbank.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../octbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../melbank.html">Mel Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../melbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../splweighting.html">Spectral Weighting Filters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../splweighting.html#implemented-weighting-functions">Implemented weighting functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../splweighting.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../splweighting.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../sosfiltering.html">Second Order Section Filtering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Indices and tables</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">PyFilterbank</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>octbank</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for octbank</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;This module implements a fractional octave filter bank.</span>
+<span class="sd">The band passes are realized with butterwoth second order sections</span>
+<span class="sd">described by [Stearns2002]_.</span>
+<span class="sd">For the second order section filter routines the</span>
+<span class="sd">module :mod:`sosfiltering` is used.</span>
+<span class="sd">With the class :class:`FractionalOctaveFilterbank` you can create</span>
+<span class="sd">filtering objects that apply to the [IEC-61260]_.</span>
+
+<span class="sd">.. plot::</span>
+
+<span class="sd">   from pylab import plt</span>
+<span class="sd">   import octbank</span>
+<span class="sd">   octbank.example_plot()</span>
+<span class="sd">   plt.show()</span>
+
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+
+<span class="sd">.. [Stearns2002] Stearns, Samuel D., Digital Signal Processing with examples in MATLAB</span>
+<span class="sd">.. [IEC-61260] Electroacoustics - Octave-band and fractional-octave-band filters</span>
+
+
+<span class="sd">Functions</span>
+<span class="sd">---------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="p">(</span><span class="nb">abs</span><span class="p">,</span> <span class="n">arange</span><span class="p">,</span> <span class="n">argmin</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">ones</span><span class="p">,</span>
+                   <span class="n">pi</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">reshape</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">tan</span><span class="p">,</span> <span class="n">tile</span><span class="p">,</span> <span class="n">zeros</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pyfilterbank.sosfiltering</span> <span class="kn">import</span> <span class="p">(</span><span class="n">sosfilter_py</span><span class="p">,</span> <span class="n">sosfilter_double_c</span><span class="p">,</span>
+                       <span class="n">sosfilter_cprototype_py</span><span class="p">,</span> <span class="n">sosfilter_double_mimo_c</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pyfilterbank.butterworth</span> <span class="kn">import</span> <span class="n">butter_sos</span>
+
+<span class="n">standardized_nominal_frequencies</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span>
+    <span class="mf">12.5</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mf">31.5</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">63</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span>
+    <span class="mi">315</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">630</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1250</span><span class="p">,</span> <span class="mi">1600</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">2500</span><span class="p">,</span> <span class="mi">3150</span><span class="p">,</span>
+    <span class="mi">4000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">6300</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">12500</span><span class="p">,</span> <span class="mi">16000</span><span class="p">,</span> <span class="mi">20000</span>
+<span class="p">])</span>
+
+<div class="viewcode-block" id="find_nominal_freq"><a class="viewcode-back" href="../octbank.html#octbank.find_nominal_freq">[docs]</a><span class="k">def</span> <span class="nf">find_nominal_freq</span><span class="p">(</span><span class="n">center_frequencies</span><span class="p">,</span> <span class="n">nominal_frequencies</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find the neares nominal frequencies to a given array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    center_frequencies : ndarray</span>
+<span class="sd">        Some frequencies for those the neares neighbours shall be found.</span>
+<span class="sd">    nominal_frequencies : ndarray</span>
+<span class="sd">        The nomunal frequencies we want to get the best fitting values to</span>
+<span class="sd">        `center_frequencies`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nominal_frequencies : generator object</span>
+<span class="sd">        The neares neighbors nomina freqs to the given frequencies.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">center_frequencies</span><span class="p">:</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">((</span><span class="n">standardized_nominal_frequencies</span><span class="o">-</span><span class="n">f</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">nominal_frequencies</span><span class="p">[</span><span class="n">argmin</span><span class="p">(</span><span class="n">dist</span><span class="p">)]</span>
+
+</div>
+<div class="viewcode-block" id="frequencies_fractional_octaves"><a class="viewcode-back" href="../octbank.html#octbank.frequencies_fractional_octaves">[docs]</a><span class="k">def</span> <span class="nf">frequencies_fractional_octaves</span><span class="p">(</span><span class="n">start_band</span><span class="p">,</span> <span class="n">end_band</span><span class="p">,</span> <span class="n">norm_freq</span><span class="p">,</span> <span class="n">nth_oct</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return center and band edge frequencies of fractional octaves.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    start_band : int</span>
+<span class="sd">        The starting center frequency at norm_freq*2^(start_band/nth_oct)</span>
+<span class="sd">    end_band : int</span>
+<span class="sd">        The last center frequency at norm_freq*2^(end_band/nth_oct)</span>
+<span class="sd">    norm_freq : scalar</span>
+<span class="sd">        The center frequency of the band number 0.</span>
+<span class="sd">    nth_oct : scalar</span>
+<span class="sd">        The distance between the center frequencies.</span>
+<span class="sd">        If it is 1 the space between the bands is an octave.</span>
+<span class="sd">        For third octaves nth_oct is 3.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    center_frequencies : ndarray</span>
+<span class="sd">        Frequencies spaced in nth_oct from start_band to end_band</span>
+<span class="sd">        with the norm_freq at band number 0.</span>
+<span class="sd">    band_edges : ndarray</span>
+<span class="sd">        Edges of the fractional octave bands.</span>
+<span class="sd">        With constant relative Bandwidth.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="n">start_band</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">end_band</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">norm_freq</span> <span class="o">*</span> <span class="mf">2.0</span><span class="o">**</span><span class="p">(</span><span class="n">k</span><span class="o">/</span><span class="n">nth_oct</span><span class="p">)</span>
+    <span class="n">band_edges</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">frequencies</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">center_frequencies</span> <span class="o">=</span> <span class="n">frequencies</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">center_frequencies</span><span class="p">,</span> <span class="n">band_edges</span>
+
+</div>
+<div class="viewcode-block" id="to_normalized_frequencies"><a class="viewcode-back" href="../octbank.html#octbank.to_normalized_frequencies">[docs]</a><span class="k">def</span> <span class="nf">to_normalized_frequencies</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return normalized frequency array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    frequencies : ndarray</span>
+<span class="sd">        Vector with given frequencies.</span>
+<span class="sd">    sample_rate : scalar</span>
+<span class="sd">        The sample rate. Frequencies beyond Nyquist criterion</span>
+<span class="sd">        will be truncated.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    normalized_frequencies : ndarray</span>
+<span class="sd">        Normalized, truncated frequency array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">index_nyquis</span> <span class="o">=</span> <span class="n">frequencies</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">sample_rate</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clip</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">index_nyquis</span><span class="p">):</span>
+        <span class="n">freqs</span><span class="p">[</span><span class="n">index_nyquis</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.499</span><span class="o">*</span><span class="n">sample_rate</span>
+        <span class="k">return</span> <span class="n">freqs</span><span class="p">[:</span><span class="nb">list</span><span class="p">(</span><span class="n">index_nyquis</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">sample_rate</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">freqs</span><span class="p">[</span><span class="o">~</span><span class="n">index_nyquis</span><span class="p">]</span> <span class="o">/</span> <span class="n">sample_rate</span>
+
+</div>
+<div class="viewcode-block" id="design_sosmat_band_passes"><a class="viewcode-back" href="../octbank.html#octbank.design_sosmat_band_passes">[docs]</a><span class="k">def</span> <span class="nf">design_sosmat_band_passes</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">band_edges</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span>
+                           <span class="n">edge_correction_percent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return matrix containig sos coeffs of bandpasses.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    order : int</span>
+<span class="sd">        Order of the band pass filters.</span>
+<span class="sd">    band_edges : ndarray</span>
+<span class="sd">        Band edge frequencies for the bandpasses.</span>
+<span class="sd">    sample_rate : scalar</span>
+<span class="sd">        Sample frequency.</span>
+<span class="sd">    edge_correction_percent : scalar</span>
+<span class="sd">        Percentage for the correction of the bandedges.</span>
+<span class="sd">        Float between -100 % and 100 %.</span>
+<span class="sd">        It can be helpfull dependent on the used filter order.</span>
+<span class="sd">        p &gt; 0 widens the band passes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sosmat : dictionary</span>
+<span class="sd">        Keys are the center frequencies and values</span>
+<span class="sd">        are ndarrays with the sos b and a coefsample_rate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_coeffs_biquad_bandpass</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">num_coeffs_cascade</span> <span class="o">=</span> <span class="n">order</span> <span class="o">*</span> <span class="n">num_coeffs_biquad_bandpass</span>
+    <span class="n">num_bands</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">band_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">sosmat</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="n">num_coeffs_cascade</span><span class="p">,</span> <span class="n">num_bands</span><span class="p">))</span>
+
+    <span class="n">band_edges_normalized</span> <span class="o">=</span> <span class="n">to_normalized_frequencies</span><span class="p">(</span><span class="n">band_edges</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">p_lower</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">edge_correction_percent</span><span class="o">*</span><span class="mf">1e-2</span><span class="p">)</span>
+    <span class="n">p_upper</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">edge_correction_percent</span><span class="o">*</span><span class="mf">1e-2</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">lower_freq</span><span class="p">,</span> <span class="n">upper_freq</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span>
+            <span class="n">band_edges_normalized</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">band_edges_normalized</span><span class="p">[</span><span class="mi">1</span><span class="p">:])):</span>
+        <span class="n">sos</span> <span class="o">=</span> <span class="n">butter_sos</span><span class="p">(</span><span class="s">&#39;bandpass&#39;</span><span class="p">,</span>
+                         <span class="n">order</span><span class="p">,</span>
+                         <span class="n">p_lower</span><span class="o">*</span><span class="n">lower_freq</span><span class="p">,</span>
+                         <span class="n">p_upper</span><span class="o">*</span><span class="n">upper_freq</span><span class="p">)</span>
+        <span class="n">sosmat</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sos</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">sosmat</span>
+
+</div>
+<div class="viewcode-block" id="design_sosmat_low_pass_high_pass_bounds"><a class="viewcode-back" href="../octbank.html#octbank.design_sosmat_low_pass_high_pass_bounds">[docs]</a><span class="k">def</span> <span class="nf">design_sosmat_low_pass_high_pass_bounds</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">band_edges</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns matrix containing sos coeffs of low and highpass.</span>
+<span class="sd">    The cutoff frequencies are placed at the first and last band edge.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    order : int</span>
+<span class="sd">        Order of the band pass filters.</span>
+<span class="sd">    band_edges : ndarray</span>
+<span class="sd">        Band edge frequencies for the low an highpass.</span>
+<span class="sd">    sample_rate : scalar</span>
+<span class="sd">        Sample rate.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sosdict : dictionary</span>
+<span class="sd">        Keys are the center frequencies and values</span>
+<span class="sd">        are ndarrays with the sos b and a coefsample_rate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sosmat</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="mf">0.5</span><span class="o">*</span><span class="n">order</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">band_edges_normalized</span> <span class="o">=</span> <span class="n">to_normalized_frequencies</span><span class="p">(</span><span class="n">band_edges</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+
+    <span class="n">sosmat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">butter_sos</span><span class="p">(</span><span class="s">&#39;lowpass&#39;</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span>
+                              <span class="n">band_edges_normalized</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="n">sosmat</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">butter_sos</span><span class="p">(</span><span class="s">&#39;highpass&#39;</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span>
+                              <span class="n">band_edges_normalized</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">sosmat</span>
+
+</div>
+<div class="viewcode-block" id="FractionalOctaveFilterbank"><a class="viewcode-back" href="../octbank.html#octbank.FractionalOctaveFilterbank">[docs]</a><span class="k">class</span> <span class="nc">FractionalOctaveFilterbank</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Fractional octave filter bank</span>
+<span class="sd">    with second order section butterworth band passes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sample_rate : int</span>
+<span class="sd">        Sampling rate of the signals to be filtered.</span>
+<span class="sd">    order : int</span>
+<span class="sd">        Filter order of the bands. As this are second order sections it</span>
+<span class="sd">        has to be even. Otherweise you&#39;ll get an error.</span>
+<span class="sd">    nth_oct : scalar</span>
+<span class="sd">        Number of bands per octave.</span>
+<span class="sd">    norm_freq : scalar</span>
+<span class="sd">        This is the reference frequency for all fractional octaves</span>
+<span class="sd">        placed around this band.</span>
+<span class="sd">    start_band : int</span>
+<span class="sd">        First Band number of fractional octaves below `norm_freq`.</span>
+<span class="sd">    end_band : int</span>
+<span class="sd">        Last band number of fractional octaves from `norm_freq`.</span>
+<span class="sd">    edge_correction_percent : scalar</span>
+<span class="sd">        Percentage of widening or narrowing the bands.</span>
+<span class="sd">    filterfun : {&#39;cffi&#39;, &#39;py&#39;, &#39;cprototype&#39;}</span>
+<span class="sd">        Function used my the method `filter` .</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    center_frequencies : ndarray</span>
+<span class="sd">    band_edges : ndarray</span>
+<span class="sd">        Frequencies at -3 dB point for all band passes.</span>
+<span class="sd">        This are the cross sections of the bands if no edge correction</span>
+<span class="sd">        applied.</span>
+<span class="sd">    sosmat : ndarray</span>
+<span class="sd">        Filter coefficient matrix with second order section band passes.</span>
+<span class="sd">    num_bands : int</span>
+<span class="sd">        Number of frequency bands in the filter bank.</span>
+<span class="sd">    band_widths : ndarray</span>
+<span class="sd">        The -3 dB band width of each band pass in the filter bank.</span>
+<span class="sd">    effective_filter_lengths : ndarray</span>
+<span class="sd">        The effective length of the filters in seconds.</span>
+<span class="sd">        A filtered block should at least have same length</span>
+<span class="sd">        if you want to avoid energy leakage.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyfilterbank import FractionalOctaveFilterbank</span>
+<span class="sd">    &gt;&gt;&gt; from pylab import plt, np</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; sample_rate = 44100</span>
+<span class="sd">    &gt;&gt;&gt; ofb = FractionalOctaveFilterbank(sample_rate, order=4)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; x = np.random.randn(4*sample_rate)</span>
+<span class="sd">    &gt;&gt;&gt; y, states = ofb.filter(x)</span>
+<span class="sd">    &gt;&gt;&gt; L = 10 * np.log10(np.sum(y*y,axis=0))</span>
+<span class="sd">    &gt;&gt;&gt; plt.plot(L)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">sample_rate</span><span class="o">=</span><span class="mi">44100</span><span class="p">,</span>
+                 <span class="n">order</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                 <span class="n">nth_oct</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                 <span class="n">norm_freq</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
+                 <span class="n">start_band</span><span class="o">=-</span><span class="mi">19</span><span class="p">,</span>
+                 <span class="n">end_band</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span>
+                 <span class="n">edge_correction_percent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">filterfun</span><span class="o">=</span><span class="s">&#39;cffi&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_rate</span> <span class="o">=</span> <span class="n">sample_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="n">order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nth_oct</span> <span class="o">=</span> <span class="n">nth_oct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_norm_freq</span> <span class="o">=</span> <span class="n">norm_freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_band</span> <span class="o">=</span> <span class="n">start_band</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_band</span> <span class="o">=</span> <span class="n">end_band</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edge_correction_percent</span> <span class="o">=</span> <span class="n">edge_correction_percent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_filter_bank</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_filterfun</span><span class="p">(</span><span class="n">filterfun</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sample_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_rate</span>
+    <span class="nd">@sample_rate.setter</span>
+    <span class="k">def</span> <span class="nf">sample_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_rate</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_filter_bank</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order</span>
+    <span class="nd">@order.setter</span>
+    <span class="k">def</span> <span class="nf">order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_filter_bank</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nth_oct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nth_oct</span>
+    <span class="nd">@nth_oct.setter</span>
+    <span class="k">def</span> <span class="nf">nth_oct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nth_oct</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_filter_bank</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">norm_freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_norm_freq</span>
+    <span class="nd">@norm_freq.setter</span>
+    <span class="k">def</span> <span class="nf">norm_freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_norm_freq</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_filter_bank</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">start_band</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_band</span>
+    <span class="nd">@start_band.setter</span>
+    <span class="k">def</span> <span class="nf">start_band</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_band</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_filter_bank</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">end_band</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_band</span>
+    <span class="nd">@end_band.setter</span>
+    <span class="k">def</span> <span class="nf">end_band</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_band</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_filter_bank</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edge_correction_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge_correction_percent</span>
+    <span class="nd">@edge_correction_percent.setter</span>
+    <span class="k">def</span> <span class="nf">edge_correction_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edge_correction_percent</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_filter_bank</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">center_frequencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_center_frequencies</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">band_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_band_edges</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sosmat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sosmat</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center_frequencies</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">band_widths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">band_edges</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FractionalOctaveFilterbank.effective_filter_lengths"><a class="viewcode-back" href="../octbank.html#octbank.FractionalOctaveFilterbank.effective_filter_lengths">[docs]</a>    <span class="k">def</span> <span class="nf">effective_filter_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an estimate of the effective filter length&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="o">*</span><span class="mi">3</span><span class="o">//</span><span class="bp">self</span><span class="o">.</span><span class="n">band_widths</span><span class="p">]</span>
+
+</div>
+    <span class="k">def</span> <span class="nf">_initialize_filter_bank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">center_frequencies</span><span class="p">,</span> <span class="n">band_edges</span> <span class="o">=</span> <span class="n">frequencies_fractional_octaves</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_band</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_band</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">norm_freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nth_oct</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_center_frequencies</span> <span class="o">=</span> <span class="n">center_frequencies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_band_edges</span> <span class="o">=</span> <span class="n">band_edges</span>
+
+        <span class="n">sosmat_band_passes</span> <span class="o">=</span> <span class="n">design_sosmat_band_passes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">band_edges</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_correction_percent</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sosmat</span> <span class="o">=</span> <span class="n">sosmat_band_passes</span>
+
+
+<div class="viewcode-block" id="FractionalOctaveFilterbank.set_filterfun"><a class="viewcode-back" href="../octbank.html#octbank.FractionalOctaveFilterbank.set_filterfun">[docs]</a>    <span class="k">def</span> <span class="nf">set_filterfun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filterfun_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the function that is used for filtering</span>
+<span class="sd">        with the method `self.filter`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filterfun_name : {&#39;cffi&#39;, &#39;py&#39;, &#39;cprototype&#39;}</span>
+<span class="sd">            Three different filter functions,</span>
+<span class="sd">            &#39;cffi&#39; is the fastest, &#39;py&#39; is implemented with `lfilter`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filterfun_name</span> <span class="o">=</span> <span class="n">filterfun_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">filterfun_name</span> <span class="o">==</span> <span class="s">&#39;cffi&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sosfilterfun</span> <span class="o">=</span> <span class="n">sosfilter_double_c</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filterfun_name</span> <span class="o">=</span> <span class="n">filterfun_name</span>
+        <span class="k">elif</span> <span class="n">filterfun_name</span> <span class="o">==</span> <span class="s">&#39;py&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sosfilterfun</span> <span class="o">=</span> <span class="n">sosfilter_py</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filterfun_name</span> <span class="o">=</span> <span class="n">filterfun_name</span>
+        <span class="k">elif</span> <span class="n">filterfun_name</span> <span class="o">==</span>  <span class="s">&#39;cprototype&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sosfilterfun</span> <span class="o">=</span> <span class="n">sosfilter_cprototype_py</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filterfun_name</span> <span class="o">=</span> <span class="n">filterfun_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Could not change filter function.&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="FractionalOctaveFilterbank.filter_mimo_c"><a class="viewcode-back" href="../octbank.html#octbank.FractionalOctaveFilterbank.filter_mimo_c">[docs]</a>    <span class="k">def</span> <span class="nf">filter_mimo_c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filters the input by the settings of the filterbank object.</span>
+
+<span class="sd">        It supports multi channel audio an returns a 3dim ndarray.</span>
+<span class="sd">        With this routine you can&#39;t use lphp_bounds=True yet.</span>
+<span class="sd">        Only for real valued signals.</span>
+<span class="sd">        No ffilt (backward forward filtering) implemented in this method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : ndarray</span>
+<span class="sd">        states : ndarray or None</span>
+<span class="sd">            States of the filter sections (for block processing).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        data : ndarray</span>
+<span class="sd">        states : ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">sosfilter_double_mimo_c</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sosmat</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="FractionalOctaveFilterbank.filter"><a class="viewcode-back" href="../octbank.html#octbank.FractionalOctaveFilterbank.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">ffilt</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filters the input by the settings of the filterbank object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x :  ndarray</span>
+<span class="sd">            Input signal (Nx0) (in further versions</span>
+<span class="sd">            multichannel will be supported).</span>
+<span class="sd">        ffilt : bool</span>
+<span class="sd">            Forward and backward filtering if Ture.</span>
+<span class="sd">        states : dict</span>
+<span class="sd">            States of all filter sections in the filterbank.</span>
+<span class="sd">            Initial you can states=None before block process.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y : ndarray</span>
+<span class="sd">            Fractional octave signals of the filtered input x</span>
+<span class="sd">        states : dict</span>
+<span class="sd">            Dictionary containing all filter section states.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># in the next version this will be turne to a multi dimensional np array</span>
+        <span class="n">y_data</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center_frequencies</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">states_allbands</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_frequencies</span><span class="p">:</span> <span class="n">states_allbands</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="n">states_allbands</span> <span class="o">=</span> <span class="n">states</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">center_frequencies</span><span class="p">):</span>
+            <span class="n">states</span> <span class="o">=</span> <span class="n">states_allbands</span><span class="p">[</span><span class="n">f</span><span class="p">]</span>
+            <span class="n">sos</span> <span class="o">=</span> <span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sosmat</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ffilt</span><span class="p">:</span>
+                <span class="n">y</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sosfilterfun</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">sos</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ffilt</span><span class="p">:</span>
+                <span class="n">y</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sosfilterfun</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sos</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+                <span class="n">y</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sosfilterfun</span><span class="p">(</span><span class="n">y</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sos</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+
+            <span class="n">y_data</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="n">states_allbands</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">states</span>
+        <span class="k">return</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">states_allbands</span>
+
+</div></div>
+<div class="viewcode-block" id="freqz"><a class="viewcode-back" href="../octbank.html#octbank.freqz">[docs]</a><span class="k">def</span> <span class="nf">freqz</span><span class="p">(</span><span class="n">ofb</span><span class="p">,</span> <span class="n">length_sec</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">ffilt</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the IR and FRF of a digital filter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ofb : FractionalOctaveFilterbank object</span>
+<span class="sd">    length_sec : scalar</span>
+<span class="sd">        Length of the impulse response test signal.</span>
+<span class="sd">    ffilt : bool</span>
+<span class="sd">        Backard forward filtering. Effectiv order is doubled then.</span>
+<span class="sd">    plot : bool</span>
+<span class="sd">        Create Plots or not.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x : ndarray</span>
+<span class="sd">        Impulse test signal.</span>
+<span class="sd">    y : ndarray</span>
+<span class="sd">        Impules responses signal of the filters.</span>
+<span class="sd">    f : ndarray</span>
+<span class="sd">        Frequency vector for the FRF.</span>
+<span class="sd">    Y : Frequency response (FRF) of the summed filters.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">np</span><span class="p">,</span> <span class="n">plt</span><span class="p">,</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftfreq</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">length_sec</span><span class="o">*</span><span class="n">ofb</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">[</span><span class="n">length_sec</span><span class="o">*</span><span class="n">ofb</span><span class="o">.</span><span class="n">sample_rate</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.9999</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ffilt</span><span class="p">:</span>
+        <span class="n">y</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="n">ofb</span><span class="o">.</span><span class="n">filter_mimo_c</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">y</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="n">ofb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ffilt</span><span class="o">=</span><span class="n">ffilt</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="n">y</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>  <span class="c"># sampled frequency response</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">fftfreq</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">ofb</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s">&#39;freqz filter bank&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">ofb</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="mi">20</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">X</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mf">1e-17</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">f</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="n">L</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">u&#39;freqz() Filter Bank&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Frequency / Hz&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">u&#39;Damping /dB(FS)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="n">ofb</span><span class="o">.</span><span class="n">sample_rate</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s">&#39;sum&#39;</span><span class="p">)</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="mi">20</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Y</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mf">1e-17</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">f</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="n">L</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">level_input</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">level_output</span> <span class="o">=</span> <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="n">ofb</span><span class="o">.</span><span class="n">sample_rate</span><span class="o">/</span><span class="mf">1.8</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Sum of filter bands&#39;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;sum level&#39;</span><span class="p">,</span> <span class="n">level_output</span><span class="p">,</span> <span class="n">level_input</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">Y</span>
+</div>
+<span class="k">def</span> <span class="nf">example_plot</span><span class="p">():</span>
+    <span class="n">ofb</span> <span class="o">=</span> <span class="n">FractionalOctaveFilterbank</span><span class="p">()</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">freqz</span><span class="p">(</span><span class="n">ofb</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">demo</span><span class="p">():</span>
+    <span class="c">## this demo is  not relly cool, it will be changed ##</span>
+    <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">np</span><span class="p">,</span> <span class="n">plt</span><span class="p">,</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftfreq</span>
+    <span class="c"># scipy.signal import</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;./iec&#39;</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">spec_iec1260</span> <span class="kn">import</span> <span class="n">get_spec_third_octave_IEC1260</span><span class="p">,</span> <span class="n">check_iec_conformidity</span>
+    <span class="sd">&quot;&quot;&quot;Generate a third octave</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">44100</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">okt</span> <span class="o">=</span> <span class="n">OctaveFilterbank</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">start_band</span><span class="o">=-</span><span class="mi">15</span><span class="p">,</span> <span class="n">end_band</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span>
+                           <span class="n">nth_oct</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                           <span class="n">edge_correction_percent</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">freqz</span><span class="p">(</span><span class="n">okt</span><span class="p">,</span> <span class="n">length_sec</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ffilt</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;filtbank_test.pdf&#39;</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s">&#39;landscape&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">okt</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+
+
+<span class="c">#if __name__ == &quot;__main__&quot;:</span>
+<span class="c">#    okt, fig, x, y = demo()</span>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Siegfried Gündert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'devN',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
