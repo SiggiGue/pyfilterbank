@@ -14,19 +14,21 @@ For fft-based and more physiological motivated filtering there is the module :mo
 
 A gammatone filter bank and stft is planned but no implemented yet. If there is time and some other persons are intersted in contributing, there are many functionalites that can be added and maintained.
 
-
 Have Fun!
 
+GitHub Repo
+-----------
+http://github.com/SiggiGue/pyfilterbank
 
-
-For More detailed description and references have a look into the table of contents:
-
+Content
+-------
 .. toctree::
    octbank
    melbank
    splweighting
    sosfiltering
    glossary
+
 
 
 License
