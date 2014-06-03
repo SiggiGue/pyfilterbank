@@ -3,8 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. image:: filtbank_logo.png
+   :width: 591px
+   :height: 157px
+   :scale: 50%
+   :target: http://github.com/SiggiGue/pyfilterbank
+
+|
+|
 Welcome to PyFilterbank's documentation!
 ========================================
+
+
 The package :mod:`pyfilterbank` provides tools for the acousticians and audiologists working with python.
 
 A fractional octave filter bank is provided in the module :mod:`octbank`. You can use it to split your signals into many bands of constant relative fractional octave band width. The output signals stay in the same domain as the input signal but are band passed groups of it. The filtering routines are placed in :mod:`sosfiltering` and the filter design functionality is implemented in :mod:`butterworth`.
@@ -14,19 +24,21 @@ For fft-based and more physiological motivated filtering there is the module :mo
 
 A gammatone filter bank and stft is planned but no implemented yet. If there is time and some other persons are intersted in contributing, there are many functionalites that can be added and maintained.
 
-
 Have Fun!
 
+GitHub Repo
+-----------
+http://github.com/SiggiGue/pyfilterbank
 
-
-For More detailed description and references have a look into the table of contents:
-
+Content
+-------
 .. toctree::
    octbank
    melbank
    splweighting
    sosfiltering
    glossary
+
 
 
 License
