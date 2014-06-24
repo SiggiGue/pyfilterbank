@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """This module implements a fractional octave filter bank.
-The band passes are realized with butterwoth second order sections
+The band passes are realized with butterworth second order sections
 described by [Stearns2002]_.
 For the second order section filter routines the
 module :mod:`sosfiltering` is used.
 With the class :class:`FractionalOctaveFilterbank` you can create
 filtering objects that apply to the [IEC-61260]_.
+
+An example filter bank is shown by the figures below.
 
 .. plot::
 
@@ -39,23 +41,24 @@ standardized_nominal_frequencies = array([
 ])
 
 def find_nominal_freq(center_frequencies, nominal_frequencies):
-    """Find the neares nominal frequencies to a given array.
+    """Find the nearest nominal frequencies to a given array.
 
     Parameters
     ----------
     center_frequencies : ndarray
         Some frequencies for those the neares neighbours shall be found.
     nominal_frequencies : ndarray
-        The nomunal frequencies we want to get the best fitting values to
-        `center_frequencies`.
+        The nominal frequencies we want to get the best fitting values to
+        `center_frequencies` from.
 
     Returns
     -------
     nominal_frequencies : generator object
         The neares neighbors nomina freqs to the given frequencies.
+
     """
     for f in center_frequencies:
-        dist = sqrt((standardized_nominal_frequencies-f)**2)
+        dist = sqrt((standardized_nominal_frequencies - f)**2)
         yield nominal_frequencies[argmin(dist)]
 
 
@@ -65,24 +68,24 @@ def frequencies_fractional_octaves(start_band, end_band, norm_freq, nth_oct):
     Parameters
     ----------
     start_band : int
-        The starting center frequency at norm_freq*2^(start_band/nth_oct)
+        The starting center frequency at `norm_freq`*2^(`start_band`/`nth_oct`).
     end_band : int
-        The last center frequency at norm_freq*2^(end_band/nth_oct)
+        The last center frequency at `norm_freq`*2^(`end_band`/`nth_oct`).
     norm_freq : scalar
         The center frequency of the band number 0.
     nth_oct : scalar
         The distance between the center frequencies.
-        If it is 1 the space between the bands is an octave.
-        For third octaves nth_oct is 3.
+        For third octaves `nth_oct=3`.
 
     Returns
     -------
     center_frequencies : ndarray
-        Frequencies spaced in nth_oct from start_band to end_band
-        with the norm_freq at band number 0.
+        Frequencies spaced in `nth_oct` from `start_band` to `end_band`
+        with the `norm_freq` at band number 0.
     band_edges : ndarray
-        Edges of the fractional octave bands.
+        Edge frequencies (-3 dB points) of the fractional octave bands.
         With constant relative Bandwidth.
+
     """
     k = arange(start_band-1, end_band+2)
     frequencies = norm_freq * 2.0**(k/nth_oct)
@@ -92,7 +95,7 @@ def frequencies_fractional_octaves(start_band, end_band, norm_freq, nth_oct):
 
 
 def to_normalized_frequencies(frequencies, sample_rate, clip=True):
-    """Return normalized frequency array.
+    """Returns normalized frequency array.
 
     Parameters
     ----------
@@ -136,9 +139,9 @@ def design_sosmat_band_passes(order, band_edges, sample_rate,
 
     Returns
     -------
-    sosmat : dictionary
-        Keys are the center frequencies and values
-        are ndarrays with the sos b and a coefsample_rate.
+    sosmat : ndarray
+        Second order section coefficients.
+        Each column is one band pass cascade of coefficients.
     """
     num_coeffs_biquad_bandpass = 6
     num_coeffs_cascade = order * num_coeffs_biquad_bandpass
@@ -164,6 +167,8 @@ def design_sosmat_low_pass_high_pass_bounds(order, band_edges, sample_rate):
     """Returns matrix containing sos coeffs of low and highpass.
     The cutoff frequencies are placed at the first and last band edge.
 
+    .. note:: This funtion is not used anymore.
+
     Parameters
     ----------
     order : int
@@ -175,9 +180,11 @@ def design_sosmat_low_pass_high_pass_bounds(order, band_edges, sample_rate):
 
     Returns
     -------
-    sosdict : dictionary
-        Keys are the center frequencies and values
-        are ndarrays with the sos b and a coefsample_rate.
+    sosdict : ndarray
+        Second order section coefficients,
+        the first column contains the low pass coefs
+        and the second column contains the highpass coeffs.
+
     """
     sosmat = zeros((0.5*order*6, 2))
     band_edges_normalized = to_normalized_frequencies(band_edges, sample_rate)
@@ -199,7 +206,7 @@ class FractionalOctaveFilterbank:
     sample_rate : int
         Sampling rate of the signals to be filtered.
     order : int
-        Filter order of the bands. As this are second order sections it
+        Filter order of the bands. As this are second order sections, it
         has to be even. Otherweise you'll get an error.
     nth_oct : scalar
         Number of bands per octave.
@@ -209,11 +216,11 @@ class FractionalOctaveFilterbank:
     start_band : int
         First Band number of fractional octaves below `norm_freq`.
     end_band : int
-        Last band number of fractional octaves from `norm_freq`.
+        Last band number of fractional octaves above `norm_freq`.
     edge_correction_percent : scalar
         Percentage of widening or narrowing the bands.
     filterfun : {'cffi', 'py', 'cprototype'}
-        Function used my the method `filter` .
+        Function used by the method :func:`filter`.
 
     Attributes
     ----------
@@ -254,7 +261,7 @@ class FractionalOctaveFilterbank:
                  norm_freq=1000.0,
                  start_band=-19,
                  end_band=13,
-                 edge_correction_percent=0.0,
+                 edge_correction_percent=0.01,
                  filterfun='cffi'):
         self._sample_rate = sample_rate
         self._order = order
@@ -372,6 +379,7 @@ class FractionalOctaveFilterbank:
         filterfun_name : {'cffi', 'py', 'cprototype'}
             Three different filter functions,
             'cffi' is the fastest, 'py' is implemented with `lfilter`.
+
         """
         filterfun_name = filterfun_name.lower()
         if filterfun_name == 'cffi':
@@ -390,21 +398,24 @@ class FractionalOctaveFilterbank:
     def filter_mimo_c(self, x, states=None):
         """Filters the input by the settings of the filterbank object.
 
-        It supports multi channel audio an returns a 3dim ndarray.
-        With this routine you can't use lphp_bounds=True yet.
+        It supports multi channel audio and returns a 3-dim ndarray.
         Only for real valued signals.
         No ffilt (backward forward filtering) implemented in this method.
 
         Parameters
         ----------
         x : ndarray
+            Signal to be filtered.
         states : ndarray or None
             States of the filter sections (for block processing).
 
         Returns
         --------
-        data : ndarray
+        signal : ndarray
+            Signal array (NxBxC), with N samples, B frequency bands
+            and C-signal channels.
         states : ndarray
+            Filter states of all filter sections.
         """
         return sosfilter_double_mimo_c(x, self.sosmat, states)
 
@@ -415,10 +426,9 @@ class FractionalOctaveFilterbank:
         Parameters
         ----------
         x :  ndarray
-            Input signal (Nx0) (in further versions
-            multichannel will be supported).
+            Input signal (Nx0)
         ffilt : bool
-            Forward and backward filtering if Ture.
+            Forward and backward filtering, if Ture.
         states : dict
             States of all filter sections in the filterbank.
             Initial you can states=None before block process.
@@ -515,33 +525,16 @@ def freqz(ofb, length_sec=6, ffilt=False, plot=True):
         plt.axis([5, ofb.sample_rate/1.8, -50, 5])
         plt.grid(True)
         plt.title('Sum of filter bands')
+        plt.xlabel('Frequency / Hz')
+        plt.ylabel(u'Damping /dB(FS)')
+
         print('sum level', level_output, level_input)
 
     return x, y, f, Y
 
 def example_plot():
+    """Creates a plot with :func:`freqz` of the default
+    :class:`FractionalOctaveFilterbank`.
+    """
     ofb = FractionalOctaveFilterbank()
     x, y, f, Y = freqz(ofb)
-
-def demo():
-    ## this demo is  not relly cool, it will be changed ##
-    from pylab import np, plt, fft, fftfreq
-    # scipy.signal import
-    import sys
-    sys.path.append('./iec')
-    from spec_iec1260 import get_spec_third_octave_IEC1260, check_iec_conformidity
-    """Generate a third octave
-    """
-    sample_rate = 44100
-    order = 4
-    okt = OctaveFilterbank(sample_rate, order, start_band=-15, end_band=13,
-                           nth_oct=3.0,
-                           edge_correction_percent=0.0)
-    fig, x, y = freqz(okt, length_sec=3, ffilt=True)
-    plt.savefig('filtbank_test.pdf', orientation='landscape')
-    plt.show()
-    return okt, fig, x, y
-
-
-#if __name__ == "__main__":
-#    okt, fig, x, y = demo()

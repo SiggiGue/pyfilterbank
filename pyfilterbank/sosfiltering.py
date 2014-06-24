@@ -1,11 +1,26 @@
 # -*- coding: utf-8 -*-
-"""This module contains a second order section filtering routine
+"""This module contains second order section filtering routines
 implemented in c, cffi and numpy.
 
-There are different implementations of sos filtering routines.
-the c-implementations are for real valued signal only.
+A bilinear transform converting sos analog weights to
+sos digital weights is provided by :func:`bilinear_sos`.
 
-There is a version using lfilter from :mod:`scipy` package as well.
+There are different implementations of sos filtering routines:
+    - A scipy.lfilter()-based :func:`sosfilter_py`
+    - cffi implementations with float- and double-precision
+      and a mimo-implementation:
+          * :func:`sosfilter_c` (float)
+          * :func:`sosfilter_double_c` (double)
+          * :func:`sosfilter_double_mimo_c`
+            (multi channel input and 3-dim output).
+
+    - prototypes for the c-implementations
+      (slowest, only for debugging)
+
+The c-implementations are for real valued signals only.
+
+With the function :func:`freqz` you can check the
+frequency response of your second order section filters.
 
 For the :mod:`cffi` you need :mod:`pycparser` being installed.
 
@@ -21,7 +36,6 @@ shared library in python. ::
     $ gcc -shared -o sosfilter.so sosfilter.o
     $ or the last line for windows users:
     $ gcc -shared -o sosfilter.dll sosfilter.o
-
 
 Functions
 ---------
@@ -59,21 +73,26 @@ _c = ffi.dlopen(os.path.join(_mylibpath, _dl))
 
 def sosfilter_c(signal, sos, states=None):
     """Second order section filter function using cffi
-    Usage
-    -----
-        signal_out, states = sosfilter_c(signal_in, sos, states=None)
+
+    signal_out, states = sosfilter_c(signal_in, sos, states=None)
 
     Parameters
     ----------
-        signal: (N x 0) np-array
-        sos: (K*6 x 0) np-array, (one biquad -> 6 coefficients)
-             sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]
-        states: (2 x 0) array with filter states or None
+    signal : ndarray
+        Input array of shape (N x 0).
+    sos : ndarray
+        Second order section coefficients array of shape (K*6 x 0).
+        One biquad -> 6 coefficients:
+        :code:`[b00, b01, b02, a00, a01, a02, ..., bK1, ..., aK2]`
+    states : ndarray
+        Array with filter states. Initial value can be None.
 
     Returns
     -------
-        signal: (N x 0) np-array filtered signal
-        states: (2 x 0) np-array containig the filter-states
+    signal : ndarray
+        Filtered signal of shape (N x 0).
+    states : ndarray
+        Array with filter states.
 
     """
 
@@ -110,26 +129,27 @@ def sosfilter_c(signal, sos, states=None):
 
 
 def sosfilter_double_c(signal, sos, states=None):
-    """Second order section filter function using cffi double precision
+    """Second order section filter function using cffi, double precision.
 
-    Usage
-    -----
     signal_out, states = sosfilter_c(signal_in, sos, states=None)
 
     Parameters
     ----------
-    signal : (N x 0) ndarray
-    sos : (K*6 x 0) ndarray, (one biquad -> 6 coefficients)
-    sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]
-    states : (2 x 0) ndarray
-        With filter states or states=None,
+    signal : ndarray
+        Signal array of shape (N x 0).
+    sos : ndarray
+        Second order section coefficients array of shape (K*6 x 0).
+        One biquad -> 6 coefficients:
+        ``[b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]``
+    states : ndarray
+        Filter states, initial value can be None.
 
     Returns
     -------
-    signal: (N x 0) ndarray
-        Filtered signal.
-    states: (2 x 0) ndarray
-        Containig the filter-states.
+    signal :
+        Filtered signal array of shape (N x 0).
+    states : ndarray
+        Filter states, initial value can be None.
 
     """
 
@@ -164,27 +184,30 @@ def sosfilter_double_c(signal, sos, states=None):
 
 
 def sosfilter_double_mimo_c(signal, sos, states=None):
-    """Second order section filter function using cffi double precision
-       and multi channel input
-    Usage
-    -----
+    """Second order section filter function for  multi channel input
+    using cffi, double precision
+
     signal_out, states = sosfilter_c(signal_in, sos, states=None)
 
     Parameters
     ----------
-    signal : (N x C) np-array
-    sos : (K*6 x B x C) np-array,
-        (one biquad -> 6 coefficients)
-        sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]
-    states : (K*2 x B x C)
-        Array with filter states or None.
+    signal : ndarray
+        Signal array of shape (N x C).
+    sos : ndarray
+        Second order section filter coefficients (K*6 x B x C) np-array.
+
+    states : ndarray
+        Filter states, initial can be None.
+        Otherwise shape is (K*2 x B x C)
 
     Returns
     -------
-    signal : (N x B x C) np-array
-        Filtered signal.
-    states : (K*2 x B x C) np-array
-        Containig the filter-states.
+    signal : ndarray
+        Filtered signal of shape (N x B x C).
+        Where N is the number of samples, B is th number of
+        filter bands and C is the number of signal channels.
+    states : ndarray
+        Filter states of shape (K*2 x B x C).
 
     """
 
@@ -203,7 +226,6 @@ def sosfilter_double_mimo_c(signal, sos, states=None):
             sos = np.tile(sos.flatten('F'), (nchan))
     else:
         kbands = int(1)
-
 
     if isinstance(states, type(None)):
         states = np.zeros(nchan*kbands*ksos*2).astype(np.double)
@@ -247,7 +269,9 @@ def sosfilter_double_mimo_c(signal, sos, states=None):
 
 
 def sosfilter_mimo_cprototype_py(signal_in, sos_in, states_in=None):
-    """Prototype for the mimo c-filter function"""
+    """Prototype for the mimo c-filter function.
+    Implements a IIR DF-II biquad filter strucure. But with multiple
+    input und multiple bands."""
     signal = signal_in.copy().flatten('F')
     shape_signal = signal_in.shape
     print(len(signal))
@@ -292,9 +316,8 @@ def sosfilter_mimo_cprototype_py(signal_in, sos_in, states_in=None):
 
 
 def sosfilter_cprototype_py(signal, sos, states):
-    """Prototype for second order section filtering c function
-       written in python
-    implements a IIR DF-II biquad filter strucure
+    """Prototype for second order section filtering c function.
+    Implements a IIR DF-II biquad filter strucure.
     """
     N = int(len(signal))
     K = int(sos.size/6)
@@ -304,7 +327,6 @@ def sosfilter_cprototype_py(signal, sos, states):
     sos = sos.copy().flatten()
     yn = 0.0  # buffer for output
     w0 = 0.0  # signal states
-
 
     for k in range(K):
         # get coefficients of current biquad
@@ -337,7 +359,26 @@ def sosfilter_cprototype_py(signal, sos, states):
 
 
 def sosfilter_py(x, sos, states=None):
-    """Second order section filter routing with scipy lfilter"""
+    """Second order section filter routing with scipy lfilter.
+
+    Parameters
+    ----------
+    x : ndarray
+        Input signal array.
+    sos : ndarray
+        Second order section coefficients array.
+    states : ndarray or None
+        Filter states, initial value can be None.
+
+
+    Returns
+    -------
+    signal : ndarray
+        Filtered signal.
+    states : ndarray
+        Array with filter states.
+
+    """
     n = sos.shape[0]
     if isinstance(states, type(None)):
         states = dict()
@@ -351,17 +392,13 @@ def sosfilter_py(x, sos, states=None):
     return x, states
 
 
-def bilinear_sos(d,c):
-    """Bilinear transformation of analog weights to digital weights
+def bilinear_sos(d, c):
+    """Bilinear transformation of analog weights to digital weights.
 
     Bilinear transformation of analog weights to digital weights.
-    weights of IIR digital filter in cascade form with
+    Weights of IIR digital filter in cascade form with
     2-pole sections; H(z)=H(z,1)H(z,2)...H(z,L/2) where
-    L=# poles and each section is a ratio of quadratics.
-
-    Usage
-    -----
-    b,a = bilinear_sos(d,c)
+    L is the number of poles and each section is a ratio of quadratics.
 
     Parameters
     ----------
@@ -371,15 +408,13 @@ def bilinear_sos(d,c):
     c : ndarray
         Denominator weights, dimensioned same as d.
 
-    [d,c] are combined with [d',c'] and transformed
-    to produce the L/2 2-pole digital filter sections.
-
     Returns
     -------
     b : ndarray
         Digital numerator weights, dimensioned (L/2 x 3).
     a : ndarray
         Digital denominator weights, dimensioned the same.
+
     """
     L2, ncd = d.shape
     nr, ncc = c.shape
@@ -390,7 +425,7 @@ def bilinear_sos(d,c):
 
     # Bilinear transformation of H(s) to H(z) using z and p vectors.
     a = np.zeros((L2, 3), dtype=np.double)
-    a[:,0] = np.abs(c[:, 0] + c[:, 1])**2
+    a[:, 0] = np.abs(c[:, 0] + c[:, 1])**2
 
     if np.min(a[:, 0]) == 0:
         raise Exception('"c" should not have a row of zeros.')
