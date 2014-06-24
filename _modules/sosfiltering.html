@@ -115,13 +115,28 @@
             
   <h1>Source code for sosfiltering</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;This module contains a second order section filtering routine</span>
+<span class="sd">&quot;&quot;&quot;This module contains second order section filtering routines</span>
 <span class="sd">implemented in c, cffi and numpy.</span>
 
-<span class="sd">There are different implementations of sos filtering routines.</span>
-<span class="sd">the c-implementations are for real valued signal only.</span>
+<span class="sd">A bilinear transform converting sos analog weights to</span>
+<span class="sd">sos digital weights is provided by :func:`bilinear_sos`.</span>
 
-<span class="sd">There is a version using lfilter from :mod:`scipy` package as well.</span>
+<span class="sd">There are different implementations of sos filtering routines:</span>
+<span class="sd">    - A scipy.lfilter()-based :func:`sosfilter_py`</span>
+<span class="sd">    - cffi implementations with float- and double-precision</span>
+<span class="sd">      and a mimo-implementation:</span>
+<span class="sd">          * :func:`sosfilter_c` (float)</span>
+<span class="sd">          * :func:`sosfilter_double_c` (double)</span>
+<span class="sd">          * :func:`sosfilter_double_mimo_c`</span>
+<span class="sd">            (multi channel input and 3-dim output).</span>
+
+<span class="sd">    - prototypes for the c-implementations</span>
+<span class="sd">      (slowest, only for debugging)</span>
+
+<span class="sd">The c-implementations are for real valued signals only.</span>
+
+<span class="sd">With the function :func:`freqz` you can check the</span>
+<span class="sd">frequency response of your second order section filters.</span>
 
 <span class="sd">For the :mod:`cffi` you need :mod:`pycparser` being installed.</span>
 
@@ -137,7 +152,6 @@
 <span class="sd">    $ gcc -shared -o sosfilter.so sosfilter.o</span>
 <span class="sd">    $ or the last line for windows users:</span>
 <span class="sd">    $ gcc -shared -o sosfilter.dll sosfilter.o</span>
-
 
 <span class="sd">Functions</span>
 <span class="sd">---------</span>
@@ -175,21 +189,26 @@
 
 <div class="viewcode-block" id="sosfilter_c"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.sosfilter_c">[docs]</a><span class="k">def</span> <span class="nf">sosfilter_c</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">sos</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Second order section filter function using cffi</span>
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
-<span class="sd">        signal_out, states = sosfilter_c(signal_in, sos, states=None)</span>
+
+<span class="sd">    signal_out, states = sosfilter_c(signal_in, sos, states=None)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">        signal: (N x 0) np-array</span>
-<span class="sd">        sos: (K*6 x 0) np-array, (one biquad -&gt; 6 coefficients)</span>
-<span class="sd">             sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</span>
-<span class="sd">        states: (2 x 0) array with filter states or None</span>
+<span class="sd">    signal : ndarray</span>
+<span class="sd">        Input array of shape (N x 0).</span>
+<span class="sd">    sos : ndarray</span>
+<span class="sd">        Second order section coefficients array of shape (K*6 x 0).</span>
+<span class="sd">        One biquad -&gt; 6 coefficients:</span>
+<span class="sd">        :code:`[b00, b01, b02, a00, a01, a02, ..., bK1, ..., aK2]`</span>
+<span class="sd">    states : ndarray</span>
+<span class="sd">        Array with filter states. Initial value can be None.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">        signal: (N x 0) np-array filtered signal</span>
-<span class="sd">        states: (2 x 0) np-array containig the filter-states</span>
+<span class="sd">    signal : ndarray</span>
+<span class="sd">        Filtered signal of shape (N x 0).</span>
+<span class="sd">    states : ndarray</span>
+<span class="sd">        Array with filter states.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -226,26 +245,27 @@
 
 </div>
 <div class="viewcode-block" id="sosfilter_double_c"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.sosfilter_double_c">[docs]</a><span class="k">def</span> <span class="nf">sosfilter_double_c</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">sos</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Second order section filter function using cffi double precision</span>
+    <span class="sd">&quot;&quot;&quot;Second order section filter function using cffi, double precision.</span>
 
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
 <span class="sd">    signal_out, states = sosfilter_c(signal_in, sos, states=None)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    signal : (N x 0) ndarray</span>
-<span class="sd">    sos : (K*6 x 0) ndarray, (one biquad -&gt; 6 coefficients)</span>
-<span class="sd">    sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</span>
-<span class="sd">    states : (2 x 0) ndarray</span>
-<span class="sd">        With filter states or states=None,</span>
+<span class="sd">    signal : ndarray</span>
+<span class="sd">        Signal array of shape (N x 0).</span>
+<span class="sd">    sos : ndarray</span>
+<span class="sd">        Second order section coefficients array of shape (K*6 x 0).</span>
+<span class="sd">        One biquad -&gt; 6 coefficients:</span>
+<span class="sd">        ``[b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]``</span>
+<span class="sd">    states : ndarray</span>
+<span class="sd">        Filter states, initial value can be None.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    signal: (N x 0) ndarray</span>
-<span class="sd">        Filtered signal.</span>
-<span class="sd">    states: (2 x 0) ndarray</span>
-<span class="sd">        Containig the filter-states.</span>
+<span class="sd">    signal :</span>
+<span class="sd">        Filtered signal array of shape (N x 0).</span>
+<span class="sd">    states : ndarray</span>
+<span class="sd">        Filter states, initial value can be None.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -280,27 +300,30 @@
 
 </div>
 <div class="viewcode-block" id="sosfilter_double_mimo_c"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.sosfilter_double_mimo_c">[docs]</a><span class="k">def</span> <span class="nf">sosfilter_double_mimo_c</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">sos</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Second order section filter function using cffi double precision</span>
-<span class="sd">       and multi channel input</span>
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
+    <span class="sd">&quot;&quot;&quot;Second order section filter function for  multi channel input</span>
+<span class="sd">    using cffi, double precision</span>
+
 <span class="sd">    signal_out, states = sosfilter_c(signal_in, sos, states=None)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    signal : (N x C) np-array</span>
-<span class="sd">    sos : (K*6 x B x C) np-array,</span>
-<span class="sd">        (one biquad -&gt; 6 coefficients)</span>
-<span class="sd">        sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</span>
-<span class="sd">    states : (K*2 x B x C)</span>
-<span class="sd">        Array with filter states or None.</span>
+<span class="sd">    signal : ndarray</span>
+<span class="sd">        Signal array of shape (N x C).</span>
+<span class="sd">    sos : ndarray</span>
+<span class="sd">        Second order section filter coefficients (K*6 x B x C) np-array.</span>
+
+<span class="sd">    states : ndarray</span>
+<span class="sd">        Filter states, initial can be None.</span>
+<span class="sd">        Otherwise shape is (K*2 x B x C)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    signal : (N x B x C) np-array</span>
-<span class="sd">        Filtered signal.</span>
-<span class="sd">    states : (K*2 x B x C) np-array</span>
-<span class="sd">        Containig the filter-states.</span>
+<span class="sd">    signal : ndarray</span>
+<span class="sd">        Filtered signal of shape (N x B x C).</span>
+<span class="sd">        Where N is the number of samples, B is th number of</span>
+<span class="sd">        filter bands and C is the number of signal channels.</span>
+<span class="sd">    states : ndarray</span>
+<span class="sd">        Filter states of shape (K*2 x B x C).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -319,7 +342,6 @@
             <span class="n">sos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">sos</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="s">&#39;F&#39;</span><span class="p">),</span> <span class="p">(</span><span class="n">nchan</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">kbands</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">None</span><span class="p">)):</span>
         <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nchan</span><span class="o">*</span><span class="n">kbands</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
@@ -363,7 +385,9 @@
 
 </div>
 <div class="viewcode-block" id="sosfilter_mimo_cprototype_py"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.sosfilter_mimo_cprototype_py">[docs]</a><span class="k">def</span> <span class="nf">sosfilter_mimo_cprototype_py</span><span class="p">(</span><span class="n">signal_in</span><span class="p">,</span> <span class="n">sos_in</span><span class="p">,</span> <span class="n">states_in</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Prototype for the mimo c-filter function&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Prototype for the mimo c-filter function.</span>
+<span class="sd">    Implements a IIR DF-II biquad filter strucure. But with multiple</span>
+<span class="sd">    input und multiple bands.&quot;&quot;&quot;</span>
     <span class="n">signal</span> <span class="o">=</span> <span class="n">signal_in</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="s">&#39;F&#39;</span><span class="p">)</span>
     <span class="n">shape_signal</span> <span class="o">=</span> <span class="n">signal_in</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
@@ -408,9 +432,8 @@
 
 </div>
 <div class="viewcode-block" id="sosfilter_cprototype_py"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.sosfilter_cprototype_py">[docs]</a><span class="k">def</span> <span class="nf">sosfilter_cprototype_py</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">sos</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Prototype for second order section filtering c function</span>
-<span class="sd">       written in python</span>
-<span class="sd">    implements a IIR DF-II biquad filter strucure</span>
+    <span class="sd">&quot;&quot;&quot;Prototype for second order section filtering c function.</span>
+<span class="sd">    Implements a IIR DF-II biquad filter strucure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
     <span class="n">K</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sos</span><span class="o">.</span><span class="n">size</span><span class="o">/</span><span class="mi">6</span><span class="p">)</span>
@@ -420,7 +443,6 @@
     <span class="n">sos</span> <span class="o">=</span> <span class="n">sos</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
     <span class="n">yn</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c"># buffer for output</span>
     <span class="n">w0</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c"># signal states</span>
-
 
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
         <span class="c"># get coefficients of current biquad</span>
@@ -453,7 +475,26 @@
 
 </div>
 <div class="viewcode-block" id="sosfilter_py"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.sosfilter_py">[docs]</a><span class="k">def</span> <span class="nf">sosfilter_py</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sos</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Second order section filter routing with scipy lfilter&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Second order section filter routing with scipy lfilter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : ndarray</span>
+<span class="sd">        Input signal array.</span>
+<span class="sd">    sos : ndarray</span>
+<span class="sd">        Second order section coefficients array.</span>
+<span class="sd">    states : ndarray or None</span>
+<span class="sd">        Filter states, initial value can be None.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    signal : ndarray</span>
+<span class="sd">        Filtered signal.</span>
+<span class="sd">    states : ndarray</span>
+<span class="sd">        Array with filter states.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">sos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">None</span><span class="p">)):</span>
         <span class="n">states</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -467,17 +508,13 @@
     <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">states</span>
 
 </div>
-<div class="viewcode-block" id="bilinear_sos"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.bilinear_sos">[docs]</a><span class="k">def</span> <span class="nf">bilinear_sos</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">c</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Bilinear transformation of analog weights to digital weights</span>
+<div class="viewcode-block" id="bilinear_sos"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.bilinear_sos">[docs]</a><span class="k">def</span> <span class="nf">bilinear_sos</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Bilinear transformation of analog weights to digital weights.</span>
 
 <span class="sd">    Bilinear transformation of analog weights to digital weights.</span>
-<span class="sd">    weights of IIR digital filter in cascade form with</span>
+<span class="sd">    Weights of IIR digital filter in cascade form with</span>
 <span class="sd">    2-pole sections; H(z)=H(z,1)H(z,2)...H(z,L/2) where</span>
-<span class="sd">    L=# poles and each section is a ratio of quadratics.</span>
-
-<span class="sd">    Usage</span>
-<span class="sd">    -----</span>
-<span class="sd">    b,a = bilinear_sos(d,c)</span>
+<span class="sd">    L is the number of poles and each section is a ratio of quadratics.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -487,15 +524,13 @@
 <span class="sd">    c : ndarray</span>
 <span class="sd">        Denominator weights, dimensioned same as d.</span>
 
-<span class="sd">    [d,c] are combined with [d&#39;,c&#39;] and transformed</span>
-<span class="sd">    to produce the L/2 2-pole digital filter sections.</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    b : ndarray</span>
 <span class="sd">        Digital numerator weights, dimensioned (L/2 x 3).</span>
 <span class="sd">    a : ndarray</span>
 <span class="sd">        Digital denominator weights, dimensioned the same.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">L2</span><span class="p">,</span> <span class="n">ncd</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">nr</span><span class="p">,</span> <span class="n">ncc</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">shape</span>
@@ -506,7 +541,7 @@
 
     <span class="c"># Bilinear transformation of H(s) to H(z) using z and p vectors.</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">L2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
-    <span class="n">a</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">a</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
 
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">a</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;&quot;c&quot; should not have a row of zeros.&#39;</span><span class="p">)</span>

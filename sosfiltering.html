@@ -117,11 +117,35 @@
   <div class="section" id="second-order-section-filtering">
 <h1>Second Order Section Filtering<a class="headerlink" href="#second-order-section-filtering" title="Permalink to this headline">¶</a></h1>
 <p>Module name: <a class="reference internal" href="#module-sosfiltering" title="sosfiltering"><tt class="xref py py-mod docutils literal"><span class="pre">sosfiltering</span></tt></a></p>
-<span class="target" id="module-sosfiltering"></span><p>This module contains a second order section filtering routine
+<span class="target" id="module-sosfiltering"></span><p>This module contains second order section filtering routines
 implemented in c, cffi and numpy.</p>
-<p>There are different implementations of sos filtering routines.
-the c-implementations are for real valued signal only.</p>
-<p>There is a version using lfilter from <tt class="xref py py-mod docutils literal"><span class="pre">scipy</span></tt> package as well.</p>
+<p>A bilinear transform converting sos analog weights to
+sos digital weights is provided by <a class="reference internal" href="#sosfiltering.bilinear_sos" title="sosfiltering.bilinear_sos"><tt class="xref py py-func docutils literal"><span class="pre">bilinear_sos()</span></tt></a>.</p>
+<dl class="docutils">
+<dt>There are different implementations of sos filtering routines:</dt>
+<dd><ul class="first last">
+<li><p class="first">A scipy.lfilter()-based <a class="reference internal" href="#sosfiltering.sosfilter_py" title="sosfiltering.sosfilter_py"><tt class="xref py py-func docutils literal"><span class="pre">sosfilter_py()</span></tt></a></p>
+</li>
+<li><p class="first">cffi implementations with float- and double-precision
+and a mimo-implementation:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="#sosfiltering.sosfilter_c" title="sosfiltering.sosfilter_c"><tt class="xref py py-func docutils literal"><span class="pre">sosfilter_c()</span></tt></a> (float)</li>
+<li><a class="reference internal" href="#sosfiltering.sosfilter_double_c" title="sosfiltering.sosfilter_double_c"><tt class="xref py py-func docutils literal"><span class="pre">sosfilter_double_c()</span></tt></a> (double)</li>
+<li><a class="reference internal" href="#sosfiltering.sosfilter_double_mimo_c" title="sosfiltering.sosfilter_double_mimo_c"><tt class="xref py py-func docutils literal"><span class="pre">sosfilter_double_mimo_c()</span></tt></a>
+(multi channel input and 3-dim output).</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">prototypes for the c-implementations
+(slowest, only for debugging)</p>
+</li>
+</ul>
+</dd>
+</dl>
+<p>The c-implementations are for real valued signals only.</p>
+<p>With the function <a class="reference internal" href="#sosfiltering.freqz" title="sosfiltering.freqz"><tt class="xref py py-func docutils literal"><span class="pre">freqz()</span></tt></a> you can check the
+frequency response of your second order section filters.</p>
 <p>For the <tt class="xref py py-mod docutils literal"><span class="pre">cffi</span></tt> you need <tt class="xref py py-mod docutils literal"><span class="pre">pycparser</span></tt> being installed.</p>
 <div class="section" id="compiling-the-c-source">
 <h2>Compiling the c source<a class="headerlink" href="#compiling-the-c-source" title="Permalink to this headline">¶</a></h2>
@@ -143,11 +167,11 @@ $ gcc -shared -o sosfilter.dll sosfilter.o
 <dl class="function">
 <dt id="sosfiltering.bilinear_sos">
 <tt class="descclassname">sosfiltering.</tt><tt class="descname">bilinear_sos</tt><big>(</big><em>d</em>, <em>c</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#bilinear_sos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.bilinear_sos" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bilinear transformation of analog weights to digital weights</p>
+<dd><p>Bilinear transformation of analog weights to digital weights.</p>
 <p>Bilinear transformation of analog weights to digital weights.
-weights of IIR digital filter in cascade form with
+Weights of IIR digital filter in cascade form with
 2-pole sections; H(z)=H(z,1)H(z,2)...H(z,L/2) where
-L=# poles and each section is a ratio of quadratics.</p>
+L is the number of poles and each section is a ratio of quadratics.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -161,8 +185,6 @@ sections. d is dimensioned (L/2 x 2).</p>
 <blockquote>
 <div><p>Denominator weights, dimensioned same as d.</p>
 </div></blockquote>
-<p><strong>[d,c] are combined with [d&#8217;,c&#8217;] and transformed</strong> :</p>
-<p><strong>to produce the L/2 2-pole digital filter sections.</strong> :</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>b</strong> : ndarray</p>
@@ -188,29 +210,35 @@ sections. d is dimensioned (L/2 x 2).</p>
 <dl class="function">
 <dt id="sosfiltering.sosfilter_c">
 <tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_c</tt><big>(</big><em>signal</em>, <em>sos</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_c" title="Permalink to this definition">¶</a></dt>
-<dd><p>Second order section filter function using cffi
-Usage
-&#8212;&#8211;</p>
-<blockquote>
-<div>signal_out, states = sosfilter_c(signal_in, sos, states=None)</div></blockquote>
+<dd><p>Second order section filter function using cffi</p>
+<p>signal_out, states = sosfilter_c(signal_in, sos, states=None)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>signal: (N x 0) np-array</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarray</p>
 <blockquote>
-<div><dl class="docutils">
-<dt>sos: (K*6 x 0) np-array, (one biquad -&gt; 6 coefficients)</dt>
-<dd><p class="first last">sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</p>
-</dd>
-</dl>
-<p>states: (2 x 0) array with filter states or None</p>
+<div><p>Input array of shape (N x 0).</p>
+</div></blockquote>
+<p><strong>sos</strong> : ndarray</p>
+<blockquote>
+<div><p>Second order section coefficients array of shape (K*6 x 0).
+One biquad -&gt; 6 coefficients:
+<tt class="code docutils literal"><span class="pre">[b00,</span> <span class="pre">b01,</span> <span class="pre">b02,</span> <span class="pre">a00,</span> <span class="pre">a01,</span> <span class="pre">a02,</span> <span class="pre">...,</span> <span class="pre">bK1,</span> <span class="pre">...,</span> <span class="pre">aK2]</span></tt></p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray</p>
+<blockquote>
+<div><p>Array with filter states. Initial value can be None.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal: (N x 0) np-array filtered signal</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarray</p>
+<blockquote>
+<div><p>Filtered signal of shape (N x 0).</p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray</p>
 <blockquote class="last">
-<div><p>states: (2 x 0) np-array containig the filter-states</p>
+<div><p>Array with filter states.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -221,37 +249,42 @@ Usage
 <dl class="function">
 <dt id="sosfiltering.sosfilter_cprototype_py">
 <tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_cprototype_py</tt><big>(</big><em>signal</em>, <em>sos</em>, <em>states</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_cprototype_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_cprototype_py" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Prototype for second order section filtering c function</dt>
-<dd>written in python</dd>
-</dl>
-<p>implements a IIR DF-II biquad filter strucure</p>
+<dd><p>Prototype for second order section filtering c function.
+Implements a IIR DF-II biquad filter strucure.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="sosfiltering.sosfilter_double_c">
 <tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_double_c</tt><big>(</big><em>signal</em>, <em>sos</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_double_c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_double_c" title="Permalink to this definition">¶</a></dt>
-<dd><p>Second order section filter function using cffi double precision</p>
+<dd><p>Second order section filter function using cffi, double precision.</p>
+<p>signal_out, states = sosfilter_c(signal_in, sos, states=None)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>signal</strong> : (N x 0) ndarray</p>
-<p><strong>sos</strong> : (K*6 x 0) ndarray, (one biquad -&gt; 6 coefficients)</p>
-<p><strong>sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</strong> :</p>
-<p><strong>states</strong> : (2 x 0) ndarray</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarray</p>
 <blockquote>
-<div><p>With filter states or states=None,</p>
+<div><p>Signal array of shape (N x 0).</p>
+</div></blockquote>
+<p><strong>sos</strong> : ndarray</p>
+<blockquote>
+<div><p>Second order section coefficients array of shape (K*6 x 0).
+One biquad -&gt; 6 coefficients:
+<tt class="docutils literal"><span class="pre">[b00,</span> <span class="pre">b01,</span> <span class="pre">b02,</span> <span class="pre">a00,</span> <span class="pre">a01,</span> <span class="pre">a02,</span> <span class="pre">...,</span> <span class="pre">b10,</span> <span class="pre">bK1</span> <span class="pre">...</span> <span class="pre">,</span> <span class="pre">aK2]</span></tt></p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray</p>
+<blockquote>
+<div><p>Filter states, initial value can be None.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal: (N x 0) ndarray</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal :</strong> :</p>
 <blockquote>
-<div><p>Filtered signal.</p>
+<div><p>Filtered signal array of shape (N x 0).</p>
 </div></blockquote>
-<p><strong>states: (2 x 0) ndarray</strong> :</p>
+<p><strong>states</strong> : ndarray</p>
 <blockquote class="last">
-<div><p>Containig the filter-states.</p>
+<div><p>Filter states, initial value can be None.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -262,34 +295,37 @@ Usage
 <dl class="function">
 <dt id="sosfiltering.sosfilter_double_mimo_c">
 <tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_double_mimo_c</tt><big>(</big><em>signal</em>, <em>sos</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_double_mimo_c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_double_mimo_c" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Second order section filter function using cffi double precision</dt>
-<dd>and multi channel input</dd>
-</dl>
+<dd><p>Second order section filter function for  multi channel input
+using cffi, double precision</p>
 <p>signal_out, states = sosfilter_c(signal_in, sos, states=None)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>signal</strong> : (N x C) np-array</p>
-<p><strong>sos</strong> : (K*6 x B x C) np-array,</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarray</p>
 <blockquote>
-<div><p>(one biquad -&gt; 6 coefficients)
-sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</p>
+<div><p>Signal array of shape (N x C).</p>
 </div></blockquote>
-<p><strong>states</strong> : (K*2 x B x C)</p>
+<p><strong>sos</strong> : ndarray</p>
 <blockquote>
-<div><p>Array with filter states or None.</p>
+<div><p>Second order section filter coefficients (K*6 x B x C) np-array.</p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray</p>
+<blockquote>
+<div><p>Filter states, initial can be None.
+Otherwise shape is (K*2 x B x C)</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal</strong> : (N x B x C) np-array</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarray</p>
 <blockquote>
-<div><p>Filtered signal.</p>
+<div><p>Filtered signal of shape (N x B x C).
+Where N is the number of samples, B is th number of
+filter bands and C is the number of signal channels.</p>
 </div></blockquote>
-<p><strong>states</strong> : (K*2 x B x C) np-array</p>
+<p><strong>states</strong> : ndarray</p>
 <blockquote class="last">
-<div><p>Containig the filter-states.</p>
+<div><p>Filter states of shape (K*2 x B x C).</p>
 </div></blockquote>
 </td>
 </tr>
@@ -300,13 +336,45 @@ sos = [b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]</p>
 <dl class="function">
 <dt id="sosfiltering.sosfilter_mimo_cprototype_py">
 <tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_mimo_cprototype_py</tt><big>(</big><em>signal_in</em>, <em>sos_in</em>, <em>states_in=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_mimo_cprototype_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_mimo_cprototype_py" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prototype for the mimo c-filter function</p>
+<dd><p>Prototype for the mimo c-filter function.
+Implements a IIR DF-II biquad filter strucure. But with multiple
+input und multiple bands.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="sosfiltering.sosfilter_py">
 <tt class="descclassname">sosfiltering.</tt><tt class="descname">sosfilter_py</tt><big>(</big><em>x</em>, <em>sos</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/sosfiltering.html#sosfilter_py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sosfiltering.sosfilter_py" title="Permalink to this definition">¶</a></dt>
-<dd><p>Second order section filter routing with scipy lfilter</p>
+<dd><p>Second order section filter routing with scipy lfilter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>Input signal array.</p>
+</div></blockquote>
+<p><strong>sos</strong> : ndarray</p>
+<blockquote>
+<div><p>Second order section coefficients array.</p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray or None</p>
+<blockquote>
+<div><p>Filter states, initial value can be None.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarray</p>
+<blockquote>
+<div><p>Filtered signal.</p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Array with filter states.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>

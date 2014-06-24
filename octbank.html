@@ -118,12 +118,13 @@
 <h1>Fractional Octave Filter Bank<a class="headerlink" href="#fractional-octave-filter-bank" title="Permalink to this headline">¶</a></h1>
 <p>Module name: <a class="reference internal" href="#module-octbank" title="octbank"><tt class="xref py py-mod docutils literal"><span class="pre">octbank</span></tt></a></p>
 <span class="target" id="module-octbank"></span><p>This module implements a fractional octave filter bank.
-The band passes are realized with butterwoth second order sections
+The band passes are realized with butterworth second order sections
 described by <a class="reference internal" href="#stearns2002" id="id1">[Stearns2002]</a>.
 For the second order section filter routines the
 module <a class="reference internal" href="sosfiltering.html#module-sosfiltering" title="sosfiltering"><tt class="xref py py-mod docutils literal"><span class="pre">sosfiltering</span></tt></a> is used.
 With the class <a class="reference internal" href="#octbank.FractionalOctaveFilterbank" title="octbank.FractionalOctaveFilterbank"><tt class="xref py py-class docutils literal"><span class="pre">FractionalOctaveFilterbank</span></tt></a> you can create
 filtering objects that apply to the <a class="reference internal" href="#iec-61260" id="id2">[IEC-61260]</a>.</p>
+<p>An example filter bank is shown by the figures below.</p>
 <p>(<a class="reference external" href=".//octbank-1.py">Source code</a>)</p>
 <div class="figure">
 <img alt="_images/octbank-1_00.png" src="_images/octbank-1_00.png" />
@@ -152,7 +153,7 @@ filtering objects that apply to the <a class="reference internal" href="#iec-612
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="octbank.FractionalOctaveFilterbank">
-<em class="property">class </em><tt class="descclassname">octbank.</tt><tt class="descname">FractionalOctaveFilterbank</tt><big>(</big><em>sample_rate=44100</em>, <em>order=4</em>, <em>nth_oct=3.0</em>, <em>norm_freq=1000.0</em>, <em>start_band=-19</em>, <em>end_band=13</em>, <em>edge_correction_percent=0.0</em>, <em>filterfun='cffi'</em><big>)</big><a class="reference internal" href="_modules/octbank.html#FractionalOctaveFilterbank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#octbank.FractionalOctaveFilterbank" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">octbank.</tt><tt class="descname">FractionalOctaveFilterbank</tt><big>(</big><em>sample_rate=44100</em>, <em>order=4</em>, <em>nth_oct=3.0</em>, <em>norm_freq=1000.0</em>, <em>start_band=-19</em>, <em>end_band=13</em>, <em>edge_correction_percent=0.01</em>, <em>filterfun='cffi'</em><big>)</big><a class="reference internal" href="_modules/octbank.html#FractionalOctaveFilterbank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#octbank.FractionalOctaveFilterbank" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fractional octave filter bank
 with second order section butterworth band passes.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -165,7 +166,7 @@ with second order section butterworth band passes.</p>
 </div></blockquote>
 <p><strong>order</strong> : int</p>
 <blockquote>
-<div><p>Filter order of the bands. As this are second order sections it
+<div><p>Filter order of the bands. As this are second order sections, it
 has to be even. Otherweise you&#8217;ll get an error.</p>
 </div></blockquote>
 <p><strong>nth_oct</strong> : scalar</p>
@@ -183,7 +184,7 @@ placed around this band.</p>
 </div></blockquote>
 <p><strong>end_band</strong> : int</p>
 <blockquote>
-<div><p>Last band number of fractional octaves from <cite>norm_freq</cite>.</p>
+<div><p>Last band number of fractional octaves above <cite>norm_freq</cite>.</p>
 </div></blockquote>
 <p><strong>edge_correction_percent</strong> : scalar</p>
 <blockquote>
@@ -191,7 +192,7 @@ placed around this band.</p>
 </div></blockquote>
 <p><strong>filterfun</strong> : {&#8216;cffi&#8217;, &#8216;py&#8217;, &#8216;cprototype&#8217;}</p>
 <blockquote class="last">
-<div><p>Function used my the method <cite>filter</cite> .</p>
+<div><p>Function used by the method <a class="reference internal" href="#octbank.FractionalOctaveFilterbank.filter" title="octbank.FractionalOctaveFilterbank.filter"><tt class="xref py py-func docutils literal"><span class="pre">filter()</span></tt></a>.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -228,12 +229,11 @@ placed around this band.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> :  ndarray</p>
 <blockquote>
-<div><p>Input signal (Nx0) (in further versions
-multichannel will be supported).</p>
+<div><p>Input signal (Nx0)</p>
 </div></blockquote>
 <p><strong>ffilt</strong> : bool</p>
 <blockquote>
-<div><p>Forward and backward filtering if Ture.</p>
+<div><p>Forward and backward filtering, if Ture.</p>
 </div></blockquote>
 <p><strong>states</strong> : dict</p>
 <blockquote>
@@ -260,8 +260,7 @@ Initial you can states=None before block process.</p>
 <dt id="octbank.FractionalOctaveFilterbank.filter_mimo_c">
 <tt class="descname">filter_mimo_c</tt><big>(</big><em>x</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/octbank.html#FractionalOctaveFilterbank.filter_mimo_c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#octbank.FractionalOctaveFilterbank.filter_mimo_c" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filters the input by the settings of the filterbank object.</p>
-<p>It supports multi channel audio an returns a 3dim ndarray.
-With this routine you can&#8217;t use lphp_bounds=True yet.
+<p>It supports multi channel audio and returns a 3-dim ndarray.
 Only for real valued signals.
 No ffilt (backward forward filtering) implemented in this method.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -269,14 +268,24 @@ No ffilt (backward forward filtering) implemented in this method.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>Signal to be filtered.</p>
+</div></blockquote>
 <p><strong>states</strong> : ndarray or None</p>
 <blockquote>
 <div><p>States of the filter sections (for block processing).</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>data</strong> : ndarray</p>
-<p class="last"><strong>states</strong> : ndarray</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarray</p>
+<blockquote>
+<div><p>Signal array (NxBxC), with N samples, B frequency bands
+and C-signal channels.</p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Filter states of all filter sections.</p>
+</div></blockquote>
 </td>
 </tr>
 </tbody>
@@ -334,10 +343,10 @@ p &gt; 0 widens the band passes.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sosmat</strong> : dictionary</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sosmat</strong> : ndarray</p>
 <blockquote class="last">
-<div><p>Keys are the center frequencies and values
-are ndarrays with the sos b and a coefsample_rate.</p>
+<div><p>Second order section coefficients.
+Each column is one band pass cascade of coefficients.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -350,6 +359,10 @@ are ndarrays with the sos b and a coefsample_rate.</p>
 <tt class="descclassname">octbank.</tt><tt class="descname">design_sosmat_low_pass_high_pass_bounds</tt><big>(</big><em>order</em>, <em>band_edges</em>, <em>sample_rate</em><big>)</big><a class="reference internal" href="_modules/octbank.html#design_sosmat_low_pass_high_pass_bounds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#octbank.design_sosmat_low_pass_high_pass_bounds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns matrix containing sos coeffs of low and highpass.
 The cutoff frequencies are placed at the first and last band edge.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This funtion is not used anymore.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -368,10 +381,11 @@ The cutoff frequencies are placed at the first and last band edge.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sosdict</strong> : dictionary</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sosdict</strong> : ndarray</p>
 <blockquote class="last">
-<div><p>Keys are the center frequencies and values
-are ndarrays with the sos b and a coefsample_rate.</p>
+<div><p>Second order section coefficients,
+the first column contains the low pass coefs
+and the second column contains the highpass coeffs.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -380,9 +394,16 @@ are ndarrays with the sos b and a coefsample_rate.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="octbank.example_plot">
+<tt class="descclassname">octbank.</tt><tt class="descname">example_plot</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/octbank.html#example_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#octbank.example_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a plot with <a class="reference internal" href="#octbank.freqz" title="octbank.freqz"><tt class="xref py py-func docutils literal"><span class="pre">freqz()</span></tt></a> of the default
+<a class="reference internal" href="#octbank.FractionalOctaveFilterbank" title="octbank.FractionalOctaveFilterbank"><tt class="xref py py-class docutils literal"><span class="pre">FractionalOctaveFilterbank</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="octbank.find_nominal_freq">
 <tt class="descclassname">octbank.</tt><tt class="descname">find_nominal_freq</tt><big>(</big><em>center_frequencies</em>, <em>nominal_frequencies</em><big>)</big><a class="reference internal" href="_modules/octbank.html#find_nominal_freq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#octbank.find_nominal_freq" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the neares nominal frequencies to a given array.</p>
+<dd><p>Find the nearest nominal frequencies to a given array.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -393,8 +414,8 @@ are ndarrays with the sos b and a coefsample_rate.</p>
 </div></blockquote>
 <p><strong>nominal_frequencies</strong> : ndarray</p>
 <blockquote>
-<div><p>The nomunal frequencies we want to get the best fitting values to
-<cite>center_frequencies</cite>.</p>
+<div><p>The nominal frequencies we want to get the best fitting values to
+<cite>center_frequencies</cite> from.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -418,11 +439,11 @@ are ndarrays with the sos b and a coefsample_rate.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>start_band</strong> : int</p>
 <blockquote>
-<div><p>The starting center frequency at norm_freq*2^(start_band/nth_oct)</p>
+<div><p>The starting center frequency at <cite>norm_freq`*2^(`start_band</cite>/<cite>nth_oct</cite>).</p>
 </div></blockquote>
 <p><strong>end_band</strong> : int</p>
 <blockquote>
-<div><p>The last center frequency at norm_freq*2^(end_band/nth_oct)</p>
+<div><p>The last center frequency at <cite>norm_freq`*2^(`end_band</cite>/<cite>nth_oct</cite>).</p>
 </div></blockquote>
 <p><strong>norm_freq</strong> : scalar</p>
 <blockquote>
@@ -431,19 +452,18 @@ are ndarrays with the sos b and a coefsample_rate.</p>
 <p><strong>nth_oct</strong> : scalar</p>
 <blockquote>
 <div><p>The distance between the center frequencies.
-If it is 1 the space between the bands is an octave.
-For third octaves nth_oct is 3.</p>
+For third octaves <cite>nth_oct=3</cite>.</p>
 </div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>center_frequencies</strong> : ndarray</p>
 <blockquote>
-<div><p>Frequencies spaced in nth_oct from start_band to end_band
-with the norm_freq at band number 0.</p>
+<div><p>Frequencies spaced in <cite>nth_oct</cite> from <cite>start_band</cite> to <cite>end_band</cite>
+with the <cite>norm_freq</cite> at band number 0.</p>
 </div></blockquote>
 <p><strong>band_edges</strong> : ndarray</p>
 <blockquote class="last">
-<div><p>Edges of the fractional octave bands.
+<div><p>Edge frequencies (-3 dB points) of the fractional octave bands.
 With constant relative Bandwidth.</p>
 </div></blockquote>
 </td>
@@ -497,7 +517,7 @@ With constant relative Bandwidth.</p>
 <dl class="function">
 <dt id="octbank.to_normalized_frequencies">
 <tt class="descclassname">octbank.</tt><tt class="descname">to_normalized_frequencies</tt><big>(</big><em>frequencies</em>, <em>sample_rate</em>, <em>clip=True</em><big>)</big><a class="reference internal" href="_modules/octbank.html#to_normalized_frequencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#octbank.to_normalized_frequencies" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return normalized frequency array.</p>
+<dd><p>Returns normalized frequency array.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
