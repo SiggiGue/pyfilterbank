@@ -35,10 +35,10 @@ Content
 .. toctree::
    octbank
    melbank
+   gammatone
    splweighting
    sosfiltering
    glossary
-
 
 
 License
