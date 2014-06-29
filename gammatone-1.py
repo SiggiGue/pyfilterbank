@@ -1,0 +1,2 @@
+import gammatone
+gammatone.example()

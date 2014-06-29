@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Gammatone Filter Bank &mdash; PyFilterbank devN documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="PyFilterbank devN documentation" href="index.html"/>
+        <link rel="next" title="Spectral Weighting Filters" href="splweighting.html"/>
+        <link rel="prev" title="Mel Filter Bank" href="melbank.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> PyFilterbank</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="octbank.html">Fractional Octave Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="octbank.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="octbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="melbank.html">Mel Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="melbank.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Gammatone Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="splweighting.html">Spectral Weighting Filters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="splweighting.html#implemented-weighting-functions">Implemented weighting functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="splweighting.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="splweighting.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sosfiltering.html">Second Order Section Filtering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#compiling-the-c-source">Compiling the c source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Indices and tables</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">PyFilterbank</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Gammatone Filter Bank</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/gammatone.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="gammatone-filter-bank">
+<h1>Gammatone Filter Bank<a class="headerlink" href="#gammatone-filter-bank" title="Permalink to this headline">¶</a></h1>
+<p>Module name: <a class="reference internal" href="#module-gammatone" title="gammatone"><tt class="xref py py-mod docutils literal"><span class="pre">gammatone</span></tt></a></p>
+<span class="target" id="module-gammatone"></span><p>This module implements gammatone filters and a filtering routine.</p>
+<p>A filterbank is coming soon <a class="reference internal" href="#hohmann2002" id="id1">[Hohmann2002]</a>.</p>
+<p>(<a class="reference external" href=".//gammatone-1.py">Source code</a>, <a class="reference external" href=".//gammatone-1.png">png</a>, <a class="reference external" href=".//gammatone-1.hires.png">hires.png</a>, <a class="reference external" href=".//gammatone-1.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/gammatone-1.png" src="_images/gammatone-1.png" />
+</div>
+<dl class="docutils">
+<dt>TODO:</dt>
+<dd><ul class="first last simple">
+<li>Tests,</li>
+<li>nice introduction with example,</li>
+<li>implementing the filterbank class</li>
+</ul>
+</dd>
+</dl>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="hohmann2002" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Hohmann2002]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> Hohmann, V., Frequency analysis and synthesis using a Gammatone filterbank,
+Acta Acustica, Vol 88 (2002), 433&#8211;442</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="gammatone.design_gammatone_filter">
+<tt class="descclassname">gammatone.</tt><tt class="descname">design_gammatone_filter</tt><big>(</big><em>sample_rate=44100</em>, <em>order=4</em>, <em>center_frequency=1000.0</em>, <em>band_width=None</em>, <em>band_width_factor=1.0</em>, <em>attenuation_half_bandwidth_db=-3</em><big>)</big><a class="reference internal" href="_modules/gammatone.html#design_gammatone_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.design_gammatone_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns filter coefficient of a gammatone filter
+<a class="reference internal" href="#hohmann2002" id="id2">[Hohmann2002]</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sample_rate</strong> : scalar</p>
+<p><strong>order</strong> : int</p>
+<p><strong>center_frequency</strong> : scalar</p>
+<p><strong>band_width</strong> : scalar</p>
+<p><strong>band_width_factor</strong> : scalar</p>
+<p><strong>attenuation_half_bandwidth_db</strong> : scalar</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>b, a</strong> : ndarray, ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="gammatone.equivalent_rectangular_band_count">
+<tt class="descclassname">gammatone.</tt><tt class="descname">equivalent_rectangular_band_count</tt><big>(</big><em>center_frequency</em><big>)</big><a class="reference internal" href="_modules/gammatone.html#equivalent_rectangular_band_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.equivalent_rectangular_band_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the equivalent rectangular band count below center_frequency.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>center_frequency</strong> : scalar /Hz</p>
+<blockquote>
+<div><p>The center frequency in Hertz of the
+desired auditory filter.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>erb_count</strong> : scalar</p>
+<blockquote class="last">
+<div><p>Number of equivalent bandwidths below <cite>center_frequency</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="gammatone.equivalent_rectangular_bandwidth">
+<tt class="descclassname">gammatone.</tt><tt class="descname">equivalent_rectangular_bandwidth</tt><big>(</big><em>center_frequency</em><big>)</big><a class="reference internal" href="_modules/gammatone.html#equivalent_rectangular_bandwidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.equivalent_rectangular_bandwidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrurns equivalent rectangular band width of an auditory filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>center_frequency</strong> : scalar /Hz</p>
+<blockquote>
+<div><p>The center frequency in Hertz of the
+desired auditory filter.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>erb</strong> : scalar</p>
+<blockquote class="last">
+<div><p>Equivalent rectangular bandwidth of
+an auditory filter at <cite>center_frequency</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="gammatone.fosfilter">
+<tt class="descclassname">gammatone.</tt><tt class="descname">fosfilter</tt><big>(</big><em>b</em>, <em>a</em>, <em>order</em>, <em>signal</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/gammatone.html#fosfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.fosfilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return signal filtered with <cite>b</cite> and <cite>a</cite> (first order section)
+by filtering the signal <cite>order</cite> times.</p>
+<p>This Function was created for filtering signals by first order stion
+cascaded complex gammatone filters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>b, a</strong> : ndarray, ndarray</p>
+<blockquote>
+<div><p>Filter coefficients of a first order section filter.
+Can be complex valued.</p>
+</div></blockquote>
+<p><strong>order</strong> : int</p>
+<blockquote>
+<div><p>Order of the filter to be applied. This will
+be the count of refiltering the signal order times
+with the given coefficients.</p>
+</div></blockquote>
+<p><strong>signal</strong> : ndarray</p>
+<blockquote>
+<div><p>Input signal to be filtered.</p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray, default None</p>
+<blockquote>
+<div><p>Array with the filter states of length <cite>order</cite>.
+Initial you can set it to None.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarraa</p>
+<blockquote>
+<div><p>Output signal, that is filtered and complex valued
+(analytical signal).</p>
+</div></blockquote>
+<p><strong>states</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Array with the filter states of length <cite>order</cite>.
+You need to loop it back into this function when block
+processing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="splweighting.html" class="btn btn-neutral float-right" title="Spectral Weighting Filters"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="melbank.html" class="btn btn-neutral" title="Mel Filter Bank"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Siegfried Gündert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'devN',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
