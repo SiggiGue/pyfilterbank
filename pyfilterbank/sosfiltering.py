@@ -49,13 +49,15 @@ elif platform == 'win32' and architecture()[0] == '32bit':
 else:
     _dl = 'sosfilt.so'
 
+
 if __name__ != '__main__':
-    _mylibpath = os.path.dirname(__file__)
+    _mylibpath = os.path.join('.', os.path.dirname(__file__))
 else:
     _mylibpath = os.curdir
 
-_c = ffi.dlopen(os.path.join(_mylibpath, _dl))
-
+_mylibpath = os.path.join(_mylibpath, _dl)
+print(_mylibpath)
+_c = ffi.dlopen(_mylibpath)
 
 def sosfilter_c(signal, sos, states=None):
     """Second order section filter function using cffi
