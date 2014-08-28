@@ -25,14 +25,17 @@ References
 Functions
 ---------
 """
-
+import numpy as np  # TODO: resolve imports for terz fft class...
 from numpy import (abs, arange, argmin, array, copy, diff, ones,
                    pi, real, reshape, sqrt, tan, tile, zeros)
+from scipy.fftpack import rfft
 from pyfilterbank.sosfiltering import (sosfilter_py, sosfilter_double_c,
                        sosfilter_cprototype_py, sosfilter_double_mimo_c)
 from pyfilterbank.butterworth import butter_sos
 
 standardized_nominal_frequencies = array([
+    0.1, 0.125, 0.16, 0.2, 0.25, 0.315, 0.4, 0.5, 0.6, 3, 0.8,
+    1, 1.25, 1.6, 2, 2.5, 3.15, 4, 5, 6.3, 8, 10,
     12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250,
     315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
     4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000
@@ -518,6 +521,53 @@ def freqz(ofb, length_sec=6, ffilt=False, plot=True):
         print('sum level', level_output, level_input)
 
     return x, y, f, Y
+
+
+class ThirdOctFFTLevel:
+
+    """Third octave levels by fft.
+    TODO: rename variables
+    TODO: Write Documentation
+    """
+
+    def __init__(self, fmin=30, fmax=17000, nfft=16384, fs=44100, flag_mean=False):
+        self.nfft = nfft
+        self.fs = fs
+
+        # following should go into some functions:
+        kmin = 11 + int(10*np.log10(fmin))
+        kmax = 11 + int(10*np.log10(fmax))
+        f_terz = standardized_nominal_frequencies[kmin:kmax]
+        n = int(1 + kmax - kmin)
+        halfbw = 2**(1.0/6)
+        df = fs/nfft
+        idx_lower = np.zeros(n)
+        idx_lower[0] = 10 + np.round((standardized_nominal_frequencies[kmin]/halfbw)/df)
+
+        idx_upper = 10 + np.round(halfbw*standardized_nominal_frequencies[kmin:kmax]/df)
+        idx_lower[1:n] = idx_upper[0:n-1] + 1
+
+        upperedge = halfbw *standardized_nominal_frequencies[kmax]
+
+        #if idx_upper(1) - idx_lower(1) < 4:
+        #    raise ValueError('Too few FFT lines per frequency band')
+
+        M = np.zeros((n, nfft/2+1))
+
+        for cc in range(n-1):
+            kk = range(int(idx_lower[cc]), int(idx_upper[cc]))
+            if not flag_mean:
+                M[cc, kk] = 1.0
+            else:
+                M[cc, kk] = 1.0 / len(kk)
+
+        self.M = M
+        self.f_terz = f_terz
+
+    def filter(self, x):
+        X = rfft(x, self.nfft/2+1)
+        return np.dot(self.M, X)
+
 
 def example_plot():
     ofb = FractionalOctaveFilterbank()
