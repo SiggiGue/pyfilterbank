@@ -566,7 +566,7 @@ class ThirdOctFFTLevel:
 
     def filter(self, x):
         X = rfft(x, self.nfft/2+1)
-        return np.dot(self.M, X)
+        return 20*np.log10(np.dot(self.M, np.abs(X)))
 
 
 def example_plot():
