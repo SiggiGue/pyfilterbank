@@ -25,18 +25,44 @@ Functions
 ---------
 """
 
-
-from numpy import (array, pi, cos, exp, log, ones_like, sqrt, zeros)
+import numpy as np
+from numpy.fft import rfft, rfftfreq
+from numpy import (arange, array, pi, cos, exp, log10, ones_like, sqrt, zeros)
 from scipy.misc import factorial
 from scipy.signal import lfilter
 
 
-def equivalent_rectangular_bandwidth(center_frequency):
-    """Retrurns equivalent rectangular band width of an auditory filter.
+# ERB means "Equivalent retangular band(-width)"
+# Constants:
+_ERB_L = 24.7
+_ERB_Q = 9.265
+
+
+def erb_count(centerfrequency):
+    """Returns the equivalent rectangular band count up to centerfrequency.
 
     Parameters
     ----------
-    center_frequency : scalar /Hz
+    centerfrequency : scalar /Hz
+        The center frequency in Hertz of the
+        desired auditory filter.
+
+    Returns
+    -------
+    count : scalar
+        Number of equivalent bandwidths below `centerfrequency`.
+
+    """
+    return 21.4 * log10(4.37 * 0.001 * centerfrequency + 1)
+
+
+def erb_aud(centerfrequency):
+    """Retrurns equivalent rectangular band width of an auditory filter.
+    Implements Equation 13 in [Hohmann2002]_.
+
+    Parameters
+    ----------
+    centerfrequency : scalar /Hz
         The center frequency in Hertz of the
         desired auditory filter.
 
@@ -44,34 +70,78 @@ def equivalent_rectangular_bandwidth(center_frequency):
     -------
     erb : scalar
         Equivalent rectangular bandwidth of
-        an auditory filter at `center_frequency`.
+        an auditory filter at `centerfrequency`.
 
     """
-    return 24.7 + center_frequency * 0.107933081
+    return _ERB_L + centerfrequency / _ERB_Q
 
 
-def equivalent_rectangular_band_count(center_frequency):
-    """Returns the equivalent rectangular band count below center_frequency.
+def hertz_to_erbscale(frequency):
+    """Returns ERB-frequency from frequency in Hz.
+    Implements Equation 16 in [Hohmann2002]_.
 
     Parameters
     ----------
-    center_frequency : scalar /Hz
-        The center frequency in Hertz of the
-        desired auditory filter.
+    frequency : scalar
+        The Frequency in Hertz.
 
     Returns
     -------
-    erb_count : scalar
-        Number of equivalent bandwidths below `center_frequency`.
+    erb : scalar
+        The corresponding value on the ERB-Scale.
 
     """
-    return 21.4 * log10(4.37 * 0.001 * center_frequency + 1)
+    return _ERB_Q * np.log(1 + frequency / (_ERB_L * _ERB_Q))
 
 
-def design_gammatone_filter(
+def erbscale_to_hertz(erb):
+    """Returns frequency in Hertz from ERB value.
+    Implements Equation 17 in [Hohmann2002]_.
+
+    Parameters
+    ----------
+    erb : scalar
+        The corresponding value on the ERB-Scale.
+
+    Returns
+    -------
+    frequency : scalar
+        The Frequency in Hertz.
+
+    """
+    return (exp(erb/_ERB_Q) - 1) * _ERB_L * _ERB_Q
+
+
+def frequencies_gammatone_bank(start_band, end_band, norm_freq, density):
+    """Returns centerfrequencies and auditory Bandwidths
+    for a range of gamatone filters.
+
+    Parameters
+    ----------
+    start_band : int
+        Erb counts below norm_freq.
+    end_band : int
+        Erb counts  over norm_freq.
+    norm_freq : scalar
+        The reference frequency where all filters are around
+    density : scalar
+        ERB density 1would be `erb_aud`.
+
+    Returns
+    -------
+    centerfrequency_array : ndarray
+
+    """
+    norm_erb = hertz_to_erbscale(norm_freq)
+    centerfrequencies = erbscale_to_hertz(
+        arange(start_band, end_band, density) + norm_erb)
+    return centerfrequencies
+
+
+def design_filter(
         sample_rate=44100,
         order=4,
-        center_frequency=1000.0,
+        centerfrequency=1000.0,
         band_width=None,
         band_width_factor=1.0,
         attenuation_half_bandwidth_db=-3):
@@ -80,9 +150,9 @@ def design_gammatone_filter(
 
     Parameters
     ----------
-    sample_rate : scalar
+    sample_rate : int/scalar
     order : int
-    center_frequency : scalar
+    centerfrequency : scalar
     band_width : scalar
     band_width_factor : scalar
     attenuation_half_bandwidth_db : scalar
@@ -94,22 +164,26 @@ def design_gammatone_filter(
     """
     if band_width:
         phi = pi * band_width / sample_rate
-        alpha = 10**(0.1 * attenuation_half_bandwidth_db / order)
-        p = (-2 + 2 * alpha * cos(phi)) / (1 - alpha)
-        lambda_ = -p/2 - sqrt(p*p/4 - 1)
+        # alpha = 10**(0.1 * attenuation_half_bandwidth_db / order)
+        # p = (-2 + 2 * alpha * cos(phi)) / (1 - alpha)
+        # lambda_ = -p/2 - sqrt(p*p/4 - 1)
 
     elif band_width_factor:
-        erb_audiological = (band_width_factor *
-            equivalent_rectangular_bandwidth(center_frequency))
-        a_gamma = (pi * factorial(2*order - 2) *
-            2**(-(2*order - 2) / factorial(order - 1)**2))
-        b = erb_audiological / a_gamma
-        lambda_ = exp(-2 * pi * b / sample_rate)
+        erb_audiological = band_width_factor * erb_aud(centerfrequency)
+        phi = pi * erb_audiological / sample_rate
+        # a_gamma = ((factorial(pi * (2*order - 2)) *
+        #             2**(-(2*order - 2))) / (factorial(order - 1)**2))
+        # b = erb_audiological / a_gamma
+        # lambda_ = exp(-2 * pi * b / sample_rate)
+
     else:
         raise ValueError(
-            'You need to specify either band_width or band_width_factor!')
+            'You need to specify either `band_width` or `band_width_factor!`')
 
-    beta = 2*pi * center_frequency / sample_rate
+    alpha = 10**(0.1 * attenuation_half_bandwidth_db / order)
+    p = (-2 + 2 * alpha * cos(phi)) / (1 - alpha)
+    lambda_ = -p/2 - sqrt(p*p/4 - 1)
+    beta = 2*pi * centerfrequency / sample_rate
     coef = lambda_ * exp(1j*beta)
     factor = 2 * (1 - abs(coef))**order
     b, a = array([factor]), array([1., -coef])
@@ -120,7 +194,7 @@ def fosfilter(b, a, order, signal, states=None):
     """Return signal filtered with `b` and `a` (first order section)
     by filtering the signal `order` times.
 
-    This Function was created for filtering signals by first order stion
+    This Function was created for filtering signals by first order section
     cascaded complex gammatone filters.
 
     Parameters
@@ -140,7 +214,7 @@ def fosfilter(b, a, order, signal, states=None):
 
     Returns
     -------
-    signal : ndarraa
+    signal : ndarray
         Output signal, that is filtered and complex valued
         (analytical signal).
     states : ndarray
@@ -149,29 +223,170 @@ def fosfilter(b, a, order, signal, states=None):
         processing.
 
     """
-    if not states: states = zeros(order) + 0j
+    if not states:
+        states = zeros(order, dtype=np.complex128)
 
     for i in range(order):
         state = [states[i]]
-        [signal, state] = lfilter(b, a, signal, zi=state)
+        signal, state = lfilter(b, a, signal, zi=state)
         states[i] = state[0]
         b = ones_like(b)
     return signal, states
 
 
-def example():
+def freqz_fos(b, a, order, nfft, plotfun=None):
+    impulse = _create_impulse(nfft)
+    response, states = fosfilter(b, a, order, impulse)
+    freqresponse = rfft(np.real(response))
+    frequencies = rfftfreq(nfft)
+    if plotfun:
+        plotfun(frequencies, freqresponse)
+    return freqresponse, frequencies, response
+
+
+def design_filtbank_coeffs(
+        samplerate,
+        order,
+        centerfrequencies,
+        bandwidths=None,
+        bandwidth_factor=None,
+        attenuation_half_bandwidth_db=-3):
+
+    for i, cf in enumerate(centerfrequencies):
+        if bandwidths:
+            bw = bandwidths[i]
+            bwf = None
+        else:
+            bw = None
+            bwf = bandwidth_factor
+
+        yield design_filter(
+            samplerate, order, cf, band_width=bw,
+            band_width_factor=bwf,
+            attenuation_half_bandwidth_db=attenuation_half_bandwidth_db)
+
+
+class GammatoneFilterbank:
+
+    def __init__(
+            self,
+            samplerate=44100,
+            order=4,
+            startband=-12,
+            endband=12,
+            normfreq=1000.0,
+            density=1.0,
+            bandwidth_factor=1.0,
+            desired_delay_sec=0.02):
+
+        self.samplerate = samplerate
+        self.order = order
+        self.centerfrequencies = frequencies_gammatone_bank(
+            startband, endband, normfreq, density)
+        self._coeffs = tuple(design_filtbank_coeffs(
+            samplerate,
+            order,
+            self.centerfrequencies,
+            bandwidth_factor=bandwidth_factor))
+        self.init_delay(desired_delay_sec)
+        self.init_gains()
+
+    def init_delay(self, desired_delay_sec):
+        self.desired_delay_sec = desired_delay_sec
+        self.desired_delay_samples = int(self.samplerate*desired_delay_sec)
+        self.max_indices, self.slopes = self.estimate_max_indices_and_slopes(
+            delay_samples=self.desired_delay_samples)
+        self.delay_samples = self.desired_delay_samples - self.max_indices
+        self.delay_memory = np.zeros((len(self.centerfrequencies),
+                                      np.max(self.delay_samples)))
+
+    def init_gains(self):
+        self.gains = np.ones(len(self.centerfrequencies))
+        # not correct until now:
+        # x, s = list(zip(*self.analyze(_create_impulse(self.samplerate/10))))
+        # rss = [np.sqrt(np.sum(np.real(b)**2)) for b in x]
+        # self.gains = 1/np.array(rss)
+
+    def analyze(self, signal, states=None):
+        for i, (b, a) in enumerate(self._coeffs):
+            st = None if not states else states[i]
+            yield fosfilter(b, a, self.order, signal, states=st)
+
+    def reanalyze(self, bands, states=None):
+        for i, ((b, a), band) in enumerate(zip(self._coeffs, bands)):
+            st = None if not states else states[i]
+            yield fosfilter(b, a, self.order, band, states=st)
+
+    def synthesize(self, bands):
+        return np.array(list(self.delay(
+            [b*g for b, g in zip(bands, self.gains)]))).sum(axis=0)
+
+    def delay(self, bands):
+        self.phase_factors = np.abs(self.slopes)*1j / self.slopes
+        for i, band in enumerate(bands):
+            phase_factor = self.phase_factors[i]
+            delay_samples = self.delay_samples[i]
+            if delay_samples == 0:
+                yield np.real(band) * phase_factor
+            else:
+                yield np.concatenate(
+                    (self.delay_memory[i, :delay_samples],
+                     np.real(band[:-delay_samples])),
+                    axis=0)
+                self.delay_memory[i, :delay_samples] = np.real(
+                    band[-delay_samples:])
+
+    def estimate_max_indices_and_slopes(self, delay_samples=None):
+        if not delay_samples:
+            delay_samples = self.samplerate/10
+        sig = _create_impulse(delay_samples)
+        bands = list(zip(*self.analyze(sig)))[0]
+        ibandmax = [np.argmax(np.abs(b[:delay_samples])) for b in bands]
+        slopes = [b[i+1]-b[i-1] for (b, i) in zip(bands, ibandmax)]
+        return np.array(ibandmax), np.array(slopes)
+
+    def freqz(self, nfft=4096, plotfun=None):
+        for b, a in self._coeffs:
+            yield freqz_fos(b, a, self.order, nfft, plotfun)
+
+
+def _create_impulse(num_samples):
+    sig = zeros(num_samples) + 0j
+    sig[0] = 1.0
+    return sig
+
+
+def example_filterbank():
+    from pylab import plt
+    import numpy as np
+
+    x = _create_impulse(2000)
+    gfb = GammatoneFilterbank(density=1)
+
+    analyse = gfb.analyze(x)
+    imax, slopes = gfb.estimate_max_indices_and_slopes()
+    fig, axs = plt.subplots(len(gfb.centerfrequencies), 1)
+    for (band, state), imx, ax in zip(analyse, imax, axs):
+        ax.plot(np.real(band))
+        ax.plot(np.imag(band))
+        ax.plot(np.abs(band))
+        ax.plot(imx, 0, 'o')
+    plt.show()
+    return gfb
+
+
+def example_gammatone_filter():
     from pylab import plt, np
     sample_rate = 44100
     order = 4
-    b, a = design_gammatone_filter(
+    b, a = design_filter(
         sample_rate=sample_rate,
         order=order,
-        center_frequency=1000.0,
+        centerfrequency=1000.0,
         attenuation_half_bandwidth_db=-3,
-        band_width=100.0)
+        band_width_factor=1.0)
 
-    x = zeros(10000)
-    x[0] = 1.0
+    x = _create_impulse(1000)
     y, states = fosfilter(b, a, order, x)
     y = y[:800]
     plt.plot(np.real(y), label='Re(z)')
@@ -183,4 +398,6 @@ def example():
 
 
 if __name__ == '__main__':
-    y = example()
+
+    gfb = example_filterbank()
+    y = example_gammatone_filter()
