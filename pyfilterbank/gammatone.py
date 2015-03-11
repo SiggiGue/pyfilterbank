@@ -346,8 +346,10 @@ class GammatoneFilterbank:
         return np.array(ibandmax), np.array(slopes)
 
     def freqz(self, nfft=4096, plotfun=None):
-        for b, a in self._coeffs:
-            yield freqz_fos(b, a, self.order, nfft, plotfun)
+        def gen_freqz():
+            for b, a in self._coeffs:
+                yield freqz_fos(b, a, self.order, nfft, plotfun)
+        return list(gen_freqz())
 
 
 def _create_impulse(num_samples):
@@ -371,7 +373,26 @@ def example_filterbank():
         ax.plot(np.imag(band))
         ax.plot(np.abs(band))
         ax.plot(imx, 0, 'o')
+        ax.set_yticklabels([])
+        [ax.set_xticklabels([]) for ax in axs[:-1]]
+
+    axs[0].set_title('Impulse responses of gammatone bands')
+
+    fig, ax = plt.subplots()
+
+    def plotfun(x, y):
+        ax.semilogx(x, 20*np.log10(np.abs(y)**2))
+        plt.hold(True)
+
+    gfb.freqz(nfft=2*4096, plotfun=plotfun)
+    plt.grid(True)
+    plt.title('Absolute spectra of gammatone bands.')
+    plt.xlabel('Normalized Frequency (log)')
+    plt.ylabel('Attenuation /dB(FS)')
+    plt.axis('Tight')
+    plt.ylim([-90, 1])
     plt.show()
+
     return gfb
 
 
@@ -394,7 +415,7 @@ def example_gammatone_filter():
     plt.plot(np.abs(y), label='|z|')
     plt.legend()
     plt.show()
-    return y
+    return y, b, a
 
 
 if __name__ == '__main__':
