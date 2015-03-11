@@ -41,6 +41,12 @@ standardized_nominal_frequencies = array([
     4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000
 ])
 
+
+def centerfreq_to_bandnum(center_freq, norm_freq, nth_oct):
+    """Returns band number from given center frequency."""
+    return nth_oct * np.log2(center_freq / norm_freq)
+
+
 def find_nominal_freq(center_frequencies, nominal_frequencies):
     """Find the neares nominal frequencies to a given array.
 
@@ -548,7 +554,7 @@ class ThirdOctFFTLevel:
         idx_lower[1:n] = idx_upper[0:n-1] + 1
 
         upperedge = halfbw *standardized_nominal_frequencies[kmax]
-
+        print(idx_upper[0]-idx_lower[0])
         #if idx_upper(1) - idx_lower(1) < 4:
         #    raise ValueError('Too few FFT lines per frequency band')
 

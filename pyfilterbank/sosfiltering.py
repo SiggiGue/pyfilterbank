@@ -56,8 +56,9 @@ else:
     _mylibpath = os.curdir
 
 _mylibpath = os.path.join(_mylibpath, _dl)
-print(_mylibpath)
+
 _c = ffi.dlopen(_mylibpath)
+
 
 def sosfilter_c(signal, sos, states=None):
     """Second order section filter function using cffi
@@ -272,24 +273,30 @@ def sosfilter_mimo_cprototype_py(signal_in, sos_in, states_in=None):
         for b in range(kbands):
             for k in range(ksos):
                 w1 = states[c*ksos*kbands*2 + b*ksos*2 + k*2]
-                w2 = states[c*ksos*kbands*2 + b*ksos*2 + k*2 + 1];
-                b0 = sos[ii]; ii += 1;
-                b1 = sos[ii]; ii += 1;
-                b2 = sos[ii]; ii += 1;
-                a0 = sos[ii]; ii += 1;
-                a1 = sos[ii]; ii += 1;
-                a2 = sos[ii]; ii += 1;
+                w2 = states[c*ksos*kbands*2 + b*ksos*2 + k*2 + 1]
+                b0 = sos[ii]
+                ii += 1
+                b1 = sos[ii]
+                ii += 1
+                b2 = sos[ii]
+                ii += 1
+                a0 = sos[ii]
+                ii += 1
+                a1 = sos[ii]
+                ii += 1
+                a2 = sos[ii]
+                ii += 1
 
                 for n in range(nframes):
                     w0 = signal[c*nframes*kbands + b*nframes + n]
                     w0 = w0 - a1*w1 - a2*w2
                     yn = b0*w0 + b1*w1 + b2*w2
-                    w2 = w1;
-                    w1 = w0;
-                    signal[c*nframes*kbands + b*nframes + n] = yn;
+                    w2 = w1
+                    w1 = w0
+                    signal[c*nframes*kbands + b*nframes + n] = yn
 
-            states[c*ksos*kbands*2 + b*ksos*2 + k*2] = w1;
-            states[c*ksos*kbands*2 + b*ksos*2 + k*2 + 1] = w2;
+            states[c*ksos*kbands*2 + b*ksos*2 + k*2] = w1
+            states[c*ksos*kbands*2 + b*ksos*2 + k*2 + 1] = w2
     return signal.reshape(shape_signal), states
 
 
@@ -306,7 +313,6 @@ def sosfilter_cprototype_py(signal, sos, states):
     sos = sos.copy().flatten()
     yn = 0.0  # buffer for output
     w0 = 0.0  # signal states
-
 
     for k in range(K):
         # get coefficients of current biquad
@@ -343,7 +349,8 @@ def sosfilter_py(x, sos, states=None):
     n = sos.shape[0]
     if isinstance(states, type(None)):
         states = dict()
-        for i in np.arange(n): states[i] = np.zeros(2)
+        for i in np.arange(n):
+            states[i] = np.zeros(2)
     for ii in np.arange(n):
         zi = states[ii]
         b = sos[ii, :3]
@@ -353,7 +360,7 @@ def sosfilter_py(x, sos, states=None):
     return x, states
 
 
-def bilinear_sos(d,c):
+def bilinear_sos(d, c):
     """Bilinear transformation of analog weights to digital weights
 
     Bilinear transformation of analog weights to digital weights.
@@ -387,12 +394,12 @@ def bilinear_sos(d,c):
     nr, ncc = c.shape
 
     # Check for errors.
-    if(nr!=L2 or ncd!=2 or ncc!=2):
+    if(nr != L2 or ncd != 2 or ncc != 2):
         raise Exception('Inputs d and c must both be L/2 x 2 arrays.')
 
     # Bilinear transformation of H(s) to H(z) using z and p vectors.
     a = np.zeros((L2, 3), dtype=np.double)
-    a[:,0] = np.abs(c[:, 0] + c[:, 1])**2
+    a[:, 0] = np.abs(c[:, 0] + c[:, 1])**2
 
     if np.min(a[:, 0]) == 0:
         raise Exception('"c" should not have a row of zeros.')
