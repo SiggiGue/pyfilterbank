@@ -14,7 +14,7 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -25,6 +25,8 @@
   
   
     <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
   
 
   
@@ -43,9 +45,12 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="../index.html" class="fa fa-home"> PyFilterbank</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+        
+          <a href="../index.html" class="fa fa-home"> PyFilterbank</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -55,8 +60,9 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul>
+          
+          
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../octbank.html">Fractional Octave Filter Bank</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../octbank.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../octbank.html#functions">Functions</a></li>
@@ -67,6 +73,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../gammatone.html">Gammatone Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../gammatone.html#examples">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gammatone.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gammatone.html#functions">Functions</a></li>
 </ul>
@@ -80,12 +87,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../sosfiltering.html">Second Order Section Filtering</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#compiling-the-c-source">Compiling the c source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#functions">Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><code class="docutils literal"><span class="pre">butterworth</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Indices and tables</a></li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -116,7 +124,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <h1>Source code for butterworth</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;The :mod:`butterworth` module provides functions to design butterwort filters.</span>
@@ -133,6 +141,7 @@
 <span class="n">highpass</span> <span class="o">=</span> <span class="s">&#39;highpass&#39;</span>
 <span class="n">bandpass</span> <span class="o">=</span> <span class="s">&#39;bandpass&#39;</span>
 <span class="n">bandstop</span> <span class="o">=</span> <span class="s">&#39;bandstop&#39;</span>
+
 
 <div class="viewcode-block" id="butter_sos"><a class="viewcode-back" href="../sosfiltering.html#butterworth.butter_sos">[docs]</a><span class="k">def</span> <span class="nf">butter_sos</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compute weights of a digital Butterworth filter in cascade form.</span>
@@ -278,7 +287,8 @@
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
@@ -303,7 +313,7 @@
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

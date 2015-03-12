@@ -3,5 +3,5 @@ Fractional Octave Filter Bank
 
 Module name: :mod:`octbank`
 
-.. automodule:: octbank
+.. automodule:: pyfilterbank.octbank
    :members:

@@ -14,7 +14,7 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -25,6 +25,8 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
   
 
   
@@ -49,9 +51,12 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> PyFilterbank</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+        
+          <a href="index.html" class="fa fa-home"> PyFilterbank</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -61,8 +66,9 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul>
+          
+          
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="octbank.html">Fractional Octave Filter Bank</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="octbank.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="octbank.html#functions">Functions</a></li>
@@ -73,6 +79,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="gammatone.html">Gammatone Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gammatone.html#examples">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gammatone.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gammatone.html#functions">Functions</a></li>
 </ul>
@@ -86,12 +93,13 @@
 <li class="toctree-l1"><a class="reference internal" href="sosfiltering.html">Second Order Section Filtering</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#compiling-the-c-source">Compiling the c source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#functions">Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#module-butterworth"><code class="docutils literal"><span class="pre">butterworth</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Indices and tables</a></li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -120,7 +128,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
 
    <h1>Python Module Index</h1>
@@ -129,7 +137,7 @@
    <a href="#cap-b"><strong>b</strong></a> | 
    <a href="#cap-g"><strong>g</strong></a> | 
    <a href="#cap-m"><strong>m</strong></a> | 
-   <a href="#cap-o"><strong>o</strong></a> | 
+   <a href="#cap-p"><strong>p</strong></a> | 
    <a href="#cap-s"><strong>s</strong></a>
    </div>
 
@@ -140,7 +148,7 @@
      <tr>
        <td></td>
        <td>
-       <a href="sosfiltering.html#module-butterworth"><tt class="xref">butterworth</tt></a></td><td>
+       <a href="sosfiltering.html#module-butterworth"><code class="xref">butterworth</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
      <tr class="cap" id="cap-g"><td></td><td>
@@ -148,7 +156,7 @@
      <tr>
        <td></td>
        <td>
-       <a href="gammatone.html#module-gammatone"><tt class="xref">gammatone</tt></a></td><td>
+       <a href="gammatone.html#module-gammatone"><code class="xref">gammatone</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
      <tr class="cap" id="cap-m"><td></td><td>
@@ -156,15 +164,21 @@
      <tr>
        <td></td>
        <td>
-       <a href="melbank.html#module-melbank"><tt class="xref">melbank</tt></a></td><td>
+       <a href="melbank.html#module-melbank"><code class="xref">melbank</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
-     <tr class="cap" id="cap-o"><td></td><td>
-       <strong>o</strong></td><td></td></tr>
+     <tr class="cap" id="cap-p"><td></td><td>
+       <strong>p</strong></td><td></td></tr>
      <tr>
-       <td></td>
+       <td><img src="_static/minus.png" class="toggler"
+              id="toggle-1" style="display: none" alt="-" /></td>
        <td>
-       <a href="octbank.html#module-octbank"><tt class="xref">octbank</tt></a></td><td>
+       <code class="xref">pyfilterbank</code></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&nbsp;&nbsp;&nbsp;
+       <a href="octbank.html#module-pyfilterbank.octbank"><code class="xref">pyfilterbank.octbank</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
      <tr class="cap" id="cap-s"><td></td><td>
@@ -172,12 +186,12 @@
      <tr>
        <td></td>
        <td>
-       <a href="sosfiltering.html#module-sosfiltering"><tt class="xref">sosfiltering</tt></a></td><td>
+       <a href="sosfiltering.html#module-sosfiltering"><code class="xref">sosfiltering</code></a></td><td>
        <em></em></td></tr>
      <tr>
        <td></td>
        <td>
-       <a href="splweighting.html#module-splweighting"><tt class="xref">splweighting</tt></a></td><td>
+       <a href="splweighting.html#module-splweighting"><code class="xref">splweighting</code></a></td><td>
        <em></em></td></tr>
    </table>
 
@@ -194,7 +208,8 @@
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
@@ -219,7 +234,7 @@
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

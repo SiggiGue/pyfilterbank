@@ -14,7 +14,7 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -25,6 +25,8 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
   
 
   
@@ -44,9 +46,12 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> PyFilterbank</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+        
+          <a href="index.html" class="fa fa-home"> PyFilterbank</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -56,8 +61,9 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul class="current">
+          
+          
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="octbank.html">Fractional Octave Filter Bank</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="octbank.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="octbank.html#functions">Functions</a></li>
@@ -67,7 +73,12 @@
 <li class="toctree-l2"><a class="reference internal" href="melbank.html#functions">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="gammatone.html">Gammatone Filter Bank</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gammatone.html">Gammatone Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gammatone.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gammatone.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gammatone.html#functions">Functions</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Spectral Weighting Filters</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#implemented-weighting-functions">Implemented weighting functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
@@ -77,12 +88,13 @@
 <li class="toctree-l1"><a class="reference internal" href="sosfiltering.html">Second Order Section Filtering</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#compiling-the-c-source">Compiling the c source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#functions">Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#module-butterworth"><code class="docutils literal"><span class="pre">butterworth</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Indices and tables</a></li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -113,11 +125,11 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="spectral-weighting-filters">
 <h1>Spectral Weighting Filters<a class="headerlink" href="#spectral-weighting-filters" title="Permalink to this headline">¶</a></h1>
-<p>Module name: <a class="reference internal" href="#module-splweighting" title="splweighting"><tt class="xref py py-mod docutils literal"><span class="pre">splweighting</span></tt></a></p>
+<p>Module name: <a class="reference internal" href="#module-splweighting" title="splweighting"><code class="xref py py-mod docutils literal"><span class="pre">splweighting</span></code></a></p>
 <span class="target" id="module-splweighting"></span><p>This module implements spectral weighting filters for the sound pressure level (SPL)
 in air according to <a class="reference internal" href="#iec-61672" id="id1">[IEC-61672]</a>. Spectral weighting is part of aucoustic measurements.
 It is used by sound level meters for example. The weighting functions are derived
@@ -168,7 +180,7 @@ Faculte Polytechnique de Mons (Belgium) <a class="reference external" href="mail
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="splweighting.a_weighting_coeffs_design">
-<tt class="descclassname">splweighting.</tt><tt class="descname">a_weighting_coeffs_design</tt><big>(</big><em>sample_rate</em><big>)</big><a class="reference internal" href="_modules/splweighting.html#a_weighting_coeffs_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.a_weighting_coeffs_design" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">splweighting.</code><code class="descname">a_weighting_coeffs_design</code><span class="sig-paren">(</span><em>sample_rate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/splweighting.html#a_weighting_coeffs_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.a_weighting_coeffs_design" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns b and a coeff of a A-weighting filter.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -191,13 +203,13 @@ Faculte Polytechnique de Mons (Belgium) <a class="reference external" href="mail
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><a class="reference internal" href="#splweighting.b_weighting_coeffs_design" title="splweighting.b_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">b_weighting_coeffs_design</span></tt></a></dt>
+<dt><a class="reference internal" href="#splweighting.b_weighting_coeffs_design" title="splweighting.b_weighting_coeffs_design"><code class="xref py py-obj docutils literal"><span class="pre">b_weighting_coeffs_design</span></code></a></dt>
 <dd>B-Weighting coefficients.</dd>
-<dt><a class="reference internal" href="#splweighting.c_weighting_coeffs_design" title="splweighting.c_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">c_weighting_coeffs_design</span></tt></a></dt>
+<dt><a class="reference internal" href="#splweighting.c_weighting_coeffs_design" title="splweighting.c_weighting_coeffs_design"><code class="xref py py-obj docutils literal"><span class="pre">c_weighting_coeffs_design</span></code></a></dt>
 <dd>C-Weighting coefficients.</dd>
-<dt><a class="reference internal" href="#splweighting.weight_signal" title="splweighting.weight_signal"><tt class="xref py py-obj docutils literal"><span class="pre">weight_signal</span></tt></a></dt>
+<dt><a class="reference internal" href="#splweighting.weight_signal" title="splweighting.weight_signal"><code class="xref py py-obj docutils literal"><span class="pre">weight_signal</span></code></a></dt>
 <dd>Apply a weighting filter to a signal.</dd>
-<dt><tt class="xref py py-obj docutils literal"><span class="pre">scipy.lfilter</span></tt></dt>
+<dt><code class="xref py py-obj docutils literal"><span class="pre">scipy.lfilter</span></code></dt>
 <dd>Filtering signal with <cite>b</cite> and <cite>a</cite> coefficients.</dd>
 </dl>
 </div>
@@ -214,7 +226,7 @@ Faculte Polytechnique de Mons (Belgium) <a class="reference external" href="mail
 
 <dl class="function">
 <dt id="splweighting.b_weighting_coeffs_design">
-<tt class="descclassname">splweighting.</tt><tt class="descname">b_weighting_coeffs_design</tt><big>(</big><em>sample_rate</em><big>)</big><a class="reference internal" href="_modules/splweighting.html#b_weighting_coeffs_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.b_weighting_coeffs_design" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">splweighting.</code><code class="descname">b_weighting_coeffs_design</code><span class="sig-paren">(</span><em>sample_rate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/splweighting.html#b_weighting_coeffs_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.b_weighting_coeffs_design" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <cite>b</cite> and <cite>a</cite> coeff of a B-weighting filter.</p>
 <p>B-Weighting is no longer described in DIN61672.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -238,11 +250,11 @@ Faculte Polytechnique de Mons (Belgium) <a class="reference external" href="mail
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><a class="reference internal" href="#splweighting.a_weighting_coeffs_design" title="splweighting.a_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">a_weighting_coeffs_design</span></tt></a></dt>
+<dt><a class="reference internal" href="#splweighting.a_weighting_coeffs_design" title="splweighting.a_weighting_coeffs_design"><code class="xref py py-obj docutils literal"><span class="pre">a_weighting_coeffs_design</span></code></a></dt>
 <dd>A-Weighting coefficients.</dd>
-<dt><a class="reference internal" href="#splweighting.c_weighting_coeffs_design" title="splweighting.c_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">c_weighting_coeffs_design</span></tt></a></dt>
+<dt><a class="reference internal" href="#splweighting.c_weighting_coeffs_design" title="splweighting.c_weighting_coeffs_design"><code class="xref py py-obj docutils literal"><span class="pre">c_weighting_coeffs_design</span></code></a></dt>
 <dd>C-Weighting coefficients.</dd>
-<dt><a class="reference internal" href="#splweighting.weight_signal" title="splweighting.weight_signal"><tt class="xref py py-obj docutils literal"><span class="pre">weight_signal</span></tt></a></dt>
+<dt><a class="reference internal" href="#splweighting.weight_signal" title="splweighting.weight_signal"><code class="xref py py-obj docutils literal"><span class="pre">weight_signal</span></code></a></dt>
 <dd>Apply a weighting filter to a signal.</dd>
 </dl>
 </div>
@@ -259,7 +271,7 @@ Faculte Polytechnique de Mons (Belgium) <a class="reference external" href="mail
 
 <dl class="function">
 <dt id="splweighting.c_weighting_coeffs_design">
-<tt class="descclassname">splweighting.</tt><tt class="descname">c_weighting_coeffs_design</tt><big>(</big><em>sample_rate</em><big>)</big><a class="reference internal" href="_modules/splweighting.html#c_weighting_coeffs_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.c_weighting_coeffs_design" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">splweighting.</code><code class="descname">c_weighting_coeffs_design</code><span class="sig-paren">(</span><em>sample_rate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/splweighting.html#c_weighting_coeffs_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.c_weighting_coeffs_design" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns b and a coeff of a C-weighting filter.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -282,11 +294,11 @@ Faculte Polytechnique de Mons (Belgium) <a class="reference external" href="mail
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><a class="reference internal" href="#splweighting.a_weighting_coeffs_design" title="splweighting.a_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">a_weighting_coeffs_design</span></tt></a></dt>
+<dt><a class="reference internal" href="#splweighting.a_weighting_coeffs_design" title="splweighting.a_weighting_coeffs_design"><code class="xref py py-obj docutils literal"><span class="pre">a_weighting_coeffs_design</span></code></a></dt>
 <dd>A-Weighting coefficients.</dd>
-<dt><a class="reference internal" href="#splweighting.b_weighting_coeffs_design" title="splweighting.b_weighting_coeffs_design"><tt class="xref py py-obj docutils literal"><span class="pre">b_weighting_coeffs_design</span></tt></a></dt>
+<dt><a class="reference internal" href="#splweighting.b_weighting_coeffs_design" title="splweighting.b_weighting_coeffs_design"><code class="xref py py-obj docutils literal"><span class="pre">b_weighting_coeffs_design</span></code></a></dt>
 <dd>B-Weighting coefficients.</dd>
-<dt><a class="reference internal" href="#splweighting.weight_signal" title="splweighting.weight_signal"><tt class="xref py py-obj docutils literal"><span class="pre">weight_signal</span></tt></a></dt>
+<dt><a class="reference internal" href="#splweighting.weight_signal" title="splweighting.weight_signal"><code class="xref py py-obj docutils literal"><span class="pre">weight_signal</span></code></a></dt>
 <dd>Apply a weighting filter to a signal.</dd>
 </dl>
 </div>
@@ -299,13 +311,13 @@ y = lfilter(b, a, x)</p>
 
 <dl class="function">
 <dt id="splweighting.plot_weightings">
-<tt class="descclassname">splweighting.</tt><tt class="descname">plot_weightings</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/splweighting.html#plot_weightings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.plot_weightings" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">splweighting.</code><code class="descname">plot_weightings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/splweighting.html#plot_weightings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.plot_weightings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots all weighting functions defined in :module: splweighting.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="splweighting.weight_signal">
-<tt class="descclassname">splweighting.</tt><tt class="descname">weight_signal</tt><big>(</big><em>data</em>, <em>sample_rate=44100</em>, <em>weighting='A'</em><big>)</big><a class="reference internal" href="_modules/splweighting.html#weight_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.weight_signal" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">splweighting.</code><code class="descname">weight_signal</code><span class="sig-paren">(</span><em>data</em>, <em>sample_rate=44100</em>, <em>weighting='A'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/splweighting.html#weight_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#splweighting.weight_signal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns filtered signal with a weighting filter.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -345,7 +357,7 @@ the specified filter function.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="sosfiltering.html" class="btn btn-neutral float-right" title="Second Order Section Filtering"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="sosfiltering.html" class="btn btn-neutral float-right" title="Second Order Section Filtering">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="gammatone.html" class="btn btn-neutral" title="Gammatone Filter Bank"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -361,7 +373,8 @@ the specified filter function.</p>
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
@@ -386,7 +399,7 @@ the specified filter function.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

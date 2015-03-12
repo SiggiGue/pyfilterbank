@@ -14,7 +14,7 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -25,6 +25,8 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
   
 
   
@@ -44,9 +46,12 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> PyFilterbank</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+        
+          <a href="index.html" class="fa fa-home"> PyFilterbank</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -56,8 +61,9 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul class="current">
+          
+          
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="octbank.html">Fractional Octave Filter Bank</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="octbank.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="octbank.html#functions">Functions</a></li>
@@ -67,7 +73,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="gammatone.html">Gammatone Filter Bank</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gammatone.html">Gammatone Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gammatone.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gammatone.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gammatone.html#functions">Functions</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="splweighting.html">Spectral Weighting Filters</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="splweighting.html#implemented-weighting-functions">Implemented weighting functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="splweighting.html#references">References</a></li>
@@ -77,12 +88,13 @@
 <li class="toctree-l1"><a class="reference internal" href="sosfiltering.html">Second Order Section Filtering</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#compiling-the-c-source">Compiling the c source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#functions">Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#module-butterworth"><code class="docutils literal"><span class="pre">butterworth</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Indices and tables</a></li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -113,29 +125,29 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="mel-filter-bank">
 <h1>Mel Filter Bank<a class="headerlink" href="#mel-filter-bank" title="Permalink to this headline">¶</a></h1>
-<p>Module name: <a class="reference internal" href="#module-melbank" title="melbank"><tt class="xref py py-mod docutils literal"><span class="pre">melbank</span></tt></a></p>
+<p>Module name: <a class="reference internal" href="#module-melbank" title="melbank"><code class="xref py py-mod docutils literal"><span class="pre">melbank</span></code></a></p>
 <span class="target" id="module-melbank"></span><p>This module implements a Mel Filter Bank.
 In other words it is a filter bank with triangular shaped bands
 arnged on the mel frequency scale.</p>
 <p>An example ist shown in the following figure:</p>
 <p>(<a class="reference external" href=".//melbank-1.py">Source code</a>)</p>
-<div class="figure">
+<div class="figure" id="id1">
 <img alt="_images/melbank-1_00.png" src="_images/melbank-1_00.png" />
-<p class="caption">(<a class="reference external" href=".//melbank-1_00.png">png</a>, <a class="reference external" href=".//melbank-1_00.hires.png">hires.png</a>, <a class="reference external" href=".//melbank-1_00.pdf">pdf</a>)</p>
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//melbank-1_00.png">png</a>, <a class="reference external" href=".//melbank-1_00.hires.png">hires.png</a>, <a class="reference external" href=".//melbank-1_00.pdf">pdf</a>)</span></p>
 </div>
-<div class="figure">
+<div class="figure" id="id2">
 <img alt="_images/melbank-1_01.png" src="_images/melbank-1_01.png" />
-<p class="caption">(<a class="reference external" href=".//melbank-1_01.png">png</a>, <a class="reference external" href=".//melbank-1_01.hires.png">hires.png</a>, <a class="reference external" href=".//melbank-1_01.pdf">pdf</a>)</p>
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//melbank-1_01.png">png</a>, <a class="reference external" href=".//melbank-1_01.hires.png">hires.png</a>, <a class="reference external" href=".//melbank-1_01.pdf">pdf</a>)</span></p>
 </div>
 <div class="section" id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="melbank.compute_melmat">
-<tt class="descclassname">melbank.</tt><tt class="descname">compute_melmat</tt><big>(</big><em>num_mel_bands=12</em>, <em>freq_min=64</em>, <em>freq_max=8000</em>, <em>num_fft_bands=513</em>, <em>sample_rate=16000</em><big>)</big><a class="reference internal" href="_modules/melbank.html#compute_melmat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.compute_melmat" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">melbank.</code><code class="descname">compute_melmat</code><span class="sig-paren">(</span><em>num_mel_bands=12</em>, <em>freq_min=64</em>, <em>freq_max=8000</em>, <em>num_fft_bands=513</em>, <em>sample_rate=16000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/melbank.html#compute_melmat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.compute_melmat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns tranformation matrix for mel spectrum.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -189,7 +201,7 @@ to a mel-spectrum.</p>
 
 <dl class="function">
 <dt id="melbank.hertz_to_mel">
-<tt class="descclassname">melbank.</tt><tt class="descname">hertz_to_mel</tt><big>(</big><em>freq</em><big>)</big><a class="reference internal" href="_modules/melbank.html#hertz_to_mel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.hertz_to_mel" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">melbank.</code><code class="descname">hertz_to_mel</code><span class="sig-paren">(</span><em>freq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/melbank.html#hertz_to_mel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.hertz_to_mel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns mel-frequency from linear frequency input.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -207,7 +219,7 @@ to a mel-spectrum.</p>
 
 <dl class="function">
 <dt id="melbank.mel_to_hertz">
-<tt class="descclassname">melbank.</tt><tt class="descname">mel_to_hertz</tt><big>(</big><em>mel</em><big>)</big><a class="reference internal" href="_modules/melbank.html#mel_to_hertz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.mel_to_hertz" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">melbank.</code><code class="descname">mel_to_hertz</code><span class="sig-paren">(</span><em>mel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/melbank.html#mel_to_hertz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.mel_to_hertz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns frequency from mel-frequency input.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -225,7 +237,7 @@ to a mel-spectrum.</p>
 
 <dl class="function">
 <dt id="melbank.melfrequencies_mel_filterbank">
-<tt class="descclassname">melbank.</tt><tt class="descname">melfrequencies_mel_filterbank</tt><big>(</big><em>num_bands</em>, <em>freq_min</em>, <em>freq_max</em>, <em>num_fft_bands</em><big>)</big><a class="reference internal" href="_modules/melbank.html#melfrequencies_mel_filterbank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.melfrequencies_mel_filterbank" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">melbank.</code><code class="descname">melfrequencies_mel_filterbank</code><span class="sig-paren">(</span><em>num_bands</em>, <em>freq_min</em>, <em>freq_max</em>, <em>num_fft_bands</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/melbank.html#melfrequencies_mel_filterbank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#melbank.melfrequencies_mel_filterbank" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns centerfrequencies and band edges for a mel filter bank
 Parameters
 &#8212;&#8212;&#8212;-
@@ -262,7 +274,7 @@ num_bands : int</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="gammatone.html" class="btn btn-neutral float-right" title="Gammatone Filter Bank"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="gammatone.html" class="btn btn-neutral float-right" title="Gammatone Filter Bank">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="octbank.html" class="btn btn-neutral" title="Fractional Octave Filter Bank"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -278,7 +290,8 @@ num_bands : int</p>
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
@@ -303,7 +316,7 @@ num_bands : int</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

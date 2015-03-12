@@ -14,7 +14,7 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -25,6 +25,8 @@
   
   
     <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
   
 
   
@@ -43,9 +45,12 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="../index.html" class="fa fa-home"> PyFilterbank</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+        
+          <a href="../index.html" class="fa fa-home"> PyFilterbank</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -55,8 +60,9 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul>
+          
+          
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../octbank.html">Fractional Octave Filter Bank</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../octbank.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../octbank.html#functions">Functions</a></li>
@@ -67,6 +73,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../gammatone.html">Gammatone Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../gammatone.html#examples">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gammatone.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gammatone.html#functions">Functions</a></li>
 </ul>
@@ -80,12 +87,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../sosfiltering.html">Second Order Section Filtering</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#compiling-the-c-source">Compiling the c source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#functions">Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><code class="docutils literal"><span class="pre">butterworth</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Indices and tables</a></li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -116,7 +124,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <h1>Source code for sosfiltering</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
@@ -184,12 +192,15 @@
 <span class="k">else</span><span class="p">:</span>
     <span class="n">_dl</span> <span class="o">=</span> <span class="s">&#39;sosfilt.so&#39;</span>
 
+
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">!=</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">_mylibpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
+    <span class="n">_mylibpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">_mylibpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">curdir</span>
 
-<span class="n">_c</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">dlopen</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_mylibpath</span><span class="p">,</span> <span class="n">_dl</span><span class="p">))</span>
+<span class="n">_mylibpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_mylibpath</span><span class="p">,</span> <span class="n">_dl</span><span class="p">)</span>
+
+<span class="n">_c</span> <span class="o">=</span> <span class="n">ffi</span><span class="o">.</span><span class="n">dlopen</span><span class="p">(</span><span class="n">_mylibpath</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="sosfilter_c"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.sosfilter_c">[docs]</a><span class="k">def</span> <span class="nf">sosfilter_c</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">sos</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -415,24 +426,30 @@
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">kbands</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ksos</span><span class="p">):</span>
                 <span class="n">w1</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="n">kbands</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="mi">2</span><span class="p">]</span>
-                <span class="n">w2</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="n">kbands</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
-                <span class="n">b0</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">];</span> <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
-                <span class="n">b1</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">];</span> <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
-                <span class="n">b2</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">];</span> <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
-                <span class="n">a0</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">];</span> <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
-                <span class="n">a1</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">];</span> <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
-                <span class="n">a2</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">];</span> <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+                <span class="n">w2</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="n">kbands</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">b0</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">b1</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">b2</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">a0</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">a1</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">a2</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
 
                 <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nframes</span><span class="p">):</span>
                     <span class="n">w0</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">nframes</span><span class="o">*</span><span class="n">kbands</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">nframes</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span>
                     <span class="n">w0</span> <span class="o">=</span> <span class="n">w0</span> <span class="o">-</span> <span class="n">a1</span><span class="o">*</span><span class="n">w1</span> <span class="o">-</span> <span class="n">a2</span><span class="o">*</span><span class="n">w2</span>
                     <span class="n">yn</span> <span class="o">=</span> <span class="n">b0</span><span class="o">*</span><span class="n">w0</span> <span class="o">+</span> <span class="n">b1</span><span class="o">*</span><span class="n">w1</span> <span class="o">+</span> <span class="n">b2</span><span class="o">*</span><span class="n">w2</span>
-                    <span class="n">w2</span> <span class="o">=</span> <span class="n">w1</span><span class="p">;</span>
-                    <span class="n">w1</span> <span class="o">=</span> <span class="n">w0</span><span class="p">;</span>
-                    <span class="n">signal</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">nframes</span><span class="o">*</span><span class="n">kbands</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">nframes</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">yn</span><span class="p">;</span>
+                    <span class="n">w2</span> <span class="o">=</span> <span class="n">w1</span>
+                    <span class="n">w1</span> <span class="o">=</span> <span class="n">w0</span>
+                    <span class="n">signal</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">nframes</span><span class="o">*</span><span class="n">kbands</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">nframes</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">yn</span>
 
-            <span class="n">states</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="n">kbands</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">w1</span><span class="p">;</span>
-            <span class="n">states</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="n">kbands</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">w2</span><span class="p">;</span>
+            <span class="n">states</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="n">kbands</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">w1</span>
+            <span class="n">states</span><span class="p">[</span><span class="n">c</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="n">kbands</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">ksos</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">w2</span>
     <span class="k">return</span> <span class="n">signal</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape_signal</span><span class="p">),</span> <span class="n">states</span>
 
 </div>
@@ -503,7 +520,8 @@
     <span class="n">n</span> <span class="o">=</span> <span class="n">sos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">None</span><span class="p">)):</span>
         <span class="n">states</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">):</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
         <span class="n">zi</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">sos</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
@@ -515,6 +533,7 @@
 </div>
 <div class="viewcode-block" id="bilinear_sos"><a class="viewcode-back" href="../sosfiltering.html#sosfiltering.bilinear_sos">[docs]</a><span class="k">def</span> <span class="nf">bilinear_sos</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Bilinear transformation of analog weights to digital weights.</span>
+<span class="sd">    &gt;&gt;&gt;&gt;&gt;&gt;&gt; 8d01abb1e1f252834c0666d50c645dd3d35a1f52</span>
 
 <span class="sd">    Bilinear transformation of analog weights to digital weights.</span>
 <span class="sd">    Weights of IIR digital filter in cascade form with</span>
@@ -541,7 +560,7 @@
     <span class="n">nr</span><span class="p">,</span> <span class="n">ncc</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">shape</span>
 
     <span class="c"># Check for errors.</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">nr</span><span class="o">!=</span><span class="n">L2</span> <span class="ow">or</span> <span class="n">ncd</span><span class="o">!=</span><span class="mi">2</span> <span class="ow">or</span> <span class="n">ncc</span><span class="o">!=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">nr</span> <span class="o">!=</span> <span class="n">L2</span> <span class="ow">or</span> <span class="n">ncd</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">ncc</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Inputs d and c must both be L/2 x 2 arrays.&#39;</span><span class="p">)</span>
 
     <span class="c"># Bilinear transformation of H(s) to H(z) using z and p vectors.</span>
@@ -599,7 +618,8 @@
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
@@ -624,7 +644,7 @@
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

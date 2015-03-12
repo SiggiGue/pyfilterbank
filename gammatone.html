@@ -14,7 +14,7 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -25,6 +25,8 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
   
 
   
@@ -44,9 +46,12 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> PyFilterbank</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+        
+          <a href="index.html" class="fa fa-home"> PyFilterbank</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -56,8 +61,9 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul class="current">
+          
+          
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="octbank.html">Fractional Octave Filter Bank</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="octbank.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="octbank.html#functions">Functions</a></li>
@@ -68,6 +74,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Gammatone Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
 </ul>
@@ -81,12 +88,13 @@
 <li class="toctree-l1"><a class="reference internal" href="sosfiltering.html">Second Order Section Filtering</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#compiling-the-c-source">Compiling the c source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#functions">Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sosfiltering.html#module-butterworth"><code class="docutils literal"><span class="pre">butterworth</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Indices and tables</a></li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -117,50 +125,184 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="gammatone-filter-bank">
 <h1>Gammatone Filter Bank<a class="headerlink" href="#gammatone-filter-bank" title="Permalink to this headline">¶</a></h1>
-<p>Module name: <a class="reference internal" href="#module-gammatone" title="gammatone"><tt class="xref py py-mod docutils literal"><span class="pre">gammatone</span></tt></a></p>
-<span class="target" id="module-gammatone"></span><p>This module implements gammatone filters and a filtering routine.</p>
-<p>A filterbank is coming soon <a class="reference internal" href="#hohmann2002" id="id1">[Hohmann2002]</a>.</p>
+<p>Module name: <a class="reference internal" href="#module-gammatone" title="gammatone"><code class="xref py py-mod docutils literal"><span class="pre">gammatone</span></code></a></p>
+<span class="target" id="module-gammatone"></span><p>This module implements gammatone filters a filtering routine and a filterbank class.</p>
+<p>The filterbank is based on <a class="reference internal" href="#hohmann2002" id="id1">[Hohmann2002]</a>.</p>
 <p>(<a class="reference external" href=".//gammatone-1.py">Source code</a>, <a class="reference external" href=".//gammatone-1.png">png</a>, <a class="reference external" href=".//gammatone-1.hires.png">hires.png</a>, <a class="reference external" href=".//gammatone-1.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/gammatone-1.png" src="_images/gammatone-1.png" />
 </div>
+<p>(<a class="reference external" href=".//gammatone-2.py">Source code</a>)</p>
+<div class="figure" id="id6">
+<img alt="_images/gammatone-2_00.png" src="_images/gammatone-2_00.png" />
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//gammatone-2_00.png">png</a>, <a class="reference external" href=".//gammatone-2_00.hires.png">hires.png</a>, <a class="reference external" href=".//gammatone-2_00.pdf">pdf</a>)</span></p>
+</div>
+<div class="figure" id="id7">
+<img alt="_images/gammatone-2_01.png" src="_images/gammatone-2_01.png" />
+<p class="caption"><span class="caption-text">(<a class="reference external" href=".//gammatone-2_01.png">png</a>, <a class="reference external" href=".//gammatone-2_01.hires.png">hires.png</a>, <a class="reference external" href=".//gammatone-2_01.pdf">pdf</a>)</span></p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
 <dt>TODO:</dt>
 <dd><ul class="first last simple">
 <li>Tests,</li>
 <li>nice introduction with example,</li>
-<li>implementing the filterbank class</li>
 </ul>
 </dd>
 </dl>
+</div>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <table class="docutils citation" frame="void" id="hohmann2002" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[Hohmann2002]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> Hohmann, V., Frequency analysis and synthesis using a Gammatone filterbank,
+<tr><td class="label">[Hohmann2002]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>, <a class="fn-backref" href="#id3">3</a>, <a class="fn-backref" href="#id4">4</a>, <a class="fn-backref" href="#id5">5</a>)</em> Hohmann, V., Frequency analysis and synthesis using a Gammatone filterbank,
 Acta Acustica, Vol 88 (2002), 433&#8211;442</td></tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gammatone.GammatoneFilterbank">
+<em class="property">class </em><code class="descclassname">gammatone.</code><code class="descname">GammatoneFilterbank</code><span class="sig-paren">(</span><em>samplerate=44100</em>, <em>order=4</em>, <em>startband=-12</em>, <em>endband=12</em>, <em>normfreq=1000.0</em>, <em>density=1.0</em>, <em>bandwidth_factor=1.0</em>, <em>desired_delay_sec=0.02</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#GammatoneFilterbank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.GammatoneFilterbank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a GammatoneFilterbank instance for filtering signals.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>samplerate</strong> : scalar</p>
+<blockquote>
+<div><p>Default: 44100.</p>
+</div></blockquote>
+<p><strong>order</strong> : scalar</p>
+<blockquote>
+<div><p>Default: 4.</p>
+</div></blockquote>
+<p><strong>startband</strong> : scalar</p>
+<blockquote>
+<div><p>Default: -12,</p>
+</div></blockquote>
+<p><strong>endband</strong> : scalar</p>
+<blockquote>
+<div><p>Default: 12,</p>
+</div></blockquote>
+<p><strong>normfreq</strong> : scalar</p>
+<blockquote>
+<div><p>Default: 1000.0,</p>
+</div></blockquote>
+<p><strong>density</strong> : scalar</p>
+<blockquote>
+<div><p>Default: 1.0,</p>
+</div></blockquote>
+<p><strong>bandwidth_factor</strong> : scalar</p>
+<blockquote>
+<div><p>Default: 1.0,</p>
+</div></blockquote>
+<p><strong>desired_delay_sec</strong> : scalar</p>
+<blockquote class="last">
+<div><p>Default: 0.02</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="gammatone.GammatoneFilterbank.analyze">
+<code class="descname">analyze</code><span class="sig-paren">(</span><em>signal</em>, <em>states=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#GammatoneFilterbank.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.GammatoneFilterbank.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a generator yielding filtered signal bands and states.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gammatone.GammatoneFilterbank.delay">
+<code class="descname">delay</code><span class="sig-paren">(</span><em>bands</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#GammatoneFilterbank.delay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.GammatoneFilterbank.delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns delayed bands for an optimized impulseresponse at synthesis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gammatone.GammatoneFilterbank.estimate_max_indices_and_slopes">
+<code class="descname">estimate_max_indices_and_slopes</code><span class="sig-paren">(</span><em>delay_samples=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#GammatoneFilterbank.estimate_max_indices_and_slopes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.GammatoneFilterbank.estimate_max_indices_and_slopes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Estimate of maximum index and slopes at max.
+Used for estimation of phase-factors for delaying bands.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gammatone.GammatoneFilterbank.freqz">
+<code class="descname">freqz</code><span class="sig-paren">(</span><em>nfft=4096</em>, <em>plotfun=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#GammatoneFilterbank.freqz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.GammatoneFilterbank.freqz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns frequency and impulse responses.
+Accepts <cite>plotfun</cite> function for cusomized plotting.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gammatone.GammatoneFilterbank.init_delay">
+<code class="descname">init_delay</code><span class="sig-paren">(</span><em>desired_delay_sec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#GammatoneFilterbank.init_delay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.GammatoneFilterbank.init_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes delay estimation and variables for delay bands
+to achieve a optimized impulse response.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gammatone.GammatoneFilterbank.init_gains">
+<code class="descname">init_gains</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#GammatoneFilterbank.init_gains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.GammatoneFilterbank.init_gains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes gains for weighting bands leading to a equalized freqresponse
+when summing (synthesizing) bands.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gammatone.GammatoneFilterbank.reanalyze">
+<code class="descname">reanalyze</code><span class="sig-paren">(</span><em>bands</em>, <em>states=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#GammatoneFilterbank.reanalyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.GammatoneFilterbank.reanalyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refilters already filtered signal bands if bandwidening effect of
+a used algorithm needs to be reduced.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gammatone.GammatoneFilterbank.synthesize">
+<code class="descname">synthesize</code><span class="sig-paren">(</span><em>bands</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#GammatoneFilterbank.synthesize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.GammatoneFilterbank.synthesize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns summed dleayed and weighted bands.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
-<dt id="gammatone.design_gammatone_filter">
-<tt class="descclassname">gammatone.</tt><tt class="descname">design_gammatone_filter</tt><big>(</big><em>sample_rate=44100</em>, <em>order=4</em>, <em>center_frequency=1000.0</em>, <em>band_width=None</em>, <em>band_width_factor=1.0</em>, <em>attenuation_half_bandwidth_db=-3</em><big>)</big><a class="reference internal" href="_modules/gammatone.html#design_gammatone_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.design_gammatone_filter" title="Permalink to this definition">¶</a></dt>
+<dt id="gammatone.design_filtbank_coeffs">
+<code class="descclassname">gammatone.</code><code class="descname">design_filtbank_coeffs</code><span class="sig-paren">(</span><em>samplerate</em>, <em>order</em>, <em>centerfrequencies</em>, <em>bandwidths=None</em>, <em>bandwidth_factor=None</em>, <em>attenuation_half_bandwidth_db=-3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#design_filtbank_coeffs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.design_filtbank_coeffs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Designs complex coefficients for a gammatone filter bank.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>samplerate</strong> : int</p>
+<p><strong>order</strong> : int</p>
+<p><strong>centerfrequencies</strong> : arraylike</p>
+<p><strong>bandwidths</strong> : arraylike (optional)</p>
+<p><strong>bandwidth_factor</strong> : scalar (1.0 is auditory erb)</p>
+<p><strong>attenuation_half_bandwidth_db</strong> : scalar</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">generator of b, a coefficients</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="gammatone.design_filter">
+<code class="descclassname">gammatone.</code><code class="descname">design_filter</code><span class="sig-paren">(</span><em>sample_rate=44100</em>, <em>order=4</em>, <em>centerfrequency=1000.0</em>, <em>band_width=None</em>, <em>band_width_factor=1.0</em>, <em>attenuation_half_bandwidth_db=-3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#design_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.design_filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns filter coefficient of a gammatone filter
 <a class="reference internal" href="#hohmann2002" id="id2">[Hohmann2002]</a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sample_rate</strong> : scalar</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sample_rate</strong> : int/scalar</p>
 <p><strong>order</strong> : int</p>
-<p><strong>center_frequency</strong> : scalar</p>
+<p><strong>centerfrequency</strong> : scalar</p>
 <p><strong>band_width</strong> : scalar</p>
 <p><strong>band_width_factor</strong> : scalar</p>
 <p><strong>attenuation_half_bandwidth_db</strong> : scalar</p>
@@ -174,39 +316,15 @@ Acta Acustica, Vol 88 (2002), 433&#8211;442</td></tr>
 </dd></dl>
 
 <dl class="function">
-<dt id="gammatone.equivalent_rectangular_band_count">
-<tt class="descclassname">gammatone.</tt><tt class="descname">equivalent_rectangular_band_count</tt><big>(</big><em>center_frequency</em><big>)</big><a class="reference internal" href="_modules/gammatone.html#equivalent_rectangular_band_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.equivalent_rectangular_band_count" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the equivalent rectangular band count below center_frequency.</p>
+<dt id="gammatone.erb_aud">
+<code class="descclassname">gammatone.</code><code class="descname">erb_aud</code><span class="sig-paren">(</span><em>centerfrequency</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#erb_aud"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.erb_aud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrurns equivalent rectangular band width of an auditory filter.
+Implements Equation 13 in <a class="reference internal" href="#hohmann2002" id="id3">[Hohmann2002]</a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>center_frequency</strong> : scalar /Hz</p>
-<blockquote>
-<div><p>The center frequency in Hertz of the
-desired auditory filter.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>erb_count</strong> : scalar</p>
-<blockquote class="last">
-<div><p>Number of equivalent bandwidths below <cite>center_frequency</cite>.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="gammatone.equivalent_rectangular_bandwidth">
-<tt class="descclassname">gammatone.</tt><tt class="descname">equivalent_rectangular_bandwidth</tt><big>(</big><em>center_frequency</em><big>)</big><a class="reference internal" href="_modules/gammatone.html#equivalent_rectangular_bandwidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.equivalent_rectangular_bandwidth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrurns equivalent rectangular band width of an auditory filter.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>center_frequency</strong> : scalar /Hz</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>centerfrequency</strong> : scalar /Hz</p>
 <blockquote>
 <div><p>The center frequency in Hertz of the
 desired auditory filter.</p>
@@ -216,7 +334,57 @@ desired auditory filter.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>erb</strong> : scalar</p>
 <blockquote class="last">
 <div><p>Equivalent rectangular bandwidth of
-an auditory filter at <cite>center_frequency</cite>.</p>
+an auditory filter at <cite>centerfrequency</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="gammatone.erb_count">
+<code class="descclassname">gammatone.</code><code class="descname">erb_count</code><span class="sig-paren">(</span><em>centerfrequency</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#erb_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.erb_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the equivalent rectangular band count up to centerfrequency.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>centerfrequency</strong> : scalar /Hz</p>
+<blockquote>
+<div><p>The center frequency in Hertz of the
+desired auditory filter.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>count</strong> : scalar</p>
+<blockquote class="last">
+<div><p>Number of equivalent bandwidths below <cite>centerfrequency</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="gammatone.erbscale_to_hertz">
+<code class="descclassname">gammatone.</code><code class="descname">erbscale_to_hertz</code><span class="sig-paren">(</span><em>erb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#erbscale_to_hertz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.erbscale_to_hertz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns frequency in Hertz from ERB value.
+Implements Equation 17 in <a class="reference internal" href="#hohmann2002" id="id4">[Hohmann2002]</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>erb</strong> : scalar</p>
+<blockquote>
+<div><p>The corresponding value on the ERB-Scale.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>frequency</strong> : scalar</p>
+<blockquote class="last">
+<div><p>The Frequency in Hertz.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -226,10 +394,10 @@ an auditory filter at <cite>center_frequency</cite>.</p>
 
 <dl class="function">
 <dt id="gammatone.fosfilter">
-<tt class="descclassname">gammatone.</tt><tt class="descname">fosfilter</tt><big>(</big><em>b</em>, <em>a</em>, <em>order</em>, <em>signal</em>, <em>states=None</em><big>)</big><a class="reference internal" href="_modules/gammatone.html#fosfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.fosfilter" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">gammatone.</code><code class="descname">fosfilter</code><span class="sig-paren">(</span><em>b</em>, <em>a</em>, <em>order</em>, <em>signal</em>, <em>states=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#fosfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.fosfilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return signal filtered with <cite>b</cite> and <cite>a</cite> (first order section)
 by filtering the signal <cite>order</cite> times.</p>
-<p>This Function was created for filtering signals by first order stion
+<p>This Function was created for filtering signals by first order section
 cascaded complex gammatone filters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -257,7 +425,7 @@ Initial you can set it to None.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarraa</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>signal</strong> : ndarray</p>
 <blockquote>
 <div><p>Output signal, that is filtered and complex valued
 (analytical signal).</p>
@@ -274,6 +442,90 @@ processing.</p>
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="gammatone.frequencies_gammatone_bank">
+<code class="descclassname">gammatone.</code><code class="descname">frequencies_gammatone_bank</code><span class="sig-paren">(</span><em>start_band</em>, <em>end_band</em>, <em>norm_freq</em>, <em>density</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#frequencies_gammatone_bank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.frequencies_gammatone_bank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns centerfrequencies and auditory Bandwidths
+for a range of gamatone filters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>start_band</strong> : int</p>
+<blockquote>
+<div><p>Erb counts below norm_freq.</p>
+</div></blockquote>
+<p><strong>end_band</strong> : int</p>
+<blockquote>
+<div><p>Erb counts  over norm_freq.</p>
+</div></blockquote>
+<p><strong>norm_freq</strong> : scalar</p>
+<blockquote>
+<div><p>The reference frequency where all filters are around</p>
+</div></blockquote>
+<p><strong>density</strong> : scalar</p>
+<blockquote>
+<div><p>ERB density 1would be <cite>erb_aud</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>centerfrequency_array</strong> : ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="gammatone.freqz_fos">
+<code class="descclassname">gammatone.</code><code class="descname">freqz_fos</code><span class="sig-paren">(</span><em>b</em>, <em>a</em>, <em>order</em>, <em>nfft</em>, <em>plotfun=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#freqz_fos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.freqz_fos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Frequency Response and impulse response
+of first order section coeffs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>b</strong> : arraylike</p>
+<p><strong>a</strong> : arraylike</p>
+<p><strong>order</strong> : int</p>
+<p><strong>nfft</strong> : int</p>
+<p><strong>plotfun</strong> : function(frequencies, response)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>freqresponse</strong> : arraylike</p>
+<p><strong>frequencies</strong> : arraylike</p>
+<p class="last"><strong>response</strong> : arraylike</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="gammatone.hertz_to_erbscale">
+<code class="descclassname">gammatone.</code><code class="descname">hertz_to_erbscale</code><span class="sig-paren">(</span><em>frequency</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gammatone.html#hertz_to_erbscale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gammatone.hertz_to_erbscale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns ERB-frequency from frequency in Hz.
+Implements Equation 16 in <a class="reference internal" href="#hohmann2002" id="id5">[Hohmann2002]</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>frequency</strong> : scalar</p>
+<blockquote>
+<div><p>The Frequency in Hertz.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>erb</strong> : scalar</p>
+<blockquote class="last">
+<div><p>The corresponding value on the ERB-Scale.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 </div>
 
@@ -283,7 +535,7 @@ processing.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="splweighting.html" class="btn btn-neutral float-right" title="Spectral Weighting Filters"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="splweighting.html" class="btn btn-neutral float-right" title="Spectral Weighting Filters">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="melbank.html" class="btn btn-neutral" title="Mel Filter Bank"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -299,7 +551,8 @@ processing.</p>
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
@@ -324,7 +577,7 @@ processing.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

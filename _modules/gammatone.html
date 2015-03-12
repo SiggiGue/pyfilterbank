@@ -14,7 +14,7 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -25,6 +25,8 @@
   
   
     <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
   
 
   
@@ -43,9 +45,12 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="../index.html" class="fa fa-home"> PyFilterbank</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+        
+          <a href="../index.html" class="fa fa-home"> PyFilterbank</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -55,8 +60,9 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul>
+          
+          
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../octbank.html">Fractional Octave Filter Bank</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../octbank.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../octbank.html#functions">Functions</a></li>
@@ -67,6 +73,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../gammatone.html">Gammatone Filter Bank</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../gammatone.html#examples">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gammatone.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gammatone.html#functions">Functions</a></li>
 </ul>
@@ -80,12 +87,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../sosfiltering.html">Second Order Section Filtering</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#compiling-the-c-source">Compiling the c source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#functions">Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><tt class="docutils literal"><span class="pre">butterworth</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sosfiltering.html#module-butterworth"><code class="docutils literal"><span class="pre">butterworth</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../glossary.html">Indices and tables</a></li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -116,23 +124,31 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <h1>Source code for gammatone</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;This module implements gammatone filters and a filtering routine.</span>
+<span class="sd">&quot;&quot;&quot;This module implements gammatone filters a filtering routine and a filterbank class.</span>
 
-<span class="sd">A filterbank is coming soon [Hohmann2002]_.</span>
+<span class="sd">The filterbank is based on [Hohmann2002]_.</span>
 
 <span class="sd">.. plot::</span>
 
-<span class="sd">    import gammatone</span>
-<span class="sd">    gammatone.example()</span>
+<span class="sd">    import pyfilterbank.gammatone</span>
+<span class="sd">    pyfilterbank.gammatone.example_filter()</span>
+
+<span class="sd">.. plot::</span>
+
+<span class="sd">    import pyfilterbank.gammatone</span>
+<span class="sd">    pyfilterbank.gammatone.example_filterbank()</span>
+
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
 
 
 <span class="sd">TODO:</span>
 <span class="sd">    - Tests,</span>
 <span class="sd">    - nice introduction with example,</span>
-<span class="sd">    - implementing the filterbank class</span>
 
 <span class="sd">References</span>
 <span class="sd">----------</span>
@@ -146,18 +162,44 @@
 <span class="sd">---------</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">ones_like</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">zeros</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">factorial</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">rfft</span><span class="p">,</span> <span class="n">rfftfreq</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="p">(</span><span class="n">arange</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">log10</span><span class="p">,</span> <span class="n">ones_like</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">zeros</span><span class="p">)</span>
+<span class="c"># from scipy.misc import factorial</span>
 <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">lfilter</span>
 
 
-<div class="viewcode-block" id="equivalent_rectangular_bandwidth"><a class="viewcode-back" href="../gammatone.html#gammatone.equivalent_rectangular_bandwidth">[docs]</a><span class="k">def</span> <span class="nf">equivalent_rectangular_bandwidth</span><span class="p">(</span><span class="n">center_frequency</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Retrurns equivalent rectangular band width of an auditory filter.</span>
+<span class="c"># ERB means &quot;Equivalent retangular band(-width)&quot;</span>
+<span class="c"># Constants:</span>
+<span class="n">_ERB_L</span> <span class="o">=</span> <span class="mf">24.7</span>
+<span class="n">_ERB_Q</span> <span class="o">=</span> <span class="mf">9.265</span>
+
+
+<div class="viewcode-block" id="erb_count"><a class="viewcode-back" href="../gammatone.html#gammatone.erb_count">[docs]</a><span class="k">def</span> <span class="nf">erb_count</span><span class="p">(</span><span class="n">centerfrequency</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the equivalent rectangular band count up to centerfrequency.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    center_frequency : scalar /Hz</span>
+<span class="sd">    centerfrequency : scalar /Hz</span>
+<span class="sd">        The center frequency in Hertz of the</span>
+<span class="sd">        desired auditory filter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    count : scalar</span>
+<span class="sd">        Number of equivalent bandwidths below `centerfrequency`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">21.4</span> <span class="o">*</span> <span class="n">log10</span><span class="p">(</span><span class="mf">4.37</span> <span class="o">*</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="n">centerfrequency</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="erb_aud"><a class="viewcode-back" href="../gammatone.html#gammatone.erb_aud">[docs]</a><span class="k">def</span> <span class="nf">erb_aud</span><span class="p">(</span><span class="n">centerfrequency</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Retrurns equivalent rectangular band width of an auditory filter.</span>
+<span class="sd">    Implements Equation 13 in [Hohmann2002]_.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    centerfrequency : scalar /Hz</span>
 <span class="sd">        The center frequency in Hertz of the</span>
 <span class="sd">        desired auditory filter.</span>
 
@@ -165,34 +207,78 @@
 <span class="sd">    -------</span>
 <span class="sd">    erb : scalar</span>
 <span class="sd">        Equivalent rectangular bandwidth of</span>
-<span class="sd">        an auditory filter at `center_frequency`.</span>
+<span class="sd">        an auditory filter at `centerfrequency`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="mf">24.7</span> <span class="o">+</span> <span class="n">center_frequency</span> <span class="o">*</span> <span class="mf">0.107933081</span>
+    <span class="k">return</span> <span class="n">_ERB_L</span> <span class="o">+</span> <span class="n">centerfrequency</span> <span class="o">/</span> <span class="n">_ERB_Q</span>
 
 </div>
-<div class="viewcode-block" id="equivalent_rectangular_band_count"><a class="viewcode-back" href="../gammatone.html#gammatone.equivalent_rectangular_band_count">[docs]</a><span class="k">def</span> <span class="nf">equivalent_rectangular_band_count</span><span class="p">(</span><span class="n">center_frequency</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the equivalent rectangular band count below center_frequency.</span>
+<div class="viewcode-block" id="hertz_to_erbscale"><a class="viewcode-back" href="../gammatone.html#gammatone.hertz_to_erbscale">[docs]</a><span class="k">def</span> <span class="nf">hertz_to_erbscale</span><span class="p">(</span><span class="n">frequency</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns ERB-frequency from frequency in Hz.</span>
+<span class="sd">    Implements Equation 16 in [Hohmann2002]_.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    center_frequency : scalar /Hz</span>
-<span class="sd">        The center frequency in Hertz of the</span>
-<span class="sd">        desired auditory filter.</span>
+<span class="sd">    frequency : scalar</span>
+<span class="sd">        The Frequency in Hertz.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    erb_count : scalar</span>
-<span class="sd">        Number of equivalent bandwidths below `center_frequency`.</span>
+<span class="sd">    erb : scalar</span>
+<span class="sd">        The corresponding value on the ERB-Scale.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="mf">21.4</span> <span class="o">*</span> <span class="n">log10</span><span class="p">(</span><span class="mf">4.37</span> <span class="o">*</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="n">center_frequency</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_ERB_Q</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">frequency</span> <span class="o">/</span> <span class="p">(</span><span class="n">_ERB_L</span> <span class="o">*</span> <span class="n">_ERB_Q</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="design_gammatone_filter"><a class="viewcode-back" href="../gammatone.html#gammatone.design_gammatone_filter">[docs]</a><span class="k">def</span> <span class="nf">design_gammatone_filter</span><span class="p">(</span>
+<div class="viewcode-block" id="erbscale_to_hertz"><a class="viewcode-back" href="../gammatone.html#gammatone.erbscale_to_hertz">[docs]</a><span class="k">def</span> <span class="nf">erbscale_to_hertz</span><span class="p">(</span><span class="n">erb</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns frequency in Hertz from ERB value.</span>
+<span class="sd">    Implements Equation 17 in [Hohmann2002]_.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    erb : scalar</span>
+<span class="sd">        The corresponding value on the ERB-Scale.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    frequency : scalar</span>
+<span class="sd">        The Frequency in Hertz.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">exp</span><span class="p">(</span><span class="n">erb</span><span class="o">/</span><span class="n">_ERB_Q</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">_ERB_L</span> <span class="o">*</span> <span class="n">_ERB_Q</span>
+
+</div>
+<div class="viewcode-block" id="frequencies_gammatone_bank"><a class="viewcode-back" href="../gammatone.html#gammatone.frequencies_gammatone_bank">[docs]</a><span class="k">def</span> <span class="nf">frequencies_gammatone_bank</span><span class="p">(</span><span class="n">start_band</span><span class="p">,</span> <span class="n">end_band</span><span class="p">,</span> <span class="n">norm_freq</span><span class="p">,</span> <span class="n">density</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns centerfrequencies and auditory Bandwidths</span>
+<span class="sd">    for a range of gamatone filters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    start_band : int</span>
+<span class="sd">        Erb counts below norm_freq.</span>
+<span class="sd">    end_band : int</span>
+<span class="sd">        Erb counts  over norm_freq.</span>
+<span class="sd">    norm_freq : scalar</span>
+<span class="sd">        The reference frequency where all filters are around</span>
+<span class="sd">    density : scalar</span>
+<span class="sd">        ERB density 1would be `erb_aud`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    centerfrequency_array : ndarray</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">norm_erb</span> <span class="o">=</span> <span class="n">hertz_to_erbscale</span><span class="p">(</span><span class="n">norm_freq</span><span class="p">)</span>
+    <span class="n">centerfrequencies</span> <span class="o">=</span> <span class="n">erbscale_to_hertz</span><span class="p">(</span>
+        <span class="n">arange</span><span class="p">(</span><span class="n">start_band</span><span class="p">,</span> <span class="n">end_band</span><span class="p">,</span> <span class="n">density</span><span class="p">)</span> <span class="o">+</span> <span class="n">norm_erb</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">centerfrequencies</span>
+
+</div>
+<div class="viewcode-block" id="design_filter"><a class="viewcode-back" href="../gammatone.html#gammatone.design_filter">[docs]</a><span class="k">def</span> <span class="nf">design_filter</span><span class="p">(</span>
         <span class="n">sample_rate</span><span class="o">=</span><span class="mi">44100</span><span class="p">,</span>
         <span class="n">order</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-        <span class="n">center_frequency</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
+        <span class="n">centerfrequency</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
         <span class="n">band_width</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
         <span class="n">band_width_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
         <span class="n">attenuation_half_bandwidth_db</span><span class="o">=-</span><span class="mi">3</span><span class="p">):</span>
@@ -201,9 +287,9 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    sample_rate : scalar</span>
+<span class="sd">    sample_rate : int/scalar</span>
 <span class="sd">    order : int</span>
-<span class="sd">    center_frequency : scalar</span>
+<span class="sd">    centerfrequency : scalar</span>
 <span class="sd">    band_width : scalar</span>
 <span class="sd">    band_width_factor : scalar</span>
 <span class="sd">    attenuation_half_bandwidth_db : scalar</span>
@@ -215,22 +301,26 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">band_width</span><span class="p">:</span>
         <span class="n">phi</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">band_width</span> <span class="o">/</span> <span class="n">sample_rate</span>
-        <span class="n">alpha</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">attenuation_half_bandwidth_db</span> <span class="o">/</span> <span class="n">order</span><span class="p">)</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span>
-        <span class="n">lambda_</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">p</span><span class="o">/</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c"># alpha = 10**(0.1 * attenuation_half_bandwidth_db / order)</span>
+        <span class="c"># p = (-2 + 2 * alpha * cos(phi)) / (1 - alpha)</span>
+        <span class="c"># lambda_ = -p/2 - sqrt(p*p/4 - 1)</span>
 
     <span class="k">elif</span> <span class="n">band_width_factor</span><span class="p">:</span>
-        <span class="n">erb_audiological</span> <span class="o">=</span> <span class="p">(</span><span class="n">band_width_factor</span> <span class="o">*</span>
-            <span class="n">equivalent_rectangular_bandwidth</span><span class="p">(</span><span class="n">center_frequency</span><span class="p">))</span>
-        <span class="n">a_gamma</span> <span class="o">=</span> <span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">order</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span>
-            <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">order</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="n">order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="n">erb_audiological</span> <span class="o">/</span> <span class="n">a_gamma</span>
-        <span class="n">lambda_</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">b</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">)</span>
+        <span class="n">erb_audiological</span> <span class="o">=</span> <span class="n">band_width_factor</span> <span class="o">*</span> <span class="n">erb_aud</span><span class="p">(</span><span class="n">centerfrequency</span><span class="p">)</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">erb_audiological</span> <span class="o">/</span> <span class="n">sample_rate</span>
+        <span class="c"># a_gamma = ((factorial(pi * (2*order - 2)) *</span>
+        <span class="c">#             2**(-(2*order - 2))) / (factorial(order - 1)**2))</span>
+        <span class="c"># b = erb_audiological / a_gamma</span>
+        <span class="c"># lambda_ = exp(-2 * pi * b / sample_rate)</span>
+
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s">&#39;You need to specify either band_width or band_width_factor!&#39;</span><span class="p">)</span>
+            <span class="s">&#39;You need to specify either `band_width` or `band_width_factor!`&#39;</span><span class="p">)</span>
 
-    <span class="n">beta</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">center_frequency</span> <span class="o">/</span> <span class="n">sample_rate</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">attenuation_half_bandwidth_db</span> <span class="o">/</span> <span class="n">order</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span>
+    <span class="n">lambda_</span> <span class="o">=</span> <span class="o">-</span><span class="n">p</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">p</span><span class="o">/</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">centerfrequency</span> <span class="o">/</span> <span class="n">sample_rate</span>
     <span class="n">coef</span> <span class="o">=</span> <span class="n">lambda_</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="mi">1j</span><span class="o">*</span><span class="n">beta</span><span class="p">)</span>
     <span class="n">factor</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">coef</span><span class="p">))</span><span class="o">**</span><span class="n">order</span>
     <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span><span class="n">factor</span><span class="p">]),</span> <span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="n">coef</span><span class="p">])</span>
@@ -241,7 +331,7 @@
     <span class="sd">&quot;&quot;&quot;Return signal filtered with `b` and `a` (first order section)</span>
 <span class="sd">    by filtering the signal `order` times.</span>
 
-<span class="sd">    This Function was created for filtering signals by first order stion</span>
+<span class="sd">    This Function was created for filtering signals by first order section</span>
 <span class="sd">    cascaded complex gammatone filters.</span>
 
 <span class="sd">    Parameters</span>
@@ -261,7 +351,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    signal : ndarraa</span>
+<span class="sd">    signal : ndarray</span>
 <span class="sd">        Output signal, that is filtered and complex valued</span>
 <span class="sd">        (analytical signal).</span>
 <span class="sd">    states : ndarray</span>
@@ -270,41 +360,285 @@
 <span class="sd">        processing.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">states</span><span class="p">:</span> <span class="n">states</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">order</span><span class="p">)</span> <span class="o">+</span> <span class="mi">0j</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">states</span><span class="p">:</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
         <span class="n">state</span> <span class="o">=</span> <span class="p">[</span><span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-        <span class="p">[</span><span class="n">signal</span><span class="p">,</span> <span class="n">state</span><span class="p">]</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">zi</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">signal</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">zi</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
         <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">ones_like</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">signal</span><span class="p">,</span> <span class="n">states</span>
 
 </div>
-<span class="k">def</span> <span class="nf">example</span><span class="p">():</span>
+<div class="viewcode-block" id="freqz_fos"><a class="viewcode-back" href="../gammatone.html#gammatone.freqz_fos">[docs]</a><span class="k">def</span> <span class="nf">freqz_fos</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">nfft</span><span class="p">,</span> <span class="n">plotfun</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns Frequency Response and impulse response</span>
+<span class="sd">    of first order section coeffs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    b : arraylike</span>
+<span class="sd">    a : arraylike</span>
+<span class="sd">    order : int</span>
+<span class="sd">    nfft : int</span>
+<span class="sd">    plotfun : function(frequencies, response)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    freqresponse : arraylike</span>
+<span class="sd">    frequencies : arraylike</span>
+<span class="sd">    response : arraylike</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">impulse</span> <span class="o">=</span> <span class="n">_create_impulse</span><span class="p">(</span><span class="n">nfft</span><span class="p">)</span>
+    <span class="n">response</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="n">fosfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">impulse</span><span class="p">)</span>
+    <span class="n">freqresponse</span> <span class="o">=</span> <span class="n">rfft</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">rfftfreq</span><span class="p">(</span><span class="n">nfft</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">plotfun</span><span class="p">:</span>
+        <span class="n">plotfun</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">freqresponse</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">freqresponse</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">response</span>
+
+</div>
+<div class="viewcode-block" id="design_filtbank_coeffs"><a class="viewcode-back" href="../gammatone.html#gammatone.design_filtbank_coeffs">[docs]</a><span class="k">def</span> <span class="nf">design_filtbank_coeffs</span><span class="p">(</span>
+        <span class="n">samplerate</span><span class="p">,</span>
+        <span class="n">order</span><span class="p">,</span>
+        <span class="n">centerfrequencies</span><span class="p">,</span>
+        <span class="n">bandwidths</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="n">bandwidth_factor</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="n">attenuation_half_bandwidth_db</span><span class="o">=-</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Designs complex coefficients for a gammatone filter bank.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    samplerate : int</span>
+<span class="sd">    order : int</span>
+<span class="sd">    centerfrequencies : arraylike</span>
+<span class="sd">    bandwidths : arraylike (optional)</span>
+<span class="sd">    bandwidth_factor : scalar (1.0 is auditory erb)</span>
+<span class="sd">    attenuation_half_bandwidth_db : scalar</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    generator of b, a coefficients</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">centerfrequencies</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">bandwidths</span><span class="p">:</span>
+            <span class="n">bw</span> <span class="o">=</span> <span class="n">bandwidths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">bwf</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bw</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">bwf</span> <span class="o">=</span> <span class="n">bandwidth_factor</span>
+
+        <span class="k">yield</span> <span class="n">design_filter</span><span class="p">(</span>
+            <span class="n">samplerate</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">cf</span><span class="p">,</span> <span class="n">band_width</span><span class="o">=</span><span class="n">bw</span><span class="p">,</span>
+            <span class="n">band_width_factor</span><span class="o">=</span><span class="n">bwf</span><span class="p">,</span>
+            <span class="n">attenuation_half_bandwidth_db</span><span class="o">=</span><span class="n">attenuation_half_bandwidth_db</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="GammatoneFilterbank"><a class="viewcode-back" href="../gammatone.html#gammatone.GammatoneFilterbank">[docs]</a><span class="k">class</span> <span class="nc">GammatoneFilterbank</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns a GammatoneFilterbank instance for filtering signals.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    samplerate : scalar</span>
+<span class="sd">        Default: 44100.</span>
+<span class="sd">    order : scalar</span>
+<span class="sd">        Default: 4.</span>
+<span class="sd">    startband : scalar</span>
+<span class="sd">        Default: -12,</span>
+<span class="sd">    endband : scalar</span>
+<span class="sd">        Default: 12,</span>
+<span class="sd">    normfreq : scalar</span>
+<span class="sd">        Default: 1000.0,</span>
+<span class="sd">    density : scalar</span>
+<span class="sd">        Default: 1.0,</span>
+<span class="sd">    bandwidth_factor : scalar</span>
+<span class="sd">        Default: 1.0,</span>
+<span class="sd">    desired_delay_sec : scalar</span>
+<span class="sd">        Default: 0.02</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">samplerate</span><span class="o">=</span><span class="mi">44100</span><span class="p">,</span>
+            <span class="n">order</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="n">startband</span><span class="o">=-</span><span class="mi">12</span><span class="p">,</span>
+            <span class="n">endband</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+            <span class="n">normfreq</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
+            <span class="n">density</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">bandwidth_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">desired_delay_sec</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">samplerate</span> <span class="o">=</span> <span class="n">samplerate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centerfrequencies</span> <span class="o">=</span> <span class="n">frequencies_gammatone_bank</span><span class="p">(</span>
+            <span class="n">startband</span><span class="p">,</span> <span class="n">endband</span><span class="p">,</span> <span class="n">normfreq</span><span class="p">,</span> <span class="n">density</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">design_filtbank_coeffs</span><span class="p">(</span>
+            <span class="n">samplerate</span><span class="p">,</span>
+            <span class="n">order</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">centerfrequencies</span><span class="p">,</span>
+            <span class="n">bandwidth_factor</span><span class="o">=</span><span class="n">bandwidth_factor</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_delay</span><span class="p">(</span><span class="n">desired_delay_sec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_gains</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GammatoneFilterbank.init_delay"><a class="viewcode-back" href="../gammatone.html#gammatone.GammatoneFilterbank.init_delay">[docs]</a>    <span class="k">def</span> <span class="nf">init_delay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">desired_delay_sec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes delay estimation and variables for delay bands</span>
+<span class="sd">        to achieve a optimized impulse response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desired_delay_sec</span> <span class="o">=</span> <span class="n">desired_delay_sec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desired_delay_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samplerate</span><span class="o">*</span><span class="n">desired_delay_sec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slopes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_max_indices_and_slopes</span><span class="p">(</span>
+            <span class="n">delay_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_delay_samples</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delay_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_delay_samples</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delay_memory</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">centerfrequencies</span><span class="p">),</span>
+                                      <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delay_samples</span><span class="p">)))</span>
+</div>
+<div class="viewcode-block" id="GammatoneFilterbank.init_gains"><a class="viewcode-back" href="../gammatone.html#gammatone.GammatoneFilterbank.init_gains">[docs]</a>    <span class="k">def</span> <span class="nf">init_gains</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes gains for weighting bands leading to a equalized freqresponse</span>
+<span class="sd">        when summing (synthesizing) bands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gains</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">centerfrequencies</span><span class="p">))</span>
+        <span class="c"># not correct until now:</span>
+        <span class="c"># x, s = list(zip(*self.analyze(_create_impulse(self.samplerate/10))))</span>
+        <span class="c"># rss = [np.sqrt(np.sum(np.real(b)**2)) for b in x]</span>
+        <span class="c"># self.gains = 1/np.array(rss)</span>
+</div>
+<div class="viewcode-block" id="GammatoneFilterbank.analyze"><a class="viewcode-back" href="../gammatone.html#gammatone.GammatoneFilterbank.analyze">[docs]</a>    <span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a generator yielding filtered signal bands and states.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">):</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="bp">None</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">states</span> <span class="k">else</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">yield</span> <span class="n">fosfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="n">st</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GammatoneFilterbank.reanalyze"><a class="viewcode-back" href="../gammatone.html#gammatone.GammatoneFilterbank.reanalyze">[docs]</a>    <span class="k">def</span> <span class="nf">reanalyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bands</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Refilters already filtered signal bands if bandwidening effect of</span>
+<span class="sd">        a used algorithm needs to be reduced.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">band</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">,</span> <span class="n">bands</span><span class="p">)):</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="bp">None</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">states</span> <span class="k">else</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">yield</span> <span class="n">fosfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="n">st</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GammatoneFilterbank.synthesize"><a class="viewcode-back" href="../gammatone.html#gammatone.GammatoneFilterbank.synthesize">[docs]</a>    <span class="k">def</span> <span class="nf">synthesize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bands</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns summed dleayed and weighted bands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">b</span><span class="o">*</span><span class="n">g</span> <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bands</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gains</span><span class="p">)])))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GammatoneFilterbank.delay"><a class="viewcode-back" href="../gammatone.html#gammatone.GammatoneFilterbank.delay">[docs]</a>    <span class="k">def</span> <span class="nf">delay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bands</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns delayed bands for an optimized impulseresponse at synthesis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_factors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slopes</span><span class="p">)</span><span class="o">*</span><span class="mi">1j</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">slopes</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">band</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bands</span><span class="p">):</span>
+            <span class="n">phase_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_factors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">delay_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay_samples</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">delay_samples</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">band</span><span class="p">)</span> <span class="o">*</span> <span class="n">phase_factor</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delay_memory</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">delay_samples</span><span class="p">],</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">band</span><span class="p">[:</span><span class="o">-</span><span class="n">delay_samples</span><span class="p">])),</span>
+                    <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">delay_memory</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">delay_samples</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span>
+                    <span class="n">band</span><span class="p">[</span><span class="o">-</span><span class="n">delay_samples</span><span class="p">:])</span>
+</div>
+<div class="viewcode-block" id="GammatoneFilterbank.estimate_max_indices_and_slopes"><a class="viewcode-back" href="../gammatone.html#gammatone.GammatoneFilterbank.estimate_max_indices_and_slopes">[docs]</a>    <span class="k">def</span> <span class="nf">estimate_max_indices_and_slopes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay_samples</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns Estimate of maximum index and slopes at max.</span>
+<span class="sd">        Used for estimation of phase-factors for delaying bands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">delay_samples</span><span class="p">:</span>
+            <span class="n">delay_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samplerate</span><span class="o">/</span><span class="mi">10</span>
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">_create_impulse</span><span class="p">(</span><span class="n">delay_samples</span><span class="p">)</span>
+        <span class="n">bands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">sig</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ibandmax</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">b</span><span class="p">[:</span><span class="n">delay_samples</span><span class="p">]))</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bands</span><span class="p">]</span>
+        <span class="n">slopes</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bands</span><span class="p">,</span> <span class="n">ibandmax</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ibandmax</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">slopes</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GammatoneFilterbank.freqz"><a class="viewcode-back" href="../gammatone.html#gammatone.GammatoneFilterbank.freqz">[docs]</a>    <span class="k">def</span> <span class="nf">freqz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nfft</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">plotfun</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns frequency and impulse responses.</span>
+<span class="sd">        Accepts `plotfun` function for cusomized plotting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">gen_freqz</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">freqz_fos</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="n">nfft</span><span class="p">,</span> <span class="n">plotfun</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">gen_freqz</span><span class="p">())</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_create_impulse</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span> <span class="o">+</span> <span class="mi">0j</span>
+    <span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">return</span> <span class="n">sig</span>
+
+
+<span class="k">def</span> <span class="nf">example_filterbank</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">plt</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">_create_impulse</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span>
+    <span class="n">gfb</span> <span class="o">=</span> <span class="n">GammatoneFilterbank</span><span class="p">(</span><span class="n">density</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">analyse</span> <span class="o">=</span> <span class="n">gfb</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">imax</span><span class="p">,</span> <span class="n">slopes</span> <span class="o">=</span> <span class="n">gfb</span><span class="o">.</span><span class="n">estimate_max_indices_and_slopes</span><span class="p">()</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gfb</span><span class="o">.</span><span class="n">centerfrequencies</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span> <span class="n">imx</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">analyse</span><span class="p">,</span> <span class="n">imax</span><span class="p">,</span> <span class="n">axs</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">band</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">band</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">band</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">imx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;o&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
+        <span class="p">[</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span> <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&#39;Impulse responses of gammatone bands&#39;</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">plotfun</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">semilogx</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">20</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">gfb</span><span class="o">.</span><span class="n">freqz</span><span class="p">(</span><span class="n">nfft</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="mi">4096</span><span class="p">,</span> <span class="n">plotfun</span><span class="o">=</span><span class="n">plotfun</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Absolute spectra of gammatone bands.&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Normalized Frequency (log)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Attenuation /dB(FS)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">&#39;Tight&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+    <span class="c"># plt.show()</span>
+    <span class="k">return</span> <span class="n">gfb</span>
+
+
+<span class="k">def</span> <span class="nf">example_filter</span><span class="p">():</span>
     <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">plt</span><span class="p">,</span> <span class="n">np</span>
     <span class="n">sample_rate</span> <span class="o">=</span> <span class="mi">44100</span>
     <span class="n">order</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">design_gammatone_filter</span><span class="p">(</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">design_filter</span><span class="p">(</span>
         <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span>
         <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
-        <span class="n">center_frequency</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
+        <span class="n">centerfrequency</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
         <span class="n">attenuation_half_bandwidth_db</span><span class="o">=-</span><span class="mi">3</span><span class="p">,</span>
-        <span class="n">band_width</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
+        <span class="n">band_width_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 
-    <span class="n">x</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>
-    <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">_create_impulse</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
     <span class="n">y</span><span class="p">,</span> <span class="n">states</span> <span class="o">=</span> <span class="n">fosfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="mi">800</span><span class="p">]</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Re(z)&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;Im(z)&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;|z|&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">y</span>
+    <span class="c"># plt.show()</span>
+    <span class="k">return</span> <span class="n">y</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span>
 
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">example</span><span class="p">()</span>
+    <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">plt</span>
+    <span class="n">gfb</span> <span class="o">=</span> <span class="n">example_filterbank</span><span class="p">()</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">example_filter</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
           </div>
@@ -319,7 +653,8 @@
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
@@ -344,7 +679,7 @@
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

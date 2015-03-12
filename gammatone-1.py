@@ -1,2 +1,2 @@
-import gammatone
-gammatone.example()
+import pyfilterbank.gammatone
+pyfilterbank.gammatone.example_filter()

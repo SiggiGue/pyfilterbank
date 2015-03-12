@@ -1,0 +1,2 @@
+import pyfilterbank.gammatone
+pyfilterbank.gammatone.example_filterbank()
