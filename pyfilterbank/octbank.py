@@ -129,7 +129,7 @@ def to_normalized_frequencies(frequencies, sample_rate, clip=True):
 
 
 def design_sosmat_band_passes(order, band_edges, sample_rate,
-                           edge_correction_percent=0.0):
+                              edge_correction_percent=0.0):
     """Return matrix containig sos coeffs of bandpasses.
 
     Parameters
@@ -285,6 +285,7 @@ class FractionalOctaveFilterbank:
     @property
     def sample_rate(self):
         return self._sample_rate
+
     @sample_rate.setter
     def sample_rate(self, value):
         self._sample_rate = value
@@ -293,6 +294,7 @@ class FractionalOctaveFilterbank:
     @property
     def order(self):
         return self._order
+
     @order.setter
     def order(self, value):
         self._order = value
@@ -301,6 +303,7 @@ class FractionalOctaveFilterbank:
     @property
     def nth_oct(self):
         return self._nth_oct
+
     @nth_oct.setter
     def nth_oct(self, value):
         self._nth_oct = value
@@ -309,6 +312,7 @@ class FractionalOctaveFilterbank:
     @property
     def norm_freq(self):
         return self._norm_freq
+
     @norm_freq.setter
     def norm_freq(self, value):
         self._norm_freq = value
@@ -317,6 +321,7 @@ class FractionalOctaveFilterbank:
     @property
     def start_band(self):
         return self._start_band
+
     @start_band.setter
     def start_band(self, value):
         self._start_band = value
@@ -325,6 +330,7 @@ class FractionalOctaveFilterbank:
     @property
     def end_band(self):
         return self._end_band
+
     @end_band.setter
     def end_band(self, value):
         self._end_band = value
@@ -333,6 +339,7 @@ class FractionalOctaveFilterbank:
     @property
     def edge_correction_percent(self):
         return self._edge_correction_percent
+
     @edge_correction_percent.setter
     def edge_correction_percent(self, value):
         self._edge_correction_percent = value
@@ -363,7 +370,6 @@ class FractionalOctaveFilterbank:
         """Returns an estimate of the effective filter length"""
         return [int(l) for l in self.sample_rate*3//self.band_widths]
 
-
     def _initialize_filter_bank(self):
         center_frequencies, band_edges = frequencies_fractional_octaves(
             self.start_band, self.end_band,
@@ -377,7 +383,6 @@ class FractionalOctaveFilterbank:
             self.sample_rate, self.edge_correction_percent
         )
         self._sosmat = sosmat_band_passes
-
 
     def set_filterfun(self, filterfun_name):
         """Set the function that is used for filtering
@@ -397,12 +402,11 @@ class FractionalOctaveFilterbank:
         elif filterfun_name == 'py':
             self.sosfilterfun = sosfilter_py
             self.filterfun_name = filterfun_name
-        elif filterfun_name ==  'cprototype':
+        elif filterfun_name == 'cprototype':
             self.sosfilterfun = sosfilter_cprototype_py
             self.filterfun_name = filterfun_name
         else:
             print('Could not change filter function.')
-
 
     def filter_mimo_c(self, x, states=None):
         """Filters the input by the settings of the filterbank object.
@@ -427,7 +431,6 @@ class FractionalOctaveFilterbank:
             Filter states of all filter sections.
         """
         return sosfilter_double_mimo_c(x, self.sosmat, states)
-
 
     def filter(self, x, ffilt=False, states=None):
         """Filters the input by the settings of the filterbank object.
@@ -549,7 +552,12 @@ class ThirdOctFFTLevel:
     TODO: Write Documentation
     """
 
-    def __init__(self, fmin=30, fmax=17000, nfft=16384, fs=44100, flag_mean=False):
+    def __init__(self,
+                 fmin=30,
+                 fmax=17000,
+                 nfft=16384,
+                 fs=44100,
+                 flag_mean=False):
         self.nfft = nfft
         self.fs = fs
 
@@ -561,12 +569,14 @@ class ThirdOctFFTLevel:
         halfbw = 2**(1.0/6)
         df = fs/nfft
         idx_lower = np.zeros(n)
-        idx_lower[0] = 10 + np.round((standardized_nominal_frequencies[kmin]/halfbw)/df)
+        idx_lower[0] = 10 + np.round((
+            standardized_nominal_frequencies[kmin]/halfbw)/df)
 
-        idx_upper = 10 + np.round(halfbw*standardized_nominal_frequencies[kmin:kmax]/df)
+        idx_upper = 10 + np.round(
+            halfbw*standardized_nominal_frequencies[kmin:kmax]/df)
         idx_lower[1:n] = idx_upper[0:n-1] + 1
 
-        upperedge = halfbw *standardized_nominal_frequencies[kmax]
+        upperedge = halfbw * standardized_nominal_frequencies[kmax]
         print(idx_upper[0]-idx_lower[0])
         #if idx_upper(1) - idx_lower(1) < 4:
         #    raise ValueError('Too few FFT lines per frequency band')
@@ -575,17 +585,21 @@ class ThirdOctFFTLevel:
 
         for cc in range(n-1):
             kk = range(int(idx_lower[cc]), int(idx_upper[cc]))
-            if not flag_mean:
-                M[cc, kk] = 1.0
-            else:
-                M[cc, kk] = 1.0 / len(kk)
+            M[cc, kk] = 2.0/(self.nfft/2+1)
+            if kk[0] == 0:
+                M[cc, kk[0]] = 1.0/(self.nfft/2+1)
 
         self.M = M
         self.f_terz = f_terz
 
     def filter(self, x):
-        X = rfft(x, self.nfft/2+1)
-        return 20*np.log10(np.dot(self.M, np.abs(X)))
+        Xsq = np.abs(rfft(x, self.nfft/2 + 1))**2
+        return 10*np.log10(np.dot(self.M, Xsq))
+
+
+def print_parseval(x, X):
+    print(np.sum(x*x))
+    print(np.sum(X*X))
 
 
 def example_plot():
