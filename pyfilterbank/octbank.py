@@ -555,7 +555,7 @@ class FractionalOctaveFilterbank:
 
         # Multi rate section
         mrcfreqs = reversed(self.centerfreqs[:-upper])
-        mrcsosmat = list(self.sosmat[:, -upper:-upper+self.fraction].T)
+        mrcsosmat = list(self.sosmat[:, -upper:-upper+int(self.fraction)].T)
         mrcsosl = reversed([np.reshape(s, (self.order, 6)) for s in mrcsosmat])
         mrfl = reversed(self.effective_filter_lengths[:-upper])
         ydata = []

@@ -77,7 +77,7 @@ def butter_analog_sos(band, L, w1, w2=0):
 
     """
     band = band.lower()
-    L2 = L / 2.0
+    L2 = int(L / 2.0)
     if mod(L, 2):
         raise Exception('Number of poles L must be even')
     if w1 <= 0:
