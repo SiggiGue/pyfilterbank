@@ -1,17 +1,24 @@
-"""This module implements gammatone filters and a filtering routine.
+"""This module implements gammatone filters and a filterbank class.
 
-A filterbank is coming soon [Hohmann2002]_.
+The filterbank is based on [Hohmann2002]_.
 
 .. plot::
 
-    import gammatone
-    gammatone.example()
+    import pyfilterbank.gammatone
+    pyfilterbank.gammatone.example_filter()
 
+.. plot::
+
+    import pyfilterbank.gammatone
+    pyfilterbank.gammatone.example_filterbank()
+
+
+Examples
+--------
 
 TODO:
     - Tests,
     - nice introduction with example,
-    - implementing the filterbank class
 
 References
 ----------
@@ -28,7 +35,7 @@ Functions
 import numpy as np
 from numpy.fft import rfft, rfftfreq
 from numpy import (arange, array, pi, cos, exp, log10, ones_like, sqrt, zeros)
-from scipy.misc import factorial
+# from scipy.misc import factorial
 from scipy.signal import lfilter
 
 
@@ -235,6 +242,24 @@ def fosfilter(b, a, order, signal, states=None):
 
 
 def freqz_fos(b, a, order, nfft, plotfun=None):
+    """Returns Frequency Response and impulse response
+    of first order section coeffs.
+
+    Parameters
+    ----------
+    b : arraylike
+    a : arraylike
+    order : int
+    nfft : int
+    plotfun : function(frequencies, response)
+
+    Returns
+    -------
+    freqresponse : arraylike
+    frequencies : arraylike
+    response : arraylike
+
+    """
     impulse = _create_impulse(nfft)
     response, states = fosfilter(b, a, order, impulse)
     freqresponse = rfft(np.real(response))
@@ -251,7 +276,22 @@ def design_filtbank_coeffs(
         bandwidths=None,
         bandwidth_factor=None,
         attenuation_half_bandwidth_db=-3):
+    """Designs complex coefficients for a gammatone filter bank.
 
+    Parameters
+    ----------
+    samplerate : int
+    order : int
+    centerfrequencies : arraylike
+    bandwidths : arraylike (optional)
+    bandwidth_factor : scalar (1.0 is auditory erb)
+    attenuation_half_bandwidth_db : scalar
+
+    Returns
+    -------
+    generator of b, a coefficients
+
+    """
     for i, cf in enumerate(centerfrequencies):
         if bandwidths:
             bw = bandwidths[i]
@@ -267,7 +307,31 @@ def design_filtbank_coeffs(
 
 
 class GammatoneFilterbank:
+    """Returns a GammatoneFilterbank instance for filtering signals.
 
+    Parameters
+    ----------
+    samplerate : scalar
+        Default: 44100.
+    order : scalar
+        Default: 4.
+    startband : scalar
+        Default: -12,
+    endband : scalar
+        Default: 12,
+    normfreq : scalar
+        Default: 1000.0,
+    density : scalar
+        Default: 1.0,
+    bandwidth_factor : scalar
+        Default: 1.0,
+    desired_delay_sec : scalar
+        Default: 0.02
+
+    Attributes
+    ----------
+
+    """
     def __init__(
             self,
             samplerate=44100,
@@ -292,6 +356,9 @@ class GammatoneFilterbank:
         self.init_gains()
 
     def init_delay(self, desired_delay_sec):
+        """Initializes delay estimation and variables for delay bands
+        to achieve a optimized impulse response.
+        """
         self.desired_delay_sec = desired_delay_sec
         self.desired_delay_samples = int(self.samplerate*desired_delay_sec)
         self.max_indices, self.slopes = self.estimate_max_indices_and_slopes(
@@ -301,6 +368,9 @@ class GammatoneFilterbank:
                                       np.max(self.delay_samples)))
 
     def init_gains(self):
+        """Initializes gains for weighting bands leading to a equalized freqresponse
+        when summing (synthesizing) bands.
+        """
         self.gains = np.ones(len(self.centerfrequencies))
         # not correct until now:
         # x, s = list(zip(*self.analyze(_create_impulse(self.samplerate/10))))
@@ -308,20 +378,30 @@ class GammatoneFilterbank:
         # self.gains = 1/np.array(rss)
 
     def analyze(self, signal, states=None):
+        """Returns a generator yielding filtered signal bands and states.
+        """
         for i, (b, a) in enumerate(self._coeffs):
             st = None if not states else states[i]
             yield fosfilter(b, a, self.order, signal, states=st)
 
     def reanalyze(self, bands, states=None):
+        """Refilters already filtered signal bands if bandwidening effect of
+        a used algorithm needs to be reduced.
+        """
+
         for i, ((b, a), band) in enumerate(zip(self._coeffs, bands)):
             st = None if not states else states[i]
             yield fosfilter(b, a, self.order, band, states=st)
 
     def synthesize(self, bands):
+        """Returns summed dleayed and weighted bands.
+        """
         return np.array(list(self.delay(
             [b*g for b, g in zip(bands, self.gains)]))).sum(axis=0)
 
     def delay(self, bands):
+        """Returns delayed bands for an optimized impulseresponse at synthesis.
+        """
         self.phase_factors = np.abs(self.slopes)*1j / self.slopes
         for i, band in enumerate(bands):
             phase_factor = self.phase_factors[i]
@@ -337,6 +417,9 @@ class GammatoneFilterbank:
                     band[-delay_samples:])
 
     def estimate_max_indices_and_slopes(self, delay_samples=None):
+        """Returns Estimate of maximum index and slopes at max.
+        Used for estimation of phase-factors for delaying bands.
+        """
         if not delay_samples:
             delay_samples = self.samplerate/10
         sig = _create_impulse(delay_samples)
@@ -346,6 +429,9 @@ class GammatoneFilterbank:
         return np.array(ibandmax), np.array(slopes)
 
     def freqz(self, nfft=4096, plotfun=None):
+        """Returns frequency and impulse responses.
+        Accepts `plotfun` function for cusomized plotting.
+        """
         def gen_freqz():
             for b, a in self._coeffs:
                 yield freqz_fos(b, a, self.order, nfft, plotfun)
@@ -391,12 +477,12 @@ def example_filterbank():
     plt.ylabel('Attenuation /dB(FS)')
     plt.axis('Tight')
     plt.ylim([-90, 1])
-    plt.show()
-
+    plt.xlim([0.001, 0.1])
+    # plt.show()
     return gfb
 
 
-def example_gammatone_filter():
+def example_filter():
     from pylab import plt, np
     sample_rate = 44100
     order = 4
@@ -414,11 +500,12 @@ def example_gammatone_filter():
     plt.plot(np.imag(y), label='Im(z)')
     plt.plot(np.abs(y), label='|z|')
     plt.legend()
-    plt.show()
+    # plt.show()
     return y, b, a
 
 
 if __name__ == '__main__':
-
+    from pylab import plt
     gfb = example_filterbank()
-    y = example_gammatone_filter()
+    y = example_filter()
+    plt.show()

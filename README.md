@@ -6,6 +6,8 @@ The main features are:
 
 * Fractional octave filter bank (applies to IEC-61260:1995)
 
+* Gammatone filter bank (Hohmann 2002)
+
 * Spectral weighting filters (IEC 61672:2003)
   + A-Weighting
   + B- and C-weighting
@@ -18,7 +20,7 @@ The main features are:
   + Butterworth SOS
   + RBJ audio EQ filter design module
 
-* Planned: gammatone filter bank
+
 
 
 ##Documentation

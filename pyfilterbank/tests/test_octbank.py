@@ -63,6 +63,5 @@ class TestFilterbankModuleFuntions(unittest.TestCase):
             self.order, edges, self.sample_rate)
         self.assertTrue(np.all(np.isfinite(sosmat)))
 
-
 if __name__ == '__main__':
     unittest.main()

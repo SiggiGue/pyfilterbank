@@ -17,9 +17,11 @@ from . import splweighting
 from . import stft
 from . import gammatone
 
-#from .sosfiltering import sosfilter
 from .octbank import FractionalOctaveFilterbank
 from .gammatone import GammatoneFilterbank
 
 __version__ = '0.0.0'
-__all__ = ['butterworth', 'melbank', 'octbank', 'rbj_audio_eq', 'sosfiltering', 'splweighting', 'stft']
+__all__ = ['butterworth', 'melbank', 'octbank',
+           'rbj_audio_eq', 'sosfiltering', 'splweighting',
+           'stft', 'gammatone', 'FractionalOctaveFilterbank',
+           'GammatoneFilterbank']

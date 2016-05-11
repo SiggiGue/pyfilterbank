@@ -1,17 +1,11 @@
-"""The :mod:`butterworth` module provides functions to design butterwort filters.
-
+""":mod:`butterworth` module provides functions to design butterwort filters.
 
 """
-from numpy import (mod, exp, zeros, ones, arange, kron, real, flipud,
-                   conj, pi, fliplr, sqrt, tan, tile, concatenate, append, double)
-from scipy.signal import butter, buttord, buttap
+from numpy import (mod, exp, zeros, ones, arange, flipud,
+                   pi, fliplr, sqrt, tan, concatenate, append, double)
 
 from pyfilterbank.sosfiltering import bilinear_sos
 
-lowpass = 'lowpass'
-highpass = 'highpass'
-bandpass = 'bandpass'
-bandstop = 'bandstop'
 
 def butter_sos(band, L, v1, v2=0.0):
     """Compute weights of a digital Butterworth filter in cascade form.
@@ -41,16 +35,16 @@ def butter_sos(band, L, v1, v2=0.0):
     """
 
     # Check for errors;
-    if(v1<=0 or v1>=.5):
-       raise Exception('Argument v1 must be >0.0 and <0.5')
-    elif v2!=0 and (v2<=v1 or v2>=0.5):
-       raise Exception('Argument v2 must be >v1 and <0.5')
+    if v1 <= 0 or v1 >= 0.5:
+        raise Exception('Argument v1 must be >0.0 and <0.5')
+    elif v2 != 0 and (v2 <= v1 or v2 >= 0.5):
+        raise Exception('Argument v2 must be >v1 and <0.5')
 
-   # Get the anlalog weights and convert to digital.
+    # Get the anlalog weights and convert to digital.
     if(v2 == 0):
-       d, c = butter_analog_sos(band, L, tan(pi*v1))
+        d, c = butter_analog_sos(band, L, tan(pi*v1))
     else:
-       d, c = butter_analog_sos(band, L, tan(pi*v1), tan(pi*v2))
+        d, c = butter_analog_sos(band, L, tan(pi*v1), tan(pi*v2))
     b, a = bilinear_sos(d, c)
     # TODO: cut this step and give back b, a
     # but the other functions needing an sosmat should be adapted.
@@ -90,26 +84,26 @@ def butter_analog_sos(band, L, w1, w2=0):
         raise Exception('Frequency w1 must be in rad/s and >0')
 
     # define center frequency wc:
-    if band==lowpass or band==highpass:
+    if band == 'lowpass' or band == 'highpass':
         wc = w1
     else:
-        wc = w2-w1
+        wc = w2 - w1
 
-    p = wc * exp(-1j * (2*arange(1,L2+1,dtype=double) + L-1) * pi / (2*L))
+    p = wc * exp(-1j * (2*arange(1, L2+1, dtype=double) + L-1) * pi / (2*L))
 
     # defining the lowpass filter:
     d = zeros((L2, 2), dtype=double).astype(complex)
     c = ones((L2, 2), dtype=double).astype(complex)
-    d[:,1] = wc * ones(L2, dtype=double)
-    c[:,1] = -p
+    d[:, 1] = wc * ones(L2, dtype=double)
+    c[:, 1] = -p
 
-    if band == highpass:
+    if band == 'highpass':
         d[:, 0] = d[:, 1]
         d[:, 1] = 0.0
         c = fliplr(c)
         c[:, 1] = c[:, 1] * wc**2
 
-    elif band == bandpass:
+    elif band == 'bandpass':
         d[:, 0] = d[:, 1]
         d[:, 1] = zeros(L2)
         d = append(d, d, axis=0)
@@ -124,7 +118,7 @@ def butter_analog_sos(band, L, w1, w2=0):
         c[L2:, 0] = 1.0
         c[L2:, 1] = -r2
 
-    elif band == bandstop:
+    elif band == 'bandstop':
         root = sqrt(d[:, 0]**2 * wc**4 - 4*d[:, 1]**2 * w1*w2)
         r1 = (-d[:, 0] * wc**2 + root) / (2 * d[:, 1])
         r2 = (-d[:, 0] * wc**2 - root) / (2 * d[:, 1])
