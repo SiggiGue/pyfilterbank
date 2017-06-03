@@ -84,7 +84,7 @@ def frequencies_fractional_octaves(start_band, end_band, norm_freq, nth_oct):
         The center frequency of the band number 0.
     nth_oct : scalar
         The distance between the center frequencies.
-        For third octaves `nth_oct=3`.
+        For third octaves `nth_oct=3.0`.
 
     Returns
     -------
@@ -97,7 +97,7 @@ def frequencies_fractional_octaves(start_band, end_band, norm_freq, nth_oct):
 
     """
     k = arange(start_band-1, end_band+2)
-    frequencies = norm_freq * 2.0**(k/nth_oct)
+    frequencies = norm_freq * 2.0**(k/float(nth_oct))
     band_edges = sqrt(frequencies[:-1] * frequencies[1:])
     center_frequencies = frequencies[1:-1]
     return center_frequencies, band_edges
