@@ -77,7 +77,7 @@ def weight_signal(data, sample_rate=44100, weighting='A'):
         the specified filter function.
     """
     b, a = _weighting_coeff_design_funsd[weighting](sample_rate)
-    return lfilter(b, a, x)
+    return lfilter(b, a, data)
 
 def a_weighting_coeffs_design(sample_rate):
     """Returns b and a coeff of a A-weighting filter.
