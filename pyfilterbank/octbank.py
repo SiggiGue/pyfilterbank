@@ -519,7 +519,7 @@ def freqz(ofb, length_sec=6, ffilt=False, plot=True):
             plt.axis([0, ofb.sample_rate / 2, -100, 5])
             L = 20*np.log10(np.abs(X[:len_x_2]) + 1e-17)
             plt.semilogx(f[:len_x_2], L, lw=0.5)
-            plt.hold(True)
+            # plt.hold(True)
 
     Y = fft(s)
     if plot:
@@ -527,7 +527,7 @@ def freqz(ofb, length_sec=6, ffilt=False, plot=True):
         plt.xlabel('Frequency / Hz')
         plt.ylabel(u'Damping /dB(FS)')
         plt.xlim((10, ofb.sample_rate/2))
-        plt.hold(False)
+        # plt.hold(False)
 
 
         plt.figure('sum')
