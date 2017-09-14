@@ -582,7 +582,7 @@ class ThirdOctFFTLevel:
         #if idx_upper(1) - idx_lower(1) < 4:
         #    raise ValueError('Too few FFT lines per frequency band')
 
-        M = np.zeros((n, nfft/2+1))
+        M = np.zeros((n, int(nfft/2)+1))
 
         for cc in range(n-1):
             kk = range(int(idx_lower[cc]), int(idx_upper[cc]))
