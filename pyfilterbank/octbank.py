@@ -501,13 +501,14 @@ def freqz(ofb, length_sec=6, ffilt=False, plot=True):
     """
     from pylab import np, plt, fft, fftfreq
     x = np.zeros(length_sec*ofb.sample_rate)
-    x[length_sec*ofb.sample_rate/2] = 0.9999
+    x[int(length_sec*ofb.sample_rate/2)] = 0.9999
     if not ffilt:
         y, states = ofb.filter_mimo_c(x)
         y = y[:, :, 0]
     else:
         y, states = ofb.filter(x, ffilt=ffilt)
     s = np.zeros(len(x))
+    len_x_2 = int(len(x)/2)
     for i in range(y.shape[1]):
         s += y[:, i]
         X = fft(y[:, i])  # sampled frequency response
@@ -516,8 +517,8 @@ def freqz(ofb, length_sec=6, ffilt=False, plot=True):
             fig = plt.figure('freqz filter bank')
             plt.grid(True)
             plt.axis([0, ofb.sample_rate / 2, -100, 5])
-            L = 20*np.log10(np.abs(X[:len(x)/2]) + 1e-17)
-            plt.semilogx(f[:len(x)/2], L, lw=0.5)
+            L = 20*np.log10(np.abs(X[:len_x_2]) + 1e-17)
+            plt.semilogx(f[:len_x_2], L, lw=0.5)
             plt.hold(True)
 
     Y = fft(s)
@@ -530,8 +531,8 @@ def freqz(ofb, length_sec=6, ffilt=False, plot=True):
 
 
         plt.figure('sum')
-        L = 20*np.log10(np.abs(Y[:len(x)/2]) + 1e-17)
-        plt.semilogx(f[:len(x)/2], L, lw=0.5)
+        L = 20*np.log10(np.abs(Y[:len_x_2]) + 1e-17)
+        plt.semilogx(f[:len_x_2], L, lw=0.5)
         level_input = 10*np.log10(np.sum(x**2))
         level_output = 10*np.log10(np.sum(s**2))
         plt.axis([5, ofb.sample_rate/1.8, -50, 5])
