@@ -1,5 +1,5 @@
-#PyFilterbank 
-##Filter Banks and Acoustics Tools Package for Python
+# PyFilterbank 
+## Filter Banks and Acoustics Tools Package for Python
 This package provides filter banks, and other useful tools for the daily work of the acoustician.
 
 The main features are:
@@ -12,24 +12,21 @@ The main features are:
   + A-Weighting
   + B- and C-weighting
 
-* Mel-Frequency filterbank (Triangular Filterbank)
-  + as Transformation matrix
-  + planned: with STFT
+* Mel-Frequency filter matrix (Triangular Filterbank)
+  + as Transformation matrix for FFT spectra
 
 * Second order section / biquad filters and filter design
   + Butterworth SOS
   + RBJ audio EQ filter design module
 
 
-
-
-##Documentation
+## Documentation
 The [Documentation](http://siggigue.github.io/pyfilterbank) is placed on github pages and can be found [here](http://siggigue.github.io/pyfilterbank).
 
 
-##Status
+## Status
 This Project is in development status, be aware of that. If you find some bugs or if you want to help, just go for it and join!
 
-##License
+## License
 The 4 clause BSD License applies.
 

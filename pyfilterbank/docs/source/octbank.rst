@@ -1,7 +1,7 @@
 Fractional Octave Filter Bank
 =============================
 
-Module name: :mod:`octbank`
+Module name: :mod:`octave`
 
-.. automodule:: pyfilterbank.octbank
+.. automodule:: pyfilterbank.octave
    :members:

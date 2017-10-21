@@ -5,8 +5,8 @@
 void sosfilter(float* signal, int nsamp, float* sos, int ksos, float* states){
 
     for (int k=0; k<ksos; ++k){
-        float w1 = states[0];
-        float w2 = states[1];
+        float w1 = states[k*2];
+        float w2 = states[k*2 + 1];
         float b0 = *sos++;
         float b1 = *sos++;
         float b2 = *sos++;

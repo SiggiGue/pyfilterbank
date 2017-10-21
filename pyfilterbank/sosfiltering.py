@@ -367,8 +367,18 @@ def sosfilter_cprototype_py(signal, sos, states):
     return signal, states
 
 
-def sosfilter_py(x, sos, states=None):
+def zi_by_sos_and_signal(x, sos, axis):
+    if len(x.shape) == 1:
+        nchan = 1
+        return np.zeros(2)
+    else:
+        nchan = x.shape[axis+1]
+        return np.zeros((nchan, 2))
+
+
+def sosfilter_py(x, sos, states=None, axis=0):
     """Second order section filter routing with scipy lfilter.
+
 
     Parameters
     ----------
@@ -390,21 +400,18 @@ def sosfilter_py(x, sos, states=None):
     """
     n = sos.shape[0]
     if isinstance(states, type(None)):
-        states = dict()
-        for i in np.arange(n):
-            states[i] = np.zeros(2)
-    for ii in np.arange(n):
+        states = [zi_by_sos_and_signal(x, sos, axis) for i in range(n)]
+    for ii in range(n):
         zi = states[ii]
         b = sos[ii, :3]
         a = sos[ii, 3:]
-        x, zi = lfilter(b, a, x, 0, zi=zi)
+        x, zi = lfilter(b, a, x, axis=axis, zi=zi)
         states[ii] = zi
     return x, states
 
 
 def bilinear_sos(d, c):
     """Bilinear transformation of analog weights to digital weights.
-    >>>>>>> 8d01abb1e1f252834c0666d50c645dd3d35a1f52
 
     Bilinear transformation of analog weights to digital weights.
     Weights of IIR digital filter in cascade form with
@@ -415,14 +422,14 @@ def bilinear_sos(d, c):
     ----------
     d : ndarray
         Numerator weights of analog filter in 1-pole
-        sections. d is dimensioned (L/2 x 2).
+        sections. d is dimensioned (order/2 x 2).
     c : ndarray
         Denominator weights, dimensioned same as d.
 
     Returns
     -------
     b : ndarray
-        Digital numerator weights, dimensioned (L/2 x 3).
+        Digital numerator weights, dimensioned (order/2 x 3).
     a : ndarray
         Digital denominator weights, dimensioned the same.
 
@@ -432,14 +439,14 @@ def bilinear_sos(d, c):
 
     # Check for errors.
     if(nr != L2 or ncd != 2 or ncc != 2):
-        raise Exception('Inputs d and c must both be L/2 x 2 arrays.')
+        raise ValueError('Inputs d and c must both be orde/2 x 2 arrays.')
 
     # Bilinear transformation of H(s) to H(z) using z and p vectors.
     a = np.zeros((L2, 3), dtype=np.double)
     a[:, 0] = np.abs(c[:, 0] + c[:, 1])**2
 
     if np.min(a[:, 0]) == 0:
-        raise Exception('"c" should not have a row of zeros.')
+        raise ValueError('"c" should not have a row of zeros.')
     a[:, 1] = 2*np.real((c[:, 0] + c[:, 1]) * np.conj(c[:, 1] - c[:, 0]))
     a[:, 2] = np.abs(c[:, 1] - c[:, 0])**2
 
@@ -455,23 +462,23 @@ def bilinear_sos(d, c):
     return b, a
 
 
-def freqz(sosmat, nsamples=44100, sample_rate=44100, plot=True):
+def freqz(sosmat, nsamples=44100, samplerate=44100, plot=True):
     """Plots Frequency response of sosmat."""
-    from pylab import np, plt, fft, fftfreq
+    from pylab import np, plt, rfft, rfftfreq
     x = np.zeros(nsamples)
-    x[nsamples/2] = 0.999
-    y, states = sosfilter_double_c(x, sosmat)
-    Y = fft(y)
-    f = fftfreq(len(x), 1.0/sample_rate)
+    x[0] = 0.999
+    y, states = sosfilter_py(x, sosmat)
+    Y = rfft(y)
+    f = rfftfreq(len(x), 1.0/samplerate)
     if plot:
         plt.grid(True)
-        plt.axis([0, sample_rate / 2, -100, 5])
-        L = 20*np.log10(np.abs(Y[:len(x)/2]) + 1e-17)
-        plt.semilogx(f[:len(x)/2], L, lw=0.5)
+        plt.axis([0, samplerate / 2, -100, 5])
+        L = 20*np.log10(np.abs(Y) + 1e-30)
+        plt.semilogx(f, L, lw=0.5)
         plt.hold(True)
         plt.title(u'freqz sos filter')
         plt.xlabel('Frequency / Hz')
         plt.ylabel(u'Damping /dB(FS)')
-        plt.xlim((10, sample_rate/2))
+        plt.xlim((10, samplerate/2))
         plt.hold(False)
     return x, y, f, Y
