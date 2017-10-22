@@ -11,6 +11,6 @@ install:
   - pip install numpy
   - pip install cffi
   - pip install .
-  - py.test tests/ --cov=pyfilterbank/ --cov-report term-missing
+  - py.test pyfilterbank/tests/ --cov=pyfilterbank/ --cov-report term-missing
 after_success:
   - codecov
