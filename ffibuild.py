@@ -4,7 +4,8 @@ ffibuilder = cffi.FFI()
 with open('./pyfilterbank/sosfilt.c', 'r') as fp:
     ffibuilder.set_source(
         "pyfilterbank._sosfilt",
-        fp.read()
+        fp.read(),
+        extra_compile_args=["-std=c99"]
         )
 
 ffibuilder.cdef("""
