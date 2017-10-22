@@ -1,0 +1,16 @@
+
+language: python
+python:
+  - "3.5"
+  - "3.6"
+before_install:
+    - pip install pytest pytest-cov
+    - pip install codecov
+install:
+  - pip install .
+  - pip install scipy
+  - pip install numpy
+  - pip install cffi
+  - py.test tests/ --cov=pyfilterbank/ --cov-report term-missing
+after_success:
+  - codecov
