@@ -31,8 +31,6 @@ Use the setup.py and sosfiltering_build.py
 
 """
 import os
-from sys import platform
-from platform import architecture
 
 import numpy as np
 # from cffi import FFI
@@ -133,13 +131,15 @@ def bilinear_sos(d, c):
 
 def freqz(sosmat, nsamples=44100, samplerate=44100, plot=True):
     """Plots Frequency response of sosmat."""
-    from pylab import np, plt, rfft, rfftfreq
+    import numpy as np
+    from numpy.fft import rfft, rfftfreq
     x = np.zeros(nsamples)
     x[0] = 0.999
     y, states = sosfilter_py(x, sosmat)
     Y = rfft(y)
     f = rfftfreq(len(x), 1.0/samplerate)
     if plot:
+        import matplotlib.pyplot as plt
         plt.grid(True)
         plt.axis([0, samplerate / 2, -100, 5])
         L = 20*np.log10(np.abs(Y) + 1e-30)
