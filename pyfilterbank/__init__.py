@@ -8,20 +8,4 @@ A gammatone filter bank is planned but not implemented yet.
 
 """
 
-from . import butterworth
-from . import melbank
-from . import octave
-from . import rbj_audio_eq
-from . import sosfiltering
-from . import splweighting
-from . import stft
-from . import gammatone
-
-from .octave import FractionalOctaveFilterbank
-from .gammatone import GammatoneFilterbank
-
-__version__ = '0.0.0'
-__all__ = ['butterworth', 'melbank', 'octave',
-           'rbj_audio_eq', 'sosfiltering', 'splweighting',
-           'stft', 'gammatone', 'FractionalOctaveFilterbank',
-           'GammatoneFilterbank']
+__version__ = '0.1.0'

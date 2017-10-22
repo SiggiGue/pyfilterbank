@@ -26,354 +26,23 @@ For the :mod:`cffi` you need :mod:`pycparser` being installed.
 
 Compiling the c source
 ----------------------
-Firstly i implemented a prototype-function in python
-for easy debugging "sosfilter_cprototype_py()".
-After that i translated this prototype into a c-function. By
-compiling a shared library from it with the listed
-steps below, one can use the python cffi to access this
-shared library in python. ::
-    $ gcc -c -std=c99 -O3 sosfilter.c
-    $ gcc -shared -o sosfilter.so sosfilter.o
-    $ or the last line for windows users:
-    $ gcc -shared -o sosfilter.dll sosfilter.o
+Use the setup.py and sosfiltering_build.py
 
-Functions
----------
+
 """
 import os
 from sys import platform
 from platform import architecture
 
 import numpy as np
-from cffi import FFI
+# from cffi import FFI
 from scipy.signal import lfilter
 
-
-ffi = FFI()
-ffi.cdef("""
-void sosfilter(float*, int, float*, int, float*);
-void sosfilter_double(double*, int, double*, int, double*);
-void sosfilter_double_mimo(double*, int, int, double*, int, int, double*);
-""")
-
-if platform == 'win32' and architecture()[0] == '64bit':
-    _dl = 'sosfilt64.dll'
-elif platform == 'win32' and architecture()[0] == '32bit':
-    _dl = 'sosfilt32.dll'
-else:
-    _dl = 'sosfilt.so'
-
-
-if __name__ != '__main__':
-    _mylibpath = os.path.join('.', os.path.dirname(__file__))
-else:
-    _mylibpath = os.curdir
-
-_mylibpath = os.path.join(_mylibpath, _dl)
-
-_c = ffi.dlopen(_mylibpath)
-
-
-def sosfilter_c(signal, sos, states=None):
-    """Second order section filter function using cffi
-
-    signal_out, states = sosfilter_c(signal_in, sos, states=None)
-
-    Parameters
-    ----------
-    signal : ndarray
-        Input array of shape (N x 0).
-    sos : ndarray
-        Second order section coefficients array of shape (K*6 x 0).
-        One biquad -> 6 coefficients:
-        :code:`[b00, b01, b02, a00, a01, a02, ..., bK1, ..., aK2]`
-    states : ndarray
-        Array with filter states. Initial value can be None.
-
-    Returns
-    -------
-    signal : ndarray
-        Filtered signal of shape (N x 0).
-    states : ndarray
-        Array with filter states.
-
-    """
-
-    signal_c = ffi.new(
-        'char[]', np.array(signal, dtype=np.float32).flatten().tostring())
-    sos_c = ffi.new(
-        'char[]', np.array(sos, dtype=np.float32).flatten().tostring())
-    nsamp = int(len(signal))
-    ksos = int(sos.size/6)
-
-    if isinstance(states, type(None)):
-        states = np.zeros(ksos*2).astype(np.double)
-
-    states_c = ffi.new(
-        'char[]', np.array(states, dtype=np.float32).flatten().tostring())
-
-    _c.sosfilter(ffi.cast("float*", signal_c),
-                 nsamp,
-                 ffi.cast("float*", sos_c),
-                 ksos,
-                 ffi.cast("float*", states_c))
-
-    out = np.fromstring(
-        ffi.buffer(signal_c),
-        dtype=np.float32,
-        count=nsamp
-    )
-    states = np.fromstring(
-        ffi.buffer(states_c),
-        dtype=np.float32,
-        count=len(states)
-    )
-    return out, states
-
-
-def sosfilter_double_c(signal, sos, states=None):
-    """Second order section filter function using cffi, double precision.
-
-    signal_out, states = sosfilter_c(signal_in, sos, states=None)
-
-    Parameters
-    ----------
-    signal : ndarray
-        Signal array of shape (N x 0).
-    sos : ndarray
-        Second order section coefficients array of shape (K*6 x 0).
-        One biquad -> 6 coefficients:
-        ``[b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]``
-    states : ndarray
-        Filter states, initial value can be None.
-
-    Returns
-    -------
-    signal :
-        Filtered signal array of shape (N x 0).
-    states : ndarray
-        Filter states, initial value can be None.
-
-    """
-
-    signal_c = ffi.new(
-        'char[]', np.array(signal, dtype=np.double).flatten().tostring())
-    sos_c = ffi.new(
-        'char[]', np.array(sos, dtype=np.double).flatten().tostring())
-    nsamp = int(len(signal))
-    ksos = int(sos.size/6)
-
-    if isinstance(states, type(None)):
-        states = np.zeros(ksos*2).astype(np.double)
-
-    states_c = ffi.new(
-        'char[]', np.array(states, dtype=np.double).flatten().tostring())
-
-    _c.sosfilter_double(ffi.cast("double*", signal_c),
-                        nsamp,
-                        ffi.cast("double*", sos_c),
-                        ksos,
-                        ffi.cast("double*", states_c))
-
-    out = np.fromstring(
-        ffi.buffer(signal_c),
-        dtype=np.double,
-        count=nsamp)
-    states = np.fromstring(
-        ffi.buffer(states_c),
-        dtype=np.double,
-        count=len(states))
-    return out, states
-
-
-def sosfilter_double_mimo_c(signal, sos, states=None):
-    """Second order section filter function for  multi channel input
-    using cffi, double precision
-
-    signal_out, states = sosfilter_c(signal_in, sos, states=None)
-
-    Parameters
-    ----------
-    signal : ndarray
-        Signal array of shape (N x C).
-    sos : ndarray
-        Second order section filter coefficients (K*6 x B x C) np-array.
-
-    states : ndarray
-        Filter states, initial can be None.
-        Otherwise shape is (K*2 x B x C)
-
-    Returns
-    -------
-    signal : ndarray
-        Filtered signal of shape (N x B x C).
-        Where N is the number of samples, B is th number of
-        filter bands and C is the number of signal channels.
-    states : ndarray
-        Filter states of shape (K*2 x B x C).
-
-    """
-
-    shape_signal = signal.shape
-    nframes = int(shape_signal[0])
-    if len(shape_signal) > 1:
-        nchan = int(shape_signal[1])
-    else:
-        nchan = int(1)
-
-    shape_sos = sos.shape
-    ksos = int(shape_sos[0]/6)
-    if len(shape_sos) > 1:
-        kbands = int(shape_sos[1])
-        if len(shape_sos) == 2 and nchan > 1:
-            sos = np.tile(sos.flatten('F'), (nchan))
-    else:
-        kbands = int(1)
-
-    if isinstance(states, type(None)):
-        states = np.zeros(nchan*kbands*ksos*2).astype(np.double)
-
-    states_c = ffi.new(
-        'char[]', np.array(states, dtype=np.double).flatten('F').tostring())
-
-    sos_c = ffi.new(
-        'char[]', np.array(sos, dtype=np.double).flatten('F').tostring())
-
-    if nchan > 1:
-        signal = np.tile(signal, (kbands, 1))
-    else:
-        signal = np.tile(signal, (kbands))
-
-    shape_signal = signal.shape
-    signal_c = ffi.new(
-        'char[]', np.array(signal, dtype=np.double).T.flatten().tostring())
-
-    _c.sosfilter_double_mimo(
-        ffi.cast("double*", signal_c),
-        nframes,
-        nchan,
-        ffi.cast("double*", sos_c),
-        ksos,
-        kbands,
-        ffi.cast("double*", states_c)
-    )
-
-    out = np.fromstring(
-        ffi.buffer(signal_c),
-        dtype=np.double,
-        count=signal.size
-    )
-    states = np.fromstring(
-        ffi.buffer(states_c),
-        dtype=np.double,
-        count=len(states)
-    )
-    return out.reshape((nframes, kbands, nchan), order='F'), states
-
-
-def sosfilter_mimo_cprototype_py(signal_in, sos_in, states_in=None):
-    """Prototype for the mimo c-filter function.
-    Implements a IIR DF-II biquad filter strucure. But with multiple
-    input und multiple bands."""
-    signal = signal_in.copy().flatten('F')
-    shape_signal = signal_in.shape
-    print(len(signal))
-    nframes = int(signal_in.shape[0])
-    print(nframes)
-    nchan = int(signal_in.shape[2])
-    print(nchan)
-    sos = np.tile(sos_in.copy().flatten('F'), (nchan))
-    ksos = int(sos_in.shape[0]/6)
-    print(ksos)
-    kbands = int(sos_in.shape[1])
-    print(kbands)
-    if not states_in:
-        states = np.zeros(nchan*ksos*kbands*2)
-    else:
-        states = states_in
-
-    ii = 0
-    for c in range(nchan):
-        for b in range(kbands):
-            for k in range(ksos):
-                w1 = states[c*ksos*kbands*2 + b*ksos*2 + k*2]
-                w2 = states[c*ksos*kbands*2 + b*ksos*2 + k*2 + 1]
-                b0 = sos[ii]
-                ii += 1
-                b1 = sos[ii]
-                ii += 1
-                b2 = sos[ii]
-                ii += 1
-                a0 = sos[ii]
-                ii += 1
-                a1 = sos[ii]
-                ii += 1
-                a2 = sos[ii]
-                ii += 1
-
-                for n in range(nframes):
-                    w0 = signal[c*nframes*kbands + b*nframes + n]
-                    w0 = w0 - a1*w1 - a2*w2
-                    yn = b0*w0 + b1*w1 + b2*w2
-                    w2 = w1
-                    w1 = w0
-                    signal[c*nframes*kbands + b*nframes + n] = yn
-
-            states[c*ksos*kbands*2 + b*ksos*2 + k*2] = w1
-            states[c*ksos*kbands*2 + b*ksos*2 + k*2 + 1] = w2
-    return signal.reshape(shape_signal), states
-
-
-def sosfilter_cprototype_py(signal, sos, states):
-    """Prototype for second order section filtering c function.
-    Implements a IIR DF-II biquad filter strucure.
-    """
-    N = int(len(signal))
-    K = int(sos.size/6)
-    if isinstance(states, type(None)):
-        states = np.zeros(K*2).astype(np.double)
-    signal = signal.copy()  # only python specific
-    sos = sos.copy().flatten()
-    yn = 0.0  # buffer for output
-    w0 = 0.0  # signal states
-
-    for k in range(K):
-        # get coefficients of current biquad
-        w1 = states[k*2]
-        w2 = states[k*2+1]
-        b0 = sos[k*6]
-        b1 = sos[k*6+1]
-        b2 = sos[k*6+2]
-        a0 = sos[k*6+3]
-        a1 = sos[k*6+4]
-        a2 = sos[k*6+5]
-
-        for n in range(N):
-            # get a sample
-            w0 = signal[n].copy()
-            # recursive path
-            w0 = w0 - a1*w1 - a2*w2
-            # transversal path
-            yn = b0*w0 + b1*w1 + b2*w2
-            # delays
-            w2 = w1
-            w1 = w0
-            # write output signal
-            signal[n] = yn
-
-    states[k*2] = w1
-    states[k*2+1] = w2
-
-    return signal, states
-
-
-def zi_by_sos_and_signal(x, sos, axis):
-    if len(x.shape) == 1:
-        nchan = 1
-        return np.zeros(2)
-    else:
-        nchan = x.shape[axis+1]
-        return np.zeros((nchan, 2))
+try:
+    from pyfilterbank._sosfilt import ffi, lib as _c
+except ImportError:
+    print('cffi extension could not be imported')
+    ffi, _c = None, None
 
 
 def sosfilter_py(x, sos, states=None, axis=0):
@@ -482,3 +151,307 @@ def freqz(sosmat, nsamples=44100, samplerate=44100, plot=True):
         plt.xlim((10, samplerate/2))
         plt.hold(False)
     return x, y, f, Y
+
+
+if ffi and _c:
+    def sosfilter_c(signal, sos, states=None):
+        """Second order section filter function using cffi
+
+        signal_out, states = sosfilter_c(signal_in, sos, states=None)
+
+        Parameters
+        ----------
+        signal : ndarray
+            Input array of shape (N x 0).
+        sos : ndarray
+            Second order section coefficients array of shape (K*6 x 0).
+            One biquad -> 6 coefficients:
+            :code:`[b00, b01, b02, a00, a01, a02, ..., bK1, ..., aK2]`
+        states : ndarray
+            Array with filter states. Initial value can be None.
+
+        Returns
+        -------
+        signal : ndarray
+            Filtered signal of shape (N x 0).
+        states : ndarray
+            Array with filter states.
+
+        """
+
+        signal_c = ffi.new(
+            'char[]', np.array(signal, dtype=np.float32).flatten().tostring())
+        sos_c = ffi.new(
+            'char[]', np.array(sos, dtype=np.float32).flatten().tostring())
+        nsamp = int(len(signal))
+        ksos = int(sos.size/6)
+
+        if isinstance(states, type(None)):
+            states = np.zeros(ksos*2).astype(np.double)
+
+        states_c = ffi.new(
+            'char[]', np.array(states, dtype=np.float32).flatten().tostring())
+
+        _c.sosfilter(ffi.cast("float*", signal_c),
+                    nsamp,
+                    ffi.cast("float*", sos_c),
+                    ksos,
+                    ffi.cast("float*", states_c))
+
+        out = np.fromstring(
+            ffi.buffer(signal_c),
+            dtype=np.float32,
+            count=nsamp
+        )
+        states = np.fromstring(
+            ffi.buffer(states_c),
+            dtype=np.float32,
+            count=len(states)
+        )
+        return out, states
+
+
+    def sosfilter_double_c(signal, sos, states=None):
+        """Second order section filter function using cffi, double precision.
+
+        signal_out, states = sosfilter_c(signal_in, sos, states=None)
+
+        Parameters
+        ----------
+        signal : ndarray
+            Signal array of shape (N x 0).
+        sos : ndarray
+            Second order section coefficients array of shape (K*6 x 0).
+            One biquad -> 6 coefficients:
+            ``[b00, b01, b02, a00, a01, a02, ..., b10, bK1 ... , aK2]``
+        states : ndarray
+            Filter states, initial value can be None.
+
+        Returns
+        -------
+        signal :
+            Filtered signal array of shape (N x 0).
+        states : ndarray
+            Filter states, initial value can be None.
+
+        """
+
+        signal_c = ffi.new(
+            'char[]', np.array(signal, dtype=np.double).flatten().tostring())
+        sos_c = ffi.new(
+            'char[]', np.array(sos, dtype=np.double).flatten().tostring())
+        nsamp = int(len(signal))
+        ksos = int(sos.size/6)
+
+        if isinstance(states, type(None)):
+            states = np.zeros(ksos*2).astype(np.double)
+
+        states_c = ffi.new(
+            'char[]', np.array(states, dtype=np.double).flatten().tostring())
+
+        _c.sosfilter_double(ffi.cast("double*", signal_c),
+                            nsamp,
+                            ffi.cast("double*", sos_c),
+                            ksos,
+                            ffi.cast("double*", states_c))
+
+        out = np.fromstring(
+            ffi.buffer(signal_c),
+            dtype=np.double,
+            count=nsamp)
+        states = np.fromstring(
+            ffi.buffer(states_c),
+            dtype=np.double,
+            count=len(states))
+        return out, states
+
+
+    def sosfilter_double_mimo_c(signal, sos, states=None):
+        """Second order section filter function for  multi channel input
+        using cffi, double precision
+
+        signal_out, states = sosfilter_c(signal_in, sos, states=None)
+
+        Parameters
+        ----------
+        signal : ndarray
+            Signal array of shape (N x C).
+        sos : ndarray
+            Second order section filter coefficients (K*6 x B x C) np-array.
+
+        states : ndarray
+            Filter states, initial can be None.
+            Otherwise shape is (K*2 x B x C)
+
+        Returns
+        -------
+        signal : ndarray
+            Filtered signal of shape (N x B x C).
+            Where N is the number of samples, B is th number of
+            filter bands and C is the number of signal channels.
+        states : ndarray
+            Filter states of shape (K*2 x B x C).
+
+        """
+
+        shape_signal = signal.shape
+        nframes = int(shape_signal[0])
+        if len(shape_signal) > 1:
+            nchan = int(shape_signal[1])
+        else:
+            nchan = int(1)
+
+        shape_sos = sos.shape
+        ksos = int(shape_sos[0]/6)
+        if len(shape_sos) > 1:
+            kbands = int(shape_sos[1])
+            if len(shape_sos) == 2 and nchan > 1:
+                sos = np.tile(sos.flatten('F'), (nchan))
+        else:
+            kbands = int(1)
+
+        if isinstance(states, type(None)):
+            states = np.zeros(nchan*kbands*ksos*2).astype(np.double)
+
+        states_c = ffi.new(
+            'char[]', np.array(states, dtype=np.double).flatten('F').tostring())
+
+        sos_c = ffi.new(
+            'char[]', np.array(sos, dtype=np.double).flatten('F').tostring())
+
+        if nchan > 1:
+            signal = np.tile(signal, (kbands, 1))
+        else:
+            signal = np.tile(signal, (kbands))
+
+        shape_signal = signal.shape
+        signal_c = ffi.new(
+            'char[]', np.array(signal, dtype=np.double).T.flatten().tostring())
+
+        _c.sosfilter_double_mimo(
+            ffi.cast("double*", signal_c),
+            nframes,
+            nchan,
+            ffi.cast("double*", sos_c),
+            ksos,
+            kbands,
+            ffi.cast("double*", states_c)
+        )
+
+        out = np.fromstring(
+            ffi.buffer(signal_c),
+            dtype=np.double,
+            count=signal.size
+        )
+        states = np.fromstring(
+            ffi.buffer(states_c),
+            dtype=np.double,
+            count=len(states)
+        )
+        return out.reshape((nframes, kbands, nchan), order='F'), states
+
+
+def sosfilter_mimo_cprototype_py(signal_in, sos_in, states_in=None):
+    """Prototype for the mimo c-filter function.
+    Implements a IIR DF-II biquad filter strucure. But with multiple
+    input und multiple bands."""
+    signal = signal_in.copy().flatten('F')
+    shape_signal = signal_in.shape
+    print(len(signal))
+    nframes = int(signal_in.shape[0])
+    print(nframes)
+    nchan = int(signal_in.shape[2])
+    print(nchan)
+    sos = np.tile(sos_in.copy().flatten('F'), (nchan))
+    ksos = int(sos_in.shape[0]/6)
+    print(ksos)
+    kbands = int(sos_in.shape[1])
+    print(kbands)
+    if not states_in:
+        states = np.zeros(nchan*ksos*kbands*2)
+    else:
+        states = states_in
+
+    ii = 0
+    for c in range(nchan):
+        for b in range(kbands):
+            for k in range(ksos):
+                w1 = states[c*ksos*kbands*2 + b*ksos*2 + k*2]
+                w2 = states[c*ksos*kbands*2 + b*ksos*2 + k*2 + 1]
+                b0 = sos[ii]
+                ii += 1
+                b1 = sos[ii]
+                ii += 1
+                b2 = sos[ii]
+                ii += 1
+                a0 = sos[ii]
+                ii += 1
+                a1 = sos[ii]
+                ii += 1
+                a2 = sos[ii]
+                ii += 1
+
+                for n in range(nframes):
+                    w0 = signal[c*nframes*kbands + b*nframes + n]
+                    w0 = w0 - a1*w1 - a2*w2
+                    yn = b0*w0 + b1*w1 + b2*w2
+                    w2 = w1
+                    w1 = w0
+                    signal[c*nframes*kbands + b*nframes + n] = yn
+
+            states[c*ksos*kbands*2 + b*ksos*2 + k*2] = w1
+            states[c*ksos*kbands*2 + b*ksos*2 + k*2 + 1] = w2
+    return signal.reshape(shape_signal), states
+
+
+def sosfilter_cprototype_py(signal, sos, states):
+    """Prototype for second order section filtering c function.
+    Implements a IIR DF-II biquad filter strucure.
+    """
+    N = int(len(signal))
+    K = int(sos.size/6)
+    if isinstance(states, type(None)):
+        states = np.zeros(K*2).astype(np.double)
+    signal = signal.copy()  # only python specific
+    sos = sos.copy().flatten()
+    yn = 0.0  # buffer for output
+    w0 = 0.0  # signal states
+
+    for k in range(K):
+        # get coefficients of current biquad
+        w1 = states[k*2]
+        w2 = states[k*2+1]
+        b0 = sos[k*6]
+        b1 = sos[k*6+1]
+        b2 = sos[k*6+2]
+        a0 = sos[k*6+3]
+        a1 = sos[k*6+4]
+        a2 = sos[k*6+5]
+
+        for n in range(N):
+            # get a sample
+            w0 = signal[n].copy()
+            # recursive path
+            w0 = w0 - a1*w1 - a2*w2
+            # transversal path
+            yn = b0*w0 + b1*w1 + b2*w2
+            # delays
+            w2 = w1
+            w1 = w0
+            # write output signal
+            signal[n] = yn
+
+    states[k*2] = w1
+    states[k*2+1] = w2
+
+    return signal, states
+
+
+def zi_by_sos_and_signal(x, sos, axis):
+    if len(x.shape) == 1:
+        nchan = 1
+        return np.zeros(2)
+    else:
+        nchan = x.shape[axis+1]
+        return np.zeros((nchan, 2))
+
