@@ -459,15 +459,15 @@ def freqz(sosmat, nsamples=44100, sample_rate=44100, plot=True):
     """Plots Frequency response of sosmat."""
     from pylab import np, plt, fft, fftfreq
     x = np.zeros(nsamples)
-    x[nsamples/2] = 0.999
+    x[int(nsamples/2)] = 0.999
     y, states = sosfilter_double_c(x, sosmat)
     Y = fft(y)
     f = fftfreq(len(x), 1.0/sample_rate)
     if plot:
         plt.grid(True)
         plt.axis([0, sample_rate / 2, -100, 5])
-        L = 20*np.log10(np.abs(Y[:len(x)/2]) + 1e-17)
-        plt.semilogx(f[:len(x)/2], L, lw=0.5)
+        L = 20*np.log10(np.abs(Y[:int(len(x)/2)]) + 1e-17)
+        plt.semilogx(f[:int(len(x)/2)], L, lw=0.5)
         plt.hold(True)
         plt.title(u'freqz sos filter')
         plt.xlabel('Frequency / Hz')
