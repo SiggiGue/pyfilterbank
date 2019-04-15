@@ -382,7 +382,6 @@ def example_filterbank():
 
     def plotfun(x, y):
         ax.semilogx(x, 20*np.log10(np.abs(y)**2))
-        plt.hold(True)
 
     gfb.freqz(nfft=2*4096, plotfun=plotfun)
     plt.grid(True)
