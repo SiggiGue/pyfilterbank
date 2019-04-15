@@ -338,7 +338,7 @@ class GammatoneFilterbank:
 
     def estimate_max_indices_and_slopes(self, delay_samples=None):
         if not delay_samples:
-            delay_samples = self.samplerate/10
+            delay_samples = int(self.samplerate/10)
         sig = _create_impulse(delay_samples)
         bands = list(zip(*self.analyze(sig)))[0]
         ibandmax = [np.argmax(np.abs(b[:delay_samples])) for b in bands]
