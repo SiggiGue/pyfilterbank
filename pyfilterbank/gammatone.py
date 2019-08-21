@@ -28,7 +28,10 @@ Functions
 import numpy as np
 from numpy.fft import rfft, rfftfreq
 from numpy import (arange, array, pi, cos, exp, log10, ones_like, sqrt, zeros)
-from scipy.misc import factorial
+try:
+    from scipy.misc import factorial
+except ImportError:
+    from scipy.special import factorial
 from scipy.signal import lfilter
 
 
