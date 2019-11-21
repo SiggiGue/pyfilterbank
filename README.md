@@ -24,6 +24,9 @@ The main features are:
 ## Documentation
 The [Documentation](http://siggigue.github.io/pyfilterbank) is placed on github pages and can be found [here](http://siggigue.github.io/pyfilterbank).
 
+## Installation
+
+To install, `pip install git+https://github.com/SiggiGue/pyfilterbank.git`.
 
 ## Status
 This Project is in development status, be aware of that. If you find some bugs or if you want to help, just go for it and join!
