@@ -9,3 +9,4 @@ _papers/
 build/
 dist/
 *.egg-info
+_sosfilt.*
