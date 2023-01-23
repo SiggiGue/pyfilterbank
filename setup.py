@@ -12,13 +12,8 @@ settings = {
     'license': 'MIT',
     'packages': ['pyfilterbank'],
     'zip_safe': False,
-    'package_data': {
-        'pyfilterbank': [
-            'sosfilt.c',
-            'sosfilt64.dll',
-            'sosfilt32.dll',
-            'sosfilt.so'
-        ]
-    }
+    'install_requires': ["cffi>=1.0.0"],
+    'setup_requires': ["cffi>=1.0.0"],
+    'cffi_modules': ['build.py:ffi'],
 }
 setup(**settings)

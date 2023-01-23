@@ -3,7 +3,7 @@ __test__ = False
 import imp
 import numpy as np
 import pyfilterbank
-from pysoundfile import SoundFile
+from soundfile import SoundFile
 from pysoundcard import Stream
 
 

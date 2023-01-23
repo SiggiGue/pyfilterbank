@@ -47,31 +47,8 @@ from platform import architecture
 import numpy as np
 from cffi import FFI
 from scipy.signal import lfilter
-
-
-ffi = FFI()
-ffi.cdef("""
-void sosfilter(float*, int, float*, int, float*);
-void sosfilter_double(double*, int, double*, int, double*);
-void sosfilter_double_mimo(double*, int, int, double*, int, int, double*);
-""")
-
-if platform == 'win32' and architecture()[0] == '64bit':
-    _dl = 'sosfilt64.dll'
-elif platform == 'win32' and architecture()[0] == '32bit':
-    _dl = 'sosfilt32.dll'
-else:
-    _dl = 'sosfilt.so'
-
-
-if __name__ != '__main__':
-    _mylibpath = os.path.join('.', os.path.dirname(__file__))
-else:
-    _mylibpath = os.curdir
-
-_mylibpath = os.path.join(_mylibpath, _dl)
-
-_c = ffi.dlopen(_mylibpath)
+from ._sosfilt import ffi, lib
+_c = lib
 
 
 def sosfilter_c(signal, sos, states=None):
@@ -100,9 +77,9 @@ def sosfilter_c(signal, sos, states=None):
     """
 
     signal_c = ffi.new(
-        'char[]', np.array(signal, dtype=np.float32).flatten().tostring())
+        'char[]', np.array(signal, dtype=np.float32).flatten().tobytes())
     sos_c = ffi.new(
-        'char[]', np.array(sos, dtype=np.float32).flatten().tostring())
+        'char[]', np.array(sos, dtype=np.float32).flatten().tobytes())
     nsamp = int(len(signal))
     ksos = int(sos.size/6)
 
@@ -110,7 +87,7 @@ def sosfilter_c(signal, sos, states=None):
         states = np.zeros(ksos*2).astype(np.double)
 
     states_c = ffi.new(
-        'char[]', np.array(states, dtype=np.float32).flatten().tostring())
+        'char[]', np.array(states, dtype=np.float32).flatten().tobytes())
 
     _c.sosfilter(ffi.cast("float*", signal_c),
                  nsamp,
@@ -118,12 +95,12 @@ def sosfilter_c(signal, sos, states=None):
                  ksos,
                  ffi.cast("float*", states_c))
 
-    out = np.fromstring(
+    out = np.frombuffer(
         ffi.buffer(signal_c),
         dtype=np.float32,
         count=nsamp
     )
-    states = np.fromstring(
+    states = np.frombuffer(
         ffi.buffer(states_c),
         dtype=np.float32,
         count=len(states)
@@ -157,9 +134,9 @@ def sosfilter_double_c(signal, sos, states=None):
     """
 
     signal_c = ffi.new(
-        'char[]', np.array(signal, dtype=np.double).flatten().tostring())
+        'char[]', np.array(signal, dtype=np.double).flatten().tobytes())
     sos_c = ffi.new(
-        'char[]', np.array(sos, dtype=np.double).flatten().tostring())
+        'char[]', np.array(sos, dtype=np.double).flatten().tobytes())
     nsamp = int(len(signal))
     ksos = int(sos.size/6)
 
@@ -167,7 +144,7 @@ def sosfilter_double_c(signal, sos, states=None):
         states = np.zeros(ksos*2).astype(np.double)
 
     states_c = ffi.new(
-        'char[]', np.array(states, dtype=np.double).flatten().tostring())
+        'char[]', np.array(states, dtype=np.double).flatten().tobytes())
 
     _c.sosfilter_double(ffi.cast("double*", signal_c),
                         nsamp,
@@ -175,11 +152,11 @@ def sosfilter_double_c(signal, sos, states=None):
                         ksos,
                         ffi.cast("double*", states_c))
 
-    out = np.fromstring(
+    out = np.frombuffer(
         ffi.buffer(signal_c),
         dtype=np.double,
         count=nsamp)
-    states = np.fromstring(
+    states = np.frombuffer(
         ffi.buffer(states_c),
         dtype=np.double,
         count=len(states))
@@ -234,10 +211,10 @@ def sosfilter_double_mimo_c(signal, sos, states=None):
         states = np.zeros(nchan*kbands*ksos*2).astype(np.double)
 
     states_c = ffi.new(
-        'char[]', np.array(states, dtype=np.double).flatten('F').tostring())
+        'char[]', np.array(states, dtype=np.double).flatten('F').tobytes())
 
     sos_c = ffi.new(
-        'char[]', np.array(sos, dtype=np.double).flatten('F').tostring())
+        'char[]', np.array(sos, dtype=np.double).flatten('F').tobytes())
 
     if nchan > 1:
         signal = np.tile(signal, (kbands, 1))
@@ -246,7 +223,7 @@ def sosfilter_double_mimo_c(signal, sos, states=None):
 
     shape_signal = signal.shape
     signal_c = ffi.new(
-        'char[]', np.array(signal, dtype=np.double).T.flatten().tostring())
+        'char[]', np.array(signal, dtype=np.double).T.flatten().tobytes())
 
     _c.sosfilter_double_mimo(
         ffi.cast("double*", signal_c),
@@ -258,12 +235,12 @@ def sosfilter_double_mimo_c(signal, sos, states=None):
         ffi.cast("double*", states_c)
     )
 
-    out = np.fromstring(
+    out = np.frombuffer(
         ffi.buffer(signal_c),
         dtype=np.double,
         count=signal.size
     )
-    states = np.fromstring(
+    states = np.frombuffer(
         ffi.buffer(states_c),
         dtype=np.double,
         count=len(states)
