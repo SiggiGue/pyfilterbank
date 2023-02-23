@@ -45,9 +45,17 @@ standardized_nominal_frequencies = array([
 ])
 
 
-def centerfreq_to_bandnum(center_freq, norm_freq, nth_oct):
+def centerfreq_to_bandnum(center_freq, norm_freq, nth_oct, oct_ratio):
     """Returns band number from given center frequency."""
-    return nth_oct * np.log2(center_freq / norm_freq)
+    ret = 0
+    oct_ratio = oct_ratio.lower()
+    if oct_ratio == 'base2':
+        ret = nth_oct * np.log2(center_freq / norm_freq)
+    elif oct_ratio == 'base10':
+        ret = nth_oct * np.log10(center_freq / norm_freq) / 0.3
+    else:
+        print('Invalid ocatave ratio was specified: should be base2 or base10.')
+    return ret
 
 
 def find_nominal_freq(center_frequencies, nominal_frequencies):
@@ -72,7 +80,7 @@ def find_nominal_freq(center_frequencies, nominal_frequencies):
         yield nominal_frequencies[argmin(dist)]
 
 
-def frequencies_fractional_octaves(start_band, end_band, norm_freq, nth_oct):
+def frequencies_fractional_octaves(start_band, end_band, norm_freq, nth_oct, oct_ratio):
     """Return center and band edge frequencies of fractional octaves.
 
     Parameters
@@ -86,6 +94,8 @@ def frequencies_fractional_octaves(start_band, end_band, norm_freq, nth_oct):
     nth_oct : scalar
         The distance between the center frequencies.
         For third octaves `nth_oct=3.0`.
+    oct_ratio : {'base2', 'base10'}
+        Specify octave ratio for calculation.
 
     Returns
     -------
@@ -98,7 +108,13 @@ def frequencies_fractional_octaves(start_band, end_band, norm_freq, nth_oct):
 
     """
     k = arange(start_band-1, end_band+2)
-    frequencies = norm_freq * 2.0**(k/float(nth_oct))
+    oct_ratio = oct_ratio.lower()
+    if oct_ratio == 'base2':
+        frequencies = norm_freq * 2.0**(k/float(nth_oct))
+    elif oct_ratio == 'base10':
+        frequencies = norm_freq * 10.0**(0.3*k/float(nth_oct))
+    else:
+        print('Invalid octave ratio was specified: should be base2 or base10.')
     band_edges = sqrt(frequencies[:-1] * frequencies[1:])
     center_frequencies = frequencies[1:-1]
     return center_frequencies, band_edges
@@ -220,6 +236,8 @@ class FractionalOctaveFilterbank:
         has to be even. Otherweise you'll get an error.
     nth_oct : scalar
         Number of bands per octave.
+    oct_ratio : {'base2', 'base10'}
+        Specify octave ratio for calculation.
     norm_freq : scalar
         This is the reference frequency for all fractional octaves
         placed around this band.
@@ -268,6 +286,7 @@ class FractionalOctaveFilterbank:
                  sample_rate=44100,
                  order=4,
                  nth_oct=3.0,
+                 oct_ratio='base2',
                  norm_freq=1000.0,
                  start_band=-19,
                  end_band=13,
@@ -276,6 +295,7 @@ class FractionalOctaveFilterbank:
         self._sample_rate = sample_rate
         self._order = order
         self._nth_oct = nth_oct
+        self._oct_ratio = oct_ratio
         self._norm_freq = norm_freq
         self._start_band = start_band
         self._end_band = end_band
@@ -308,6 +328,15 @@ class FractionalOctaveFilterbank:
     @nth_oct.setter
     def nth_oct(self, value):
         self._nth_oct = value
+        self._initialize_filter_bank()
+
+    @property
+    def oct_ratio(self):
+        return self._oct_ratio
+
+    @oct_ratio.setter
+    def oct_ratio(self, value):
+        self._oct_ratio = value
         self._initialize_filter_bank()
 
     @property
@@ -374,7 +403,7 @@ class FractionalOctaveFilterbank:
     def _initialize_filter_bank(self):
         center_frequencies, band_edges = frequencies_fractional_octaves(
             self.start_band, self.end_band,
-            self.norm_freq, self.nth_oct
+            self.norm_freq, self.nth_oct, self.oct_ratio
         )
         self._center_frequencies = center_frequencies
         self._band_edges = band_edges
@@ -554,6 +583,7 @@ class ThirdOctFFTLevel:
     """
 
     def __init__(self,
+                 oct_ratio='base2',
                  fmin=30,
                  fmax=17000,
                  nfft=16384,
@@ -567,7 +597,13 @@ class ThirdOctFFTLevel:
         kmax = 11 + int(10*np.log10(fmax))
         f_terz = standardized_nominal_frequencies[kmin:kmax]
         n = int(1 + kmax - kmin)
-        halfbw = 2**(1.0/6)
+        oct_ratio = oct_ratio.lower()
+        if oct_ratio == 'base2':
+            halfbw = 2**(1.0/6)
+        elif oct_ratio == 'base10':
+            halfbw = 10**(0.3/6)
+        else:
+            print('Invalid octave ratio was specified: should be base2 or base10.')
         df = fs/nfft
         idx_lower = np.zeros(n)
         idx_lower[0] = 10 + np.round((
