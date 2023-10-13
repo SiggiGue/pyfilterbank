@@ -1,7 +1,6 @@
 # -- coding: utf-8 --
 
 from setuptools import setup, Extension
-import ffibuild
 
 
 settings = {
@@ -13,7 +12,6 @@ settings = {
     'author_email': 'siefried.guendert@gmail.com',
     'license': 'MIT',
     'packages': ['pyfilterbank'],
-    'ext_modules': [ffibuild.ffibuilder.distutils_extension()],
     'zip_safe': False,
 }
 setup(**settings)

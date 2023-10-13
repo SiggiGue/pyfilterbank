@@ -13,10 +13,10 @@ def design_sos(band, order, freq1, freq2=0.0):
     ----------
     band : {'lowpass', 'highpass', 'bandpass', 'bandstop'}
     order : int
-        Number of lowpass poles. `order` is doubled for
+        Filter order. `order` is doubled for
         'bandpass' and 'bandstop'. `order` must be even.
     freq1 : scalar
-        First critical frequency; 0.0 <freq1 < 0.5.
+        First critical frequency; 0.0 < freq1 < 0.5.
     freq2 : scalar
         Second critical frequency; freq1 < freq2 < 0.5.
         freq2 is used only if 'bandpass' or 'bandstop'.
@@ -31,6 +31,7 @@ def design_sos(band, order, freq1, freq2=0.0):
     -----
     Adapted from: Samuel D. Stearns, "Digital Signal Processing
     with Examples in MATLAB"
+    
     """
 
     # Check for correct input;
@@ -47,7 +48,7 @@ def design_sos(band, order, freq1, freq2=0.0):
         freq2=np.tan(np.pi*freq2))
 
     b, a = bilinear_sos(d, c)
-    sosmat = np.flipud(np.concatenate((b, a), axis=1))
+    sosmat = np.ascontiguousarray(np.flipud(np.concatenate((b, a), axis=1)))
     return sosmat
 
 
@@ -68,11 +69,6 @@ def design_analog_sos(band, order, freq1, freq2=0):
     Returns
     -------
     d, c :  Analog weights of the filter
-
-    Notes
-    -----
-    Implements SOS H(s) butterwort.
-    If you need H(z) apply a bilinear transform
 
     """
     if not isinstance(band, str):
