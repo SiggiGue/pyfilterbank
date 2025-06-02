@@ -25,3 +25,6 @@ dependencies = [
     "SoundFile",
     "wheel",
 ]
+
+[tool.setuptools.package-data]
+pyfilterbank = ["*.c"]
