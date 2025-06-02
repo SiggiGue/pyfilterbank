@@ -54,8 +54,7 @@ Functions
 """
 
 from numpy import pi, convolve
-from scipy.signal.filter_design import bilinear
-from scipy.signal import lfilter
+from scipy.signal import bilinear, lfilter
 
 
 def weight_signal(data, sample_rate=44100, weighting='A'):
