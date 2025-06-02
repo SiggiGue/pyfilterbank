@@ -2,6 +2,7 @@
 *.o
 *.pyc
 env/
+.venv/
 __pycache__/
 kernel*.json
 _foreign/
