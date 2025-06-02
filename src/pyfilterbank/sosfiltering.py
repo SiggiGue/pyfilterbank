@@ -40,14 +40,11 @@ shared library in python. ::
 Functions
 ---------
 """
-import os
-from sys import platform
-from platform import architecture
 
 import numpy as np
-from cffi import FFI
 from scipy.signal import lfilter
-from ._sosfilt import ffi, lib
+
+from pyfilterbank._sosfilt import ffi, lib
 _c = lib
 
 

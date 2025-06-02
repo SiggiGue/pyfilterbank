@@ -54,8 +54,7 @@ Functions
 """
 
 from numpy import pi, convolve
-from scipy.signal.filter_design import bilinear
-from scipy.signal import lfilter
+from scipy.signal import bilinear, lfilter
 
 
 def weight_signal(data, sample_rate=44100, weighting='A'):
@@ -222,7 +221,8 @@ _weighting_coeff_design_funsd = {
 def plot_weightings():
     """Plots all weighting functions defined in :module: splweighting."""
     from scipy.signal import freqz
-    from pylab import plt, np
+    import numpy as np
+    import matplotlib.pyplot as plt
 
     sample_rate = 48000
     num_samples = 2*4096
@@ -243,10 +243,12 @@ def plot_weightings():
     plt.xlabel('Frequency / Hz')
     plt.ylabel('Damping / dB')
     plt.grid(True)
-    plt.axis([10, 20000, -80, 5])
+    plt.axis((10, 20000, -80, 5))
+
     return fig, ax
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     fig, ax = plot_weightings()
-    fig.show()
+    plt.show()
