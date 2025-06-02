@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools >= 66.1", "cffi >= 1.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyfilterbank"
+version = "1.0.0"
+authors = [
+    { name = "Siegfried Gündert", email = "siegfried.guendert@gmail.com" },
+]
+description = "Filter Banks and Acoustics Tools Package for Python"
+readme = "README.md"
+urls = { Repository = "http://github.com/SiggiGue/pyfilterbank" }
+requires-python = ">=3.9"
+keywords = ["Filters"]
+license = "MIT"
+dependencies = [
+    "build",
+    "cffi",
+    "matplotlib",
+    "numpy",
+    "pysoundcard",
+    "scipy",
+    "setuptools",
+    "SoundFile",
+    "wheel",
+]
